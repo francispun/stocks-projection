@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tesla Q2 2025 Financial Model</title>
+    <title>Tesla Q2 2025 Financial Model (Simplified)</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         .input-group { margin-bottom: 15px; }
@@ -15,8 +15,8 @@
 </head>
 <body>
     <h1>Tesla Q2 2025 Financial Relationship Explorer</h1>
-    <p>Pre-filled with Q2 2025 data. Adjust sliders to model scenarios (e.g., Energy growth boosting margins). Assumptions: Annual EPS = 4 × Quarterly EPS; Operating Profit ≈ EBIT (pre-tax/interest).</p>
-    <div class="tesla-fact">Actual Q2: Revenue $22.5B | Op. Profit $0.9B | Net Income (non-GAAP) $1.4B</div>
+    <p>Simplified: No tax/interest. Adjust values to see margin → EPS linkage. Assumptions: Net Income ≈ Operating Income; Annual EPS = 4 × Quarterly EPS.</p>
+    <div class="tesla-fact">Actual Q2: Revenue $22.5B | Op. Margin 4.1% | Non-GAAP EPS $0.40 | Shares 3,519M | Price $438</div>
 
     <div class="input-group">
         <label for="quarterlyEps">Quarterly EPS (non-GAAP): <span id="quarterlyEpsValue">0.40</span></label>
@@ -25,9 +25,9 @@
     </div>
 
     <div class="input-group">
-        <label for="peRatio">PE Ratio: <span id="peRatioValue">262</span></label>
-        <input type="range" id="peRatio" min="1" max="500" step="1" value="262">
-        <input type="number" id="peRatioNum" min="1" step="1" value="262">
+        <label for="peRatio">PE Ratio: <span id="peRatioValue">257</span></label>
+        <input type="range" id="peRatio" min="1" max="500" step="1" value="257">
+        <input type="number" id="peRatioNum" min="1" step="1" value="257">
     </div>
 
     <div class="input-group">
@@ -37,31 +37,30 @@
     </div>
 
     <div class="input-group">
-        <label for="shares">Shares Outstanding (millions): <span id="sharesValue">3520</span></label>
-        <input type="range" id="shares" min="1" max="10000" step="10" value="3520">
-        <input type="number" id="sharesNum" min="1" step="10" value="3520">
+        <label for="shares">Shares Outstanding (millions): <span id="sharesValue">3519</span></label>
+        <input type="range" id="shares" min="1" max="10000" step="10" value="3519">
+        <input type="number" id="sharesNum" min="1" step="10" value="3519">
     </div>
 
     <div class="input-group">
-        <label for="taxRate">Tax Rate (%): <span id="taxRateValue">23</span></label>
-        <input type="range" id="taxRate" min="0" max="50" step="1" value="23">
-        <input type="number" id="taxRateNum" min="0" step="1" value="23">
-    </div>
-
-    <div class="input-group">
-        <label for="interest">Annual Interest Expense (millions): <span id="interestValue">365</span></label>
-        <input type="range" id="interest" min="0" max="1000" step="10" value="365">
-        <input type="number" id="interestNum" min="0" step="10" value="365">
+        <label for="revenue">Quarterly Revenue (millions): <span id="revenueValue">22496</span></label>
+        <input type="range" id="revenue" min="0" max="50000" step="100" value="22496">
+        <input type="number" id="revenueNum" min="0" step="100" value="22496">
     </div>
 
     <div class="output">
         <h2>Model Outputs (Annualized)</h2>
-        <p>Annual EPS: <span id="annualEps"></span></p>
-        <p>Implied Stock Price (at current PE): <span id="stockPrice"></span></p>
-        <p>Annual Operating Profit Needed for EPS (pre-tax/interest, millions): <span id="opNeeded"></span></p>
+        <p>Annual EPS (from input): <span id="annualEps"></span></p>
+        <p>Implied Stock Price (from input EPS): <span id="stockPrice"></span></p>
+        <p>Annual Operating Profit Needed (millions): <span id="opNeeded"></span></p>
         <p>Implied Annual Revenue Needed (millions): <span id="revenueNeeded"></span></p>
-        <p>Breakeven Revenue if Margin Drops to 1%: <span id="breakevenRevenue"></span></p>
-        <div class="tesla-fact">Tesla Actual TTM: Revenue ~$90B | Op. Profit ~$3.7B | Stock Price $438 (Oct 10, 2025)</div>
+        <hr>
+        <h3>Margin → EPS Linkage (at Input Revenue)</h3>
+        <p>Implied Quarterly EPS: <span id="impliedQuarterlyEps"></span></p>
+        <p>Implied Annual EPS: <span id="impliedAnnualEps"></span></p>
+        <p>Implied Stock Price: <span id="impliedStockPrice"></span></p>
+        <p>Required Margin for Target EPS (%): <span id="requiredMargin"></span></p>
+        <p>Breakeven Revenue if Margin Drops to 1% (millions): <span id="breakevenRevenue"></span></p>
     </div>
 
     <script>
@@ -74,10 +73,8 @@
             opMarginNum: document.getElementById('opMarginNum'),
             shares: document.getElementById('shares'),
             sharesNum: document.getElementById('sharesNum'),
-            taxRate: document.getElementById('taxRate'),
-            taxRateNum: document.getElementById('taxRateNum'),
-            interest: document.getElementById('interest'),
-            interestNum: document.getElementById('interestNum')
+            revenue: document.getElementById('revenue'),
+            revenueNum: document.getElementById('revenueNum')
         };
 
         const values = {
@@ -85,8 +82,7 @@
             peRatioValue: document.getElementById('peRatioValue'),
             opMarginValue: document.getElementById('opMarginValue'),
             sharesValue: document.getElementById('sharesValue'),
-            taxRateValue: document.getElementById('taxRateValue'),
-            interestValue: document.getElementById('interestValue')
+            revenueValue: document.getElementById('revenueValue')
         };
 
         const outputs = {
@@ -94,6 +90,10 @@
             stockPrice: document.getElementById('stockPrice'),
             opNeeded: document.getElementById('opNeeded'),
             revenueNeeded: document.getElementById('revenueNeeded'),
+            impliedQuarterlyEps: document.getElementById('impliedQuarterlyEps'),
+            impliedAnnualEps: document.getElementById('impliedAnnualEps'),
+            impliedStockPrice: document.getElementById('impliedStockPrice'),
+            requiredMargin: document.getElementById('requiredMargin'),
             breakevenRevenue: document.getElementById('breakevenRevenue')
         };
 
@@ -114,41 +114,45 @@
         syncSliderAndInput(inputs.peRatio, inputs.peRatioNum, values.peRatioValue);
         syncSliderAndInput(inputs.opMargin, inputs.opMarginNum, values.opMarginValue);
         syncSliderAndInput(inputs.shares, inputs.sharesNum, values.sharesValue);
-        syncSliderAndInput(inputs.taxRate, inputs.taxRateNum, values.taxRateValue);
-        syncSliderAndInput(inputs.interest, inputs.interestNum, values.interestValue);
+        syncSliderAndInput(inputs.revenue, inputs.revenueNum, values.revenueValue);
 
         function calculate() {
             const qEps = parseFloat(inputs.quarterlyEps.value);
             const pe = parseFloat(inputs.peRatio.value);
             const margin = parseFloat(inputs.opMargin.value) / 100;
             const shares = parseFloat(inputs.shares.value);
-            const taxRate = parseFloat(inputs.taxRate.value) / 100;
-            const interest = parseFloat(inputs.interest.value);
+            const qRevenue = parseFloat(inputs.revenue.value);
 
+            // Back-calc from EPS (original)
             const annualEps = qEps * 4;
             const stockPrice = (pe * annualEps).toFixed(2);
+            const annualNet = annualEps * shares;  // Annual net income needed
+            const opNeeded = annualNet.toFixed(2);  // Assume op = net
+            const revenueNeeded = (margin > 0 ? (annualNet / margin).toFixed(2) : 'Infinite');
 
-            // Net Income = annualEps * shares
-            const netIncome = annualEps * shares;
+            // Forward-calc from revenue/margin
+            const qOp = qRevenue * margin;
+            const qNet = qOp;  // Simplified assumption
+            const impliedQEps = (shares > 0 ? (qNet / shares).toFixed(2) : '0');
+            const impliedAnnualEps = (parseFloat(impliedQEps) * 4).toFixed(2);
+            const impliedStockPrice = (pe * parseFloat(impliedAnnualEps)).toFixed(2);
 
-            // Back-calculate pre-tax income: netIncome / (1 - taxRate) + interest (EBIT)
-            const preTaxIncome = netIncome / (1 - taxRate);
-            const ebit = preTaxIncome + interest;
-
-            // Assume operating profit ≈ EBIT (simplified)
-            const opNeeded = ebit.toFixed(2);
-
-            // Revenue = op / margin
-            const revenueNeeded = (margin > 0 ? (ebit / margin).toFixed(2) : 'Infinite (margin too low)');
+            // Required margin for target EPS (at input revenue)
+            const requiredAnnualOp = annualNet;
+            const requiredMargin = (qRevenue > 0 ? ((requiredAnnualOp / (qRevenue * 4)) * 100).toFixed(1) : 'Infinite');
 
             // Breakeven at 1% margin
             const breakevenMargin = 0.01;
-            const breakevenRevenue = (breakevenMargin > 0 ? (ebit / breakevenMargin).toFixed(2) : 'Infinite');
+            const breakevenRevenue = (breakevenMargin > 0 ? (annualNet / breakevenMargin).toFixed(2) : 'Infinite');
 
             outputs.annualEps.textContent = annualEps.toFixed(2);
             outputs.stockPrice.textContent = `$${stockPrice}`;
             outputs.opNeeded.textContent = `$${opNeeded}`;
             outputs.revenueNeeded.textContent = `$${revenueNeeded}`;
+            outputs.impliedQuarterlyEps.textContent = impliedQEps;
+            outputs.impliedAnnualEps.textContent = impliedAnnualEps;
+            outputs.impliedStockPrice.textContent = `$${impliedStockPrice}`;
+            outputs.requiredMargin.textContent = `${requiredMargin}%`;
             outputs.breakevenRevenue.textContent = `$${breakevenRevenue}`;
         }
 
