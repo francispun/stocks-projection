@@ -68,25 +68,35 @@
             border-radius: 10px;
             background: #2a2a2a;
             border: 1px solid #f7931a;
+            overflow-x: auto; /* Enable horizontal scrolling for table */
         }
         table {
             width: 100%;
+            min-width: 600px; /* Minimum width to ensure readability */
             border-collapse: collapse;
             margin-top: 15px;
             background: #1a1a1a;
+            table-layout: fixed; /* Fixed layout to control column width */
         }
         th, td {
-            border: 1px solid #f7931a;
+            border: 2px solid #f7931a; /* Thicker borders for better separation */
             padding: 12px;
             text-align: center;
             color: #f7931a;
+            font-weight: bold; /* Bolder text for readability */
+            font-size: 1.0em; /* Slightly larger text */
         }
         th {
             background-color: #333333;
             font-size: 1.1em;
         }
         .highlight {
-            background-color: #4a2a00; /* Darker orange for highlight */
+            background-color: #ff8c00; /* Brighter orange for better contrast */
+            color: #000000; /* Black text on highlight for high contrast */
+        }
+        .intersection {
+            background-color: #f7931a; /* Bright orange for intersection */
+            color: #000000; /* Black text for max contrast */
             font-weight: bold;
         }
         caption {
@@ -193,12 +203,12 @@
             const rows = document.querySelectorAll('#btcTable tbody tr');
             const headers = document.querySelectorAll('#btcTable thead th');
             
-            rows.forEach(row => row.classList.remove('highlight'));
+            rows.forEach(row => row.classList.remove('highlight', 'intersection'));
             headers.forEach((th, idx) => {
-                if (idx > 0) th.classList.remove('highlight');
+                if (idx > 0) th.classList.remove('highlight', 'intersection');
             });
             const cells = document.querySelectorAll('#btcTable td');
-            cells.forEach(cell => cell.classList.remove('highlight'));
+            cells.forEach(cell => cell.classList.remove('highlight', 'intersection'));
             
             const arrIdx = arrValues.indexOf(btcArr);
             if (arrIdx !== -1) {
@@ -227,8 +237,8 @@
             if (arrIdx !== -1 && levIdx !== -1) {
                 const intersectCell = rows[arrIdx].querySelectorAll('td')[levIdx];
                 if (intersectCell) {
-                    intersectCell.style.backgroundColor = '#f7931a'; /* Bright orange for intersection */
-                    intersectCell.style.fontWeight = 'bold';
+                    intersectCell.classList.add('intersection');
+                    intersectCell.classList.remove('highlight');
                 }
             }
         }
