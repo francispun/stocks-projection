@@ -48,7 +48,7 @@
             color: #f7931a;
             font-size: 1.1em;
         }
-        input[type="range"] {
+        input[type="range"], input[type="number"] {
             width: 100%;
             margin-bottom: 10px;
             accent-color: #f7931a; /* Orange slider track */
@@ -135,34 +135,38 @@
 </head>
 <body>
     <div class="container">
-        <h1>MSTR Amplifies BTC through Intelligent Leverage</h1>
+        <h1>MSTR BTC Leverage Simulator</h1>
         <div class="controls">
             <div class="control-group">
-                <label for="btcArr">BTC ARR (%): 
-                    <span class="instruction">Slide to set the annualized Bitcoin return (0-50%). Higher values increase the BTC Factor by boosting growth potential.</span>
+                <label for="btcArrSlider">BTC ARR (%): 
+                    <span class="instruction">The annualized return rate for Bitcoin (0-50%). Higher ARR increases the BTC Factor by assuming faster BTC price growth, leading to more amplification through leverage.</span>
                 </label>
-                <input type="range" id="btcArr" min="0" max="50" value="30" oninput="updateTable()">
+                <input type="range" id="btcArrSlider" min="0" max="50" value="30" oninput="updateSlider('btcArr')">
+                <input type="number" id="btcArr" min="0" value="30" oninput="updateFromNumber('btcArrSlider')">
                 <div class="value-display" id="btcArrValue">30%</div>
             </div>
             <div class="control-group">
-                <label for="leverage">Leverage (%): 
-                    <span class="instruction">Adjust leverage (0-50%) to see how much borrowed capital amplifies the BTC Factor. Higher leverage boosts growth but adds risk.</span>
+                <label for="leverageSlider">Leverage (%): 
+                    <span class="instruction">The percentage of borrowed capital used (0-50%). Higher leverage boosts the BTC Factor by allowing more BTC purchases, but increases risk if costs exceed returns.</span>
                 </label>
-                <input type="range" id="leverage" min="0" max="50" value="30" oninput="updateTable()">
+                <input type="range" id="leverageSlider" min="0" max="50" value="30" oninput="updateSlider('leverage')">
+                <input type="number" id="leverage" min="0" value="30" oninput="updateFromNumber('leverageSlider')">
                 <div class="value-display" id="leverageValue">30%</div>
             </div>
             <div class="control-group">
-                <label for="dividendRate">Dividend Rate (%): 
-                    <span class="instruction">Set the financing cost (0-15%). Higher rates reduce the BTC Factor as they increase the cost of leverage (e.g., 8% from preferred stock).</span>
+                <label for="dividendRateSlider">Dividend Rate (%): 
+                    <span class="instruction">The financing cost for leverage (0-15%). Higher rates decrease the BTC Factor by raising the cost of capital, reducing net amplification.</span>
                 </label>
-                <input type="range" id="dividendRate" min="0" max="15" value="8" step="0.1" oninput="updateTable()">
+                <input type="range" id="dividendRateSlider" min="0" max="15" value="8" step="0.1" oninput="updateSlider('dividendRate')">
+                <input type="number" id="dividendRate" min="0" value="8" step="0.1" oninput="updateFromNumber('dividendRateSlider')">
                 <div class="value-display" id="dividendRateValue">8%</div>
             </div>
             <div class="control-group">
-                <label for="duration">Duration (Years): 
-                    <span class="instruction">Choose the projection period (1-20 years). Longer durations increase the BTC Factor due to compounding (e.g., 10 years is default).</span>
+                <label for="durationSlider">Duration (Years): 
+                    <span class="instruction">The time horizon for compounding (1-20 years). Longer durations increase the BTC Factor through exponential growth.</span>
                 </label>
-                <input type="range" id="duration" min="1" max="20" value="10" oninput="updateTable()">
+                <input type="range" id="durationSlider" min="1" max="20" value="10" oninput="updateSlider('duration')">
+                <input type="number" id="duration" min="1" value="10" oninput="updateFromNumber('durationSlider')">
                 <div class="value-display" id="durationValue">10</div>
             </div>
         </div>
@@ -192,31 +196,42 @@
                     <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
                 </tbody>
             </table>
-            <p style="margin-top: 10px; font-style: italic;">*Values rounded for display. Adjust sliders to see real-time changes.</p>
+            <p>*Values rounded for display. Adjust sliders to see real-time changes.</p>
         </div>
     </div>
 
     <script>
         const arrValues = [0, 10, 20, 30, 40, 50];
         const levValues = [0, 10, 20, 30, 40, 50];
-        const offset = 0.16;
 
         function calculateFactor(arr, lev, divRate, duration) {
-            const effectiveRate = 1 + (lev / 100) * (arr / 100 + offset - divRate / 100);
+            const a = arr / 100;
+            const l = lev / 100;
+            const d = divRate / 100;
+            const effectiveRate = 1 + l * (a + d);
             const factor = Math.pow(effectiveRate, duration);
             return (factor < 1 ? 1.0 : factor).toFixed(1);
         }
 
+        function updateSlider(id) {
+            const slider = document.getElementById(id + 'Slider');
+            const number = document.getElementById(id);
+            number.value = slider.value;
+            updateTable();
+        }
+
+        function updateFromNumber(id) {
+            const slider = document.getElementById(id + 'Slider');
+            const number = document.getElementById(id);
+            slider.value = number.value;
+            updateTable();
+        }
+
         function updateTable() {
-            const btcArr = parseInt(document.getElementById('btcArr').value);
-            const leverage = parseInt(document.getElementById('leverage').value);
+            const btcArr = parseFloat(document.getElementById('btcArr').value);
+            const leverage = parseFloat(document.getElementById('leverage').value);
             const dividendRate = parseFloat(document.getElementById('dividendRate').value);
-            const duration = parseInt(document.getElementById('duration').value);
-            
-            document.getElementById('btcArrValue').textContent = btcArr + '%';
-            document.getElementById('leverageValue').textContent = leverage + '%';
-            document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
-            document.getElementById('durationValue').textContent = duration;
+            const duration = parseFloat(document.getElementById('duration').value);
             
             const rows = document.querySelectorAll('#btcTable tbody tr');
             const cells = document.querySelectorAll('#btcTable td');
@@ -247,11 +262,6 @@
         }
 
         updateTable();
-
-        document.getElementById('btcArr').addEventListener('input', updateTable);
-        document.getElementById('leverage').addEventListener('input', updateTable);
-        document.getElementById('dividendRate').addEventListener('input', updateTable);
-        document.getElementById('duration').addEventListener('input', updateTable);
     </script>
 </body>
 </html>
