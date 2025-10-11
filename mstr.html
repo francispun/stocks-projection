@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MSTR BTC Leverage Simulator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .controls {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .control-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="range"] {
+            width: 100%;
+            margin-bottom: 5px;
+        }
+        .value-display {
+            font-size: 18px;
+            color: #007bff;
+            font-weight: bold;
+        }
+        .result {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        .highlight {
+            background-color: #ffff99 !important;
+            font-weight: bold;
+        }
+        caption {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <h1>MSTR Amplifies BTC through Intelligent Leverage</h1>
+    <div class="controls">
+        <div class="control-group">
+            <label for="btcArr">BTC ARR (%):</label>
+            <input type="range" id="btcArr" min="0" max="50" value="30" oninput="updateTable()">
+            <div class="value-display" id="btcArrValue">30%</div>
+        </div>
+        <div class="control-group">
+            <label for="leverage">Leverage (%):</label>
+            <input type="range" id="leverage" min="0" max="50" value="30" oninput="updateTable()">
+            <div class="value-display" id="leverageValue">30%</div>
+        </div>
+        <div class="control-group">
+            <label for="dividendRate">Dividend Rate (%):</label>
+            <input type="range" id="dividendRate" min="0" max="15" value="8" step="0.1" oninput="updateTable()">
+            <div class="value-display" id="dividendRateValue">8%</div>
+        </div>
+        <div class="control-group">
+            <p><strong>Fixed Parameter:</strong> 10-Year Period</p>
+        </div>
+    </div>
+    <div class="result">
+        <table id="btcTable">
+            <caption>BTC Factor (Ratio of Ending BPS to Starting BPS)</caption>
+            <thead>
+                <tr>
+                    <th>BTC ARR %</th>
+                    <th>0%</th>
+                    <th>10%</th>
+                    <th>20%</th>
+                    <th>30%</th>
+                    <th>40%</th>
+                    <th>50%</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.1x</td><td>1.1x</td><td>1.2x</td><td>1.3x</td></tr>
+                <tr><th>10%</th><td>1.0x</td><td>1.1x</td><td>1.3x</td><td>1.5x</td><td>1.8x</td><td>2.2x</td></tr>
+                <tr><th>20%</th><td>1.0x</td><td>1.2x</td><td>1.6x</td><td>2.1x</td><td>2.9x</td><td>4.3x</td></tr>
+                <tr><th>30%</th><td>1.0x</td><td>1.3x</td><td>1.9x</td><td>2.8x</td><td>4.4x</td><td>7.8x</td></tr>
+                <tr class="highlight"><th>40%</th><td>1.0x</td><td>1.5x</td><td>2.2x</td><td>3.7x</td><td>6.5x</td><td>13.5x</td></tr>
+                <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
+            </tbody>
+        </table>
+        <p style="margin-top: 10px; font-style: italic;">*Values rounded for display. Adjust sliders to see real-time changes.</p>
+    </div>
+
+    <script>
+        const arrValues = [0, 10, 20, 30, 40, 50];
+        const levValues = [0, 10, 20, 30, 40, 50];
+        const years = 10;
+
+        function calculateFactor(arr, lev, divRate) {
+            const effectiveRate = 1 + (lev / 100) * (arr / 100 + divRate / 100);
+            return Math.pow(effectiveRate, years).toFixed(1);
+        }
+
+        function updateTable() {
+            const btcArr = parseInt(document.getElementById('btcArr').value);
+            const leverage = parseInt(document.getElementById('leverage').value);
+            const dividendRate = parseFloat(document.getElementById('dividendRate').value);
+            
+            document.getElementById('btcArrValue').textContent = btcArr + '%';
+            document.getElementById('leverageValue').textContent = leverage + '%';
+            document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
+            
+            // Find and highlight the row and column
+            const rows = document.querySelectorAll('#btcTable tbody tr');
+            const headers = document.querySelectorAll('#btcTable thead th');
+            
+            // Reset highlights
+            rows.forEach(row => row.classList.remove('highlight'));
+            headers.forEach((th, idx) => {
+                if (idx > 0) th.classList.remove('highlight');
+            });
+            const cells = document.querySelectorAll('#btcTable td');
+            cells.forEach(cell => cell.classList.remove('highlight'));
+            
+            // Highlight row
+            const arrIdx = arrValues.indexOf(btcArr);
+            if (arrIdx !== -1) {
+                rows[arrIdx].classList.add('highlight');
+            }
+            
+            // Highlight column
+            const levIdx = levValues.indexOf(leverage);
+            if (levIdx !== -1) {
+                headers[levIdx].classList.add('highlight');
+                for (let i = 0; i < rows.length; i++) {
+                    const cell = rows[i].querySelectorAll('td')[levIdx];
+                    if (cell) cell.classList.add('highlight');
+                }
+            }
+            
+            // Update all cell values dynamically
+            for (let i = 0; i < arrValues.length; i++) {
+                for (let j = 0; j < levValues.length; j++) {
+                    const cell = rows[i].querySelectorAll('td')[j];
+                    if (cell) {
+                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate);
+                        cell.textContent = factor + 'x';
+                    }
+                }
+            }
+            
+            // Highlight the intersection cell
+            if (arrIdx !== -1 && levIdx !== -1) {
+                const intersectCell = rows[arrIdx].querySelectorAll('td')[levIdx];
+                if (intersectCell) {
+                    intersectCell.style.backgroundColor = '#90EE90'; // Light green for intersection
+                    intersectCell.style.fontWeight = 'bold';
+                }
+            }
+        }
+
+        // Initial load
+        updateTable();
+
+        // Add tooltips for exact values on hover
+        document.addEventListener('DOMContentLoaded', function() {
+            const cells = document.querySelectorAll('#btcTable td');
+            cells.forEach(cell => {
+                cell.title = cell.textContent; // Will update dynamically
+            });
+        });
+    </script>
+</body>
+</html>
