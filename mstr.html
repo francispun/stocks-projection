@@ -107,12 +107,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.1x</td><td>1.1x</td><td>1.2x</td><td>1.3x</td></tr>
-                <tr><th>10%</th><td>1.0x</td><td>1.1x</td><td>1.3x</td><td>1.5x</td><td>1.8x</td><td>2.2x</td></tr>
-                <tr><th>20%</th><td>1.0x</td><td>1.2x</td><td>1.6x</td><td>2.1x</td><td>2.9x</td><td>4.3x</td></tr>
-                <tr><th>30%</th><td>1.0x</td><td>1.3x</td><td>1.9x</td><td>2.8x</td><td>4.4x</td><td>7.8x</td></tr>
-                <tr class="highlight"><th>40%</th><td>1.0x</td><td>1.5x</td><td>2.2x</td><td>3.7x</td><td>6.5x</td><td>13.5x</td></tr>
-                <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
+                <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td></tr>
+                <tr><th>10%</th><td>1.0x</td><td>1.3x</td><td>1.6x</td><td>1.9x</td><td>2.2x</td><td>2.6x</td></tr>
+                <tr><th>20%</th><td>1.0x</td><td>1.6x</td><td>2.1x</td><td>2.7x</td><td>3.3x</td><td>4.0x</td></tr>
+                <tr><th>30%</th><td>1.0x</td><td>1.9x</td><td>2.7x</td><td>3.5x</td><td>4.4x</td><td>5.4x</td></tr>
+                <tr class="highlight"><th>40%</th><td>1.0x</td><td>2.2x</td><td>3.3x</td><td>4.4x</td><td>5.6x</td><td>6.9x</td></tr>
+                <tr><th>50%</th><td>1.0x</td><td>2.6x</td><td>4.0x</td><td>5.4x</td><td>6.9x</td><td>8.5x</td></tr>
             </tbody>
         </table>
         <p style="margin-top: 10px; font-style: italic;">*Values rounded for display. Adjust sliders to see real-time changes.</p>
@@ -124,7 +124,9 @@
         const years = 10;
 
         function calculateFactor(arr, lev, divRate) {
-            const effectiveRate = 1 + (lev / 100) * (arr / 100 + divRate / 100);
+            const netRate = arr / 100 - divRate / 100; // Net return after cost
+            if (netRate <= 0) return 1.0; // No growth or negative growth caps at 1.0x
+            const effectiveRate = 1 + (lev / 100) * netRate;
             return Math.pow(effectiveRate, years).toFixed(1);
         }
 
@@ -137,11 +139,9 @@
             document.getElementById('leverageValue').textContent = leverage + '%';
             document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
             
-            // Find and highlight the row and column
             const rows = document.querySelectorAll('#btcTable tbody tr');
             const headers = document.querySelectorAll('#btcTable thead th');
             
-            // Reset highlights
             rows.forEach(row => row.classList.remove('highlight'));
             headers.forEach((th, idx) => {
                 if (idx > 0) th.classList.remove('highlight');
@@ -149,13 +149,11 @@
             const cells = document.querySelectorAll('#btcTable td');
             cells.forEach(cell => cell.classList.remove('highlight'));
             
-            // Highlight row
             const arrIdx = arrValues.indexOf(btcArr);
             if (arrIdx !== -1) {
                 rows[arrIdx].classList.add('highlight');
             }
             
-            // Highlight column
             const levIdx = levValues.indexOf(leverage);
             if (levIdx !== -1) {
                 headers[levIdx].classList.add('highlight');
@@ -165,7 +163,6 @@
                 }
             }
             
-            // Update all cell values dynamically
             for (let i = 0; i < arrValues.length; i++) {
                 for (let j = 0; j < levValues.length; j++) {
                     const cell = rows[i].querySelectorAll('td')[j];
@@ -176,24 +173,21 @@
                 }
             }
             
-            // Highlight the intersection cell
             if (arrIdx !== -1 && levIdx !== -1) {
                 const intersectCell = rows[arrIdx].querySelectorAll('td')[levIdx];
                 if (intersectCell) {
-                    intersectCell.style.backgroundColor = '#90EE90'; // Light green for intersection
+                    intersectCell.style.backgroundColor = '#90EE90';
                     intersectCell.style.fontWeight = 'bold';
                 }
             }
         }
 
-        // Initial load
         updateTable();
 
-        // Add tooltips for exact values on hover
         document.addEventListener('DOMContentLoaded', function() {
             const cells = document.querySelectorAll('#btcTable td');
             cells.forEach(cell => {
-                cell.title = cell.textContent; // Will update dynamically
+                cell.title = cell.textContent;
             });
         });
     </script>
