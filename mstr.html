@@ -91,15 +91,25 @@
             font-size: 1.1em;
         }
         .highlight {
-            background-color: #ff4500; /* Darker orange for better contrast */
-            color: #ffffff; /* White text for max readability */
-            font-size: 1.1em; /* Slightly larger text */
+            background-color: #ff8c00; /* Original brighter orange */
+            color: #000000; /* Black text as requested */
+            font-size: 1.1em;
             font-weight: bold;
         }
         .intersection {
             background-color: #f7931a; /* Bright BTC orange */
-            color: #ffffff; /* White text for max contrast */
-            font-size: 1.2em; /* Larger for intersection */
+            color: #000000; /* Black text as requested */
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .orange-value {
+            background-color: #f7931a;
+            color: #000000;
+            font-weight: bold;
+        }
+        .yellow-value {
+            background-color: #ffff00;
+            color: #000000;
             font-weight: bold;
         }
         caption {
@@ -172,7 +182,7 @@
                     <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.1x</td><td>1.1x</td><td>1.2x</td><td>1.3x</td></tr>
                     <tr><th>10%</th><td>1.0x</td><td>1.1x</td><td>1.3x</td><td>1.5x</td><td>1.8x</td><td>2.2x</td></tr>
                     <tr><th>20%</th><td>1.0x</td><td>1.2x</td><td>1.6x</td><td>2.1x</td><td>2.9x</td><td>4.3x</td></tr>
-                    <tr class="highlight"><th>30%</th><td>1.0x</td><td>1.3x</td><td>1.9x</td><td>2.8x</td><td>4.4x</td><td>7.8x</td></tr>
+                    <tr><th>30%</th><td>1.0x</td><td>1.3x</td><td>1.9x</td><td>2.8x</td><td>4.4x</td><td>7.8x</td></tr>
                     <tr><th>40%</th><td>1.0x</td><td>1.5x</td><td>2.2x</td><td>3.7x</td><td>6.5x</td><td>13.5x</td></tr>
                     <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
                 </tbody>
@@ -205,39 +215,37 @@
             
             const rows = document.querySelectorAll('#btcTable tbody tr');
             const headers = document.querySelectorAll('#btcTable thead th');
+            const cells = document.querySelectorAll('#btcTable td');
             
+            // Remove all highlighting classes
             rows.forEach(row => row.classList.remove('highlight', 'intersection'));
             headers.forEach((th, idx) => {
                 if (idx > 0) th.classList.remove('highlight', 'intersection');
             });
-            const cells = document.querySelectorAll('#btcTable td');
-            cells.forEach(cell => cell.classList.remove('highlight', 'intersection'));
-            
+            cells.forEach(cell => {
+                cell.classList.remove('highlight', 'intersection', 'orange-value', 'yellow-value');
+            });
+
+            // Apply conditional value highlighting
+            cells.forEach(cell => {
+                const value = parseFloat(cell.textContent);
+                if (value > 4) {
+                    cell.classList.add('yellow-value');
+                } else if (value > 2) {
+                    cell.classList.add('orange-value');
+                }
+            });
+
+            // Optional row/column highlighting (commented out if readability fails)
             const arrIdx = arrValues.indexOf(btcArr);
-            if (arrIdx !== -1) {
-                rows[arrIdx].classList.add('highlight');
-            }
-            
             const levIdx = levValues.indexOf(leverage);
-            if (levIdx !== -1) {
+            if (arrIdx !== -1 && levIdx !== -1) {
+                rows[arrIdx].classList.add('highlight');
                 headers[levIdx].classList.add('highlight');
                 for (let i = 0; i < rows.length; i++) {
                     const cell = rows[i].querySelectorAll('td')[levIdx];
                     if (cell) cell.classList.add('highlight');
                 }
-            }
-            
-            for (let i = 0; i < arrValues.length; i++) {
-                for (let j = 0; j < levValues.length; j++) {
-                    const cell = rows[i].querySelectorAll('td')[j];
-                    if (cell) {
-                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration);
-                        cell.textContent = factor + 'x';
-                    }
-                }
-            }
-            
-            if (arrIdx !== -1 && levIdx !== -1) {
                 const intersectCell = rows[arrIdx].querySelectorAll('td')[levIdx];
                 if (intersectCell) {
                     intersectCell.classList.add('intersection');
