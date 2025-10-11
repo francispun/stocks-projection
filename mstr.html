@@ -82,7 +82,7 @@
             border: 2px solid #f7931a;
             padding: 12px;
             text-align: center;
-            color: #e68a00; /* Darker orange for horizontal text */
+            color: #e68a00;
             font-weight: bold;
             font-size: 1.0em;
         }
@@ -191,10 +191,13 @@
         }
 
         function updateTable() {
+            console.log("Updating table..."); // Debug log
             const btcArr = parseInt(document.getElementById('btcArr').value);
             const leverage = parseInt(document.getElementById('leverage').value);
             const dividendRate = parseFloat(document.getElementById('dividendRate').value);
             const duration = parseInt(document.getElementById('duration').value);
+            
+            console.log(`Values: BTC ARR=${btcArr}%, Leverage=${leverage}%, Dividend=${dividendRate}%, Duration=${duration} years`); // Debug log
             
             document.getElementById('btcArrValue').textContent = btcArr + '%';
             document.getElementById('leverageValue').textContent = leverage + '%';
@@ -207,7 +210,7 @@
             
             // Remove all highlighting classes
             cells.forEach(cell => {
-                cell.classList.remove('highlight', 'intersection', 'orange-value', 'yellow-value');
+                cell.classList.remove('orange-value', 'yellow-value');
             });
 
             // Apply conditional value highlighting
@@ -220,18 +223,26 @@
                 }
             });
 
-            // No row/column highlighting as requested
-            // Removed the optional highlighting block
+            // Update table values
+            for (let i = 0; i < arrValues.length; i++) {
+                for (let j = 0; j < levValues.length; j++) {
+                    const cell = rows[i].querySelectorAll('td')[j];
+                    if (cell) {
+                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration);
+                        cell.textContent = factor + 'x';
+                    }
+                }
+            }
         }
 
+        // Initial update
         updateTable();
 
-        document.addEventListener('DOMContentLoaded', function() {
-            const cells = document.querySelectorAll('#btcTable td');
-            cells.forEach(cell => {
-                cell.title = cell.textContent;
-            });
-        });
+        // Ensure event listeners work
+        document.getElementById('btcArr').addEventListener('input', updateTable);
+        document.getElementById('leverage').addEventListener('input', updateTable);
+        document.getElementById('dividendRate').addEventListener('input', updateTable);
+        document.getElementById('duration').addEventListener('input', updateTable);
     </script>
 </body>
 </html>
