@@ -89,7 +89,9 @@
             <div class="value-display" id="dividendRateValue">8%</div>
         </div>
         <div class="control-group">
-            <p><strong>Fixed Parameter:</strong> 10-Year Period</p>
+            <label for="duration">Duration (Years):</label>
+            <input type="range" id="duration" min="1" max="20" value="10" oninput="updateTable()">
+            <div class="value-display" id="durationValue">10</div>
         </div>
     </div>
     <div class="result">
@@ -121,23 +123,24 @@
     <script>
         const arrValues = [0, 10, 20, 30, 40, 50];
         const levValues = [0, 10, 20, 30, 40, 50];
-        const years = 10;
-        const offset = 0.16; // Empirical adjustment to match table direction and values
+        const offset = 0.16;
 
-        function calculateFactor(arr, lev, divRate) {
+        function calculateFactor(arr, lev, divRate, duration) {
             const effectiveRate = 1 + (lev / 100) * (arr / 100 + offset - divRate / 100);
-            const factor = Math.pow(effectiveRate, years);
-            return (factor < 1 ? 1.0 : factor).toFixed(1); // Cap at 1.0x for impossible cases
+            const factor = Math.pow(effectiveRate, duration);
+            return (factor < 1 ? 1.0 : factor).toFixed(1);
         }
 
         function updateTable() {
             const btcArr = parseInt(document.getElementById('btcArr').value);
             const leverage = parseInt(document.getElementById('leverage').value);
             const dividendRate = parseFloat(document.getElementById('dividendRate').value);
+            const duration = parseInt(document.getElementById('duration').value);
             
             document.getElementById('btcArrValue').textContent = btcArr + '%';
             document.getElementById('leverageValue').textContent = leverage + '%';
             document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
+            document.getElementById('durationValue').textContent = duration;
             
             const rows = document.querySelectorAll('#btcTable tbody tr');
             const headers = document.querySelectorAll('#btcTable thead th');
@@ -167,7 +170,7 @@
                 for (let j = 0; j < levValues.length; j++) {
                     const cell = rows[i].querySelectorAll('td')[j];
                     if (cell) {
-                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate);
+                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration);
                         cell.textContent = factor + 'x';
                     }
                 }
