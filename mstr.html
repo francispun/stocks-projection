@@ -146,16 +146,24 @@
             <div class="control-group">
                 <label>
                     <input type="checkbox" id="dynamicMode" onchange="toggleDynamicMode()">
-                    Enable Dynamic Mode (Adjusts leverage based on BTC price)
+                    Enable Dynamic Mode (Adjusts leverage based on BTC price and fixed obligations)
                 </label>
             </div>
             <div class="control-group dynamic-controls">
                 <label for="btcPriceSlider">BTC Price (USD): 
-                    <span class="instruction">The current price of Bitcoin ($30k-$150k). Higher prices lower effective leverage, reducing the BTC Factor; lower prices increase leverage, amplifying it.</span>
+                    <span class="instruction">The current price of Bitcoin ($20k-$300k). Higher prices lower effective leverage by increasing NAV, reducing the BTC Factor; lower prices increase leverage, amplifying it.</span>
                 </label>
-                <input type="range" id="btcPriceSlider" min="30000" max="150000" value="73000" oninput="updateSlider('btcPrice')">
-                <input type="number" id="btcPrice" min="30000" value="73000" oninput="updateFromNumber('btcPriceSlider')">
-                <div class="value-display" id="btcPriceValue">$73,000</div>
+                <input type="range" id="btcPriceSlider" min="20000" max="300000" value="112000" oninput="updateSlider('btcPrice')">
+                <input type="number" id="btcPrice" min="20000" value="112000" oninput="updateFromNumber('btcPriceSlider')">
+                <div class="value-display" id="btcPriceValue">$112,000</div>
+            </div>
+            <div class="control-group dynamic-controls">
+                <label for="debtPreferredSlider">Debt + Preferred Stock (USD): 
+                    <span class="instruction">MSTR's fixed obligations (~$12.8B as of Q2 2025). Higher values increase effective leverage, boosting the BTC Factor but raising risk.</span>
+                </label>
+                <input type="range" id="debtPreferredSlider" min="0" max="50000000000" value="12800000000" step="1000000000" oninput="updateSlider('debtPreferred')">
+                <input type="number" id="debtPreferred" min="0" value="12800000000" step="1000000000" oninput="updateFromNumber('debtPreferredSlider')">
+                <div class="value-display" id="debtPreferredValue">$12.8B</div>
             </div>
             <div class="control-group">
                 <label for="btcArrSlider">BTC ARR (%): 
@@ -167,7 +175,7 @@
             </div>
             <div class="control-group">
                 <label for="leverageSlider">Leverage (%): 
-                    <span class="instruction">The target percentage of borrowed capital used (0-100%). In Dynamic Mode, this adjusts based on BTC price and fixed debt; otherwise, it’s fixed.</span>
+                    <span class="instruction">The target percentage of borrowed capital used (0-100%). In Dynamic Mode, this is overridden by calculated leverage; otherwise, it’s fixed.</span>
                 </label>
                 <input type="range" id="leverageSlider" min="0" max="100" value="30" oninput="updateSlider('leverage')">
                 <input type="number" id="leverage" min="0" value="30" oninput="updateFromNumber('leverageSlider')">
@@ -216,25 +224,20 @@
                     <tr><th>100%</th><td>1.0x</td><td>3.4x</td><td>11.5x</td><td>38.0x</td><td>123.0x</td><td>394.0x</td></tr>
                 </tbody>
             </table>
-            <p>*Values rounded for display. Toggle Dynamic Mode to adjust leverage based on BTC price.</p>
+            <p>*Values rounded for display. Toggle Dynamic Mode to adjust leverage based on BTC price and fixed obligations.</p>
         </div>
     </div>
 
     <script>
         const arrValues = [0, 20, 40, 60, 80, 100];
         const levValues = [0, 20, 40, 60, 80, 100];
-        const fixedDebtPreferred = 12800000000; // $12.8B fixed debt + preferred
         const btcHoldings = 640031; // 640,031 BTC as of Q3 2025
+        const navPremium = 1.5; // Assumed market premium to NAV
 
-        function calculateFactor(arr, lev, divRate, duration, dynamicLeverage = null) {
+        function calculateFactor(arr, lev, divRate, duration, effectiveLeverage = null) {
             const a = arr / 100;
             const d = divRate / 100;
-            let l;
-            if (dynamicLeverage !== null) {
-                l = dynamicLeverage / 100;
-            } else {
-                l = lev / 100;
-            }
+            let l = effectiveLeverage !== null ? effectiveLeverage / 100 : lev / 100;
             const basePremium = 0.08;
             const growthRate = l * (a + basePremium + l * a - d);
             const effectiveRate = 1 + growthRate;
@@ -242,10 +245,10 @@
             return (factor < 1 ? 1.0 : factor).toFixed(1);
         }
 
-        function calculateDynamicLeverage(btcPrice) {
+        function calculateDynamicLeverage(btcPrice, debtPreferred) {
             const btcNav = btcHoldings * btcPrice;
-            const marketCap = btcNav * 1.5; // Assuming 1.5x premium to NAV
-            return (fixedDebtPreferred / marketCap) * 100;
+            const marketCap = btcNav * navPremium;
+            return (debtPreferred / marketCap) * 100;
         }
 
         function updateSlider(id) {
@@ -263,9 +266,9 @@
         }
 
         function toggleDynamicMode() {
-            const dynamicControls = document.querySelector('.dynamic-controls');
+            const dynamicControls = document.querySelectorAll('.dynamic-controls');
             const dynamicMode = document.getElementById('dynamicMode').checked;
-            dynamicControls.classList.toggle('active', dynamicMode);
+            dynamicControls.forEach(control => control.classList.toggle('active', dynamicMode));
             updateTable();
         }
 
@@ -275,66 +278,14 @@
             const dividendRate = parseFloat(document.getElementById('dividendRate').value);
             const duration = parseFloat(document.getElementById('duration').value);
             const dynamicMode = document.getElementById('dynamicMode').checked;
-            let btcPrice = 73000;
+            let btcPrice = 112000;
+            let debtPreferred = 12800000000;
             let effectiveLeverage = leverage;
 
             if (dynamicMode) {
                 btcPrice = parseFloat(document.getElementById('btcPrice').value);
-                effectiveLeverage = calculateDynamicLeverage(btcPrice);
+                debtPreferred = parseFloat(document.getElementById('debtPreferred').value);
+                effectiveLeverage = calculateDynamicLeverage(btcPrice, debtPreferred);
                 document.getElementById('leverageValue').textContent = effectiveLeverage.toFixed(1) + '%';
                 document.getElementById('btcPriceValue').textContent = '$' + btcPrice.toLocaleString();
-            } else {
-                document.getElementById('leverageValue').textContent = leverage + '%';
-            }
-
-            document.getElementById('btcArrValue').textContent = btcArr + '%';
-            document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
-            document.getElementById('durationValue').textContent = duration;
-
-            const rows = document.querySelectorAll('#btcTable tbody tr');
-            const cells = document.querySelectorAll('#btcTable td');
-            
-            cells.forEach(cell => cell.classList.remove('orange-value', 'yellow-value'));
-            
-            for (let i = 0; i < arrValues.length; i++) {
-                for (let j = 0; j < levValues.length; j++) {
-                    const cell = rows[i].querySelectorAll('td')[j];
-                    if (cell) {
-                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration, dynamicMode ? calculateDynamicLeverage(btcPrice) : null);
-                        cell.textContent = factor + 'x';
-                    }
-                }
-            }
-            
-            cells.forEach(cell => {
-                const value = parseFloat(cell.textContent);
-                if (value > 4) {
-                    cell.classList.add('yellow-value');
-                } else if (value > 2) {
-                    cell.classList.add('orange-value');
-                }
-            });
-            
-            const selectedFactor = calculateFactor(btcArr, leverage, dividendRate, duration, dynamicMode ? calculateDynamicLeverage(btcPrice) : null);
-            document.getElementById('selectedFactor').textContent = selectedFactor + 'x';
-            document.getElementById('selectedArr').textContent = btcArr + '%';
-            document.getElementById('selectedLeverage').textContent = dynamicMode ? effectiveLeverage.toFixed(1) + '%' : leverage + '%';
-            document.getElementById('selectedDividend').textContent = dividendRate.toFixed(1) + '%';
-            document.getElementById('selectedDuration').textContent = duration + ' years';
-        }
-
-        updateTable();
-
-        document.getElementById('btcArrSlider').addEventListener('input', updateSlider.bind(null, 'btcArr'));
-        document.getElementById('leverageSlider').addEventListener('input', updateSlider.bind(null, 'leverage'));
-        document.getElementById('dividendRateSlider').addEventListener('input', updateSlider.bind(null, 'dividendRate'));
-        document.getElementById('durationSlider').addEventListener('input', updateSlider.bind(null, 'duration'));
-        document.getElementById('btcPriceSlider').addEventListener('input', updateSlider.bind(null, 'btcPrice'));
-        document.getElementById('btcArr').addEventListener('input', updateFromNumber.bind(null, 'btcArrSlider'));
-        document.getElementById('leverage').addEventListener('input', updateFromNumber.bind(null, 'leverageSlider'));
-        document.getElementById('dividendRate').addEventListener('input', updateFromNumber.bind(null, 'dividendRateSlider'));
-        document.getElementById('duration').addEventListener('input', updateFromNumber.bind(null, 'durationSlider'));
-        document.getElementById('btcPrice').addEventListener('input', updateFromNumber.bind(null, 'btcPriceSlider'));
-    </script>
-</body>
-</html>
+                document.getElementById('debtPreferredValue').textContent = '$' + (debtPreferred / 1000000000).toFixed(1) +
