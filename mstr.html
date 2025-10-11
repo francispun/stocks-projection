@@ -107,12 +107,12 @@
                 </tr>
             </thead>
             <tbody>
-                <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td></tr>
-                <tr><th>10%</th><td>1.0x</td><td>1.3x</td><td>1.6x</td><td>1.9x</td><td>2.2x</td><td>2.6x</td></tr>
-                <tr><th>20%</th><td>1.0x</td><td>1.6x</td><td>2.1x</td><td>2.7x</td><td>3.3x</td><td>4.0x</td></tr>
-                <tr><th>30%</th><td>1.0x</td><td>1.9x</td><td>2.7x</td><td>3.5x</td><td>4.4x</td><td>5.4x</td></tr>
-                <tr class="highlight"><th>40%</th><td>1.0x</td><td>2.2x</td><td>3.3x</td><td>4.4x</td><td>5.6x</td><td>6.9x</td></tr>
-                <tr><th>50%</th><td>1.0x</td><td>2.6x</td><td>4.0x</td><td>5.4x</td><td>6.9x</td><td>8.5x</td></tr>
+                <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.1x</td><td>1.1x</td><td>1.2x</td><td>1.3x</td></tr>
+                <tr><th>10%</th><td>1.0x</td><td>1.1x</td><td>1.3x</td><td>1.5x</td><td>1.8x</td><td>2.2x</td></tr>
+                <tr><th>20%</th><td>1.0x</td><td>1.2x</td><td>1.6x</td><td>2.1x</td><td>2.9x</td><td>4.3x</td></tr>
+                <tr><th>30%</th><td>1.0x</td><td>1.3x</td><td>1.9x</td><td>2.8x</td><td>4.4x</td><td>7.8x</td></tr>
+                <tr class="highlight"><th>40%</th><td>1.0x</td><td>1.5x</td><td>2.2x</td><td>3.7x</td><td>6.5x</td><td>13.5x</td></tr>
+                <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
             </tbody>
         </table>
         <p style="margin-top: 10px; font-style: italic;">*Values rounded for display. Adjust sliders to see real-time changes.</p>
@@ -124,9 +124,7 @@
         const years = 10;
 
         function calculateFactor(arr, lev, divRate) {
-            const netRate = arr / 100 - divRate / 100; // Net return after cost
-            if (netRate <= 0) return 1.0; // No growth or negative growth caps at 1.0x
-            const effectiveRate = 1 + (lev / 100) * netRate;
+            const effectiveRate = 1 + (lev / 100) * (arr / 100 + divRate / 100);
             return Math.pow(effectiveRate, years).toFixed(1);
         }
 
