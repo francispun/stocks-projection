@@ -63,6 +63,20 @@
             border-radius: 5px;
             display: inline-block;
         }
+        .selected-factor {
+            background: #333333;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 1.5em;
+            color: #f7931a;
+            border: 1px solid #f7931a;
+        }
+        .selected-factor span {
+            color: #ffffff;
+            font-weight: bold;
+        }
         .result {
             padding: 20px;
             border-radius: 10px;
@@ -125,36 +139,39 @@
         <div class="controls">
             <div class="control-group">
                 <label for="btcArr">BTC ARR (%): 
-                    <span class="instruction">Slide to set the base annualized Bitcoin return (0-50%). Adjusts the growth potential across all leverage levels.</span>
+                    <span class="instruction">Slide to select the Bitcoin annualized return rate (0-50%). Updates the selected BTC Factor display.</span>
                 </label>
                 <input type="range" id="btcArr" min="0" max="50" value="30" oninput="updateTable()">
                 <div class="value-display" id="btcArrValue">30%</div>
             </div>
             <div class="control-group">
                 <label for="leverage">Leverage (%): 
-                    <span class="instruction">Adjust the base leverage (0-50%) to see its impact on the BTC Factor across different ARR levels.</span>
+                    <span class="instruction">Slide to select the leverage percentage (0-50%). Updates the selected BTC Factor display.</span>
                 </label>
                 <input type="range" id="leverage" min="0" max="50" value="30" oninput="updateTable()">
                 <div class="value-display" id="leverageValue">30%</div>
             </div>
             <div class="control-group">
                 <label for="dividendRate">Dividend Rate (%): 
-                    <span class="instruction">Set the financing cost (0-15%). Higher rates reduce the BTC Factor as they increase the cost of leverage (e.g., 8% from preferred stock).</span>
+                    <span class="instruction">Slide to set the financing cost (0-15%). Higher rates reduce the BTC Factor (table and selected value).</span>
                 </label>
                 <input type="range" id="dividendRate" min="0" max="15" value="8" step="0.1" oninput="updateTable()">
                 <div class="value-display" id="dividendRateValue">8%</div>
             </div>
             <div class="control-group">
                 <label for="duration">Duration (Years): 
-                    <span class="instruction">Choose the projection period (1-20 years). Longer durations increase the BTC Factor due to compounding (e.g., 10 years is default).</span>
+                    <span class="instruction">Slide to set the projection period (1-20 years). Longer durations increase the BTC Factor (table and selected value).</span>
                 </label>
                 <input type="range" id="duration" min="1" max="20" value="10" oninput="updateTable()">
                 <div class="value-display" id="durationValue">10</div>
             </div>
         </div>
+        <div class="selected-factor">
+            Selected BTC Factor: <span id="selectedFactor">2.8x</span> for ARR <span id="selectedArr">30%</span>, Leverage <span id="selectedLeverage">30%</span>
+        </div>
         <div class="result">
             <table id="btcTable">
-                <caption>BTC Factor (Ratio of Ending BPS to Starting BPS)</caption>
+                <caption>BTC Factor Grid for Reference (Varying ARR and Leverage)</caption>
                 <thead>
                     <tr>
                         <th>BTC ARR %</th>
@@ -175,7 +192,7 @@
                     <tr><th>50%</th><td>1.0x</td><td>1.6x</td><td>2.6x</td><td>4.7x</td><td>9.5x</td><td>22.5x</td></tr>
                 </tbody>
             </table>
-            <p>*Values rounded for display. Adjust sliders to see real-time changes.</p>
+            <p>*Values rounded for display. The table shows a fixed grid for reference, updated by dividend and duration sliders. ARR and Leverage sliders update the selected value above.</p>
         </div>
     </div>
 
@@ -191,13 +208,10 @@
         }
 
         function updateTable() {
-            console.log("Updating table..."); // Debug log
             const btcArr = parseInt(document.getElementById('btcArr').value);
             const leverage = parseInt(document.getElementById('leverage').value);
             const dividendRate = parseFloat(document.getElementById('dividendRate').value);
             const duration = parseInt(document.getElementById('duration').value);
-            
-            console.log(`Values: BTC ARR=${btcArr}%, Leverage=${leverage}%, Dividend=${dividendRate}%, Duration=${duration} years`); // Debug log
             
             document.getElementById('btcArrValue').textContent = btcArr + '%';
             document.getElementById('leverageValue').textContent = leverage + '%';
@@ -212,15 +226,12 @@
                 cell.classList.remove('orange-value', 'yellow-value');
             });
 
-            // Update table values with slider inputs as base modifiers
+            // Update table values with dividend and duration
             for (let i = 0; i < arrValues.length; i++) {
                 for (let j = 0; j < levValues.length; j++) {
                     const cell = rows[i].querySelectorAll('td')[j];
                     if (cell) {
-                        // Use arrValues[i] as varying ARR, leverage as base with levValues[j] as offset
-                        const adjustedArr = arrValues[i] + (btcArr - 30); // Shift based on btcArr slider (default 30%)
-                        const adjustedLev = leverage + (levValues[j] - 30); // Shift based on leverage slider (default 30%)
-                        const factor = calculateFactor(adjustedArr, adjustedLev, dividendRate, duration);
+                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration);
                         cell.textContent = factor + 'x';
                     }
                 }
@@ -235,6 +246,12 @@
                     cell.classList.add('orange-value');
                 }
             });
+            
+            // Update the selected BTC Factor display
+            const selectedFactor = calculateFactor(btcArr, leverage, dividendRate, duration);
+            document.getElementById('selectedFactor').textContent = selectedFactor + 'x';
+            document.getElementById('selectedArr').textContent = btcArr + '%';
+            document.getElementById('selectedLeverage').textContent = leverage + '%';
         }
 
         // Initial update
