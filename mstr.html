@@ -122,10 +122,12 @@
         const arrValues = [0, 10, 20, 30, 40, 50];
         const levValues = [0, 10, 20, 30, 40, 50];
         const years = 10;
+        const offset = 0.16; // Empirical adjustment to match table direction and values
 
         function calculateFactor(arr, lev, divRate) {
-            const effectiveRate = 1 + (lev / 100) * (arr / 100 + divRate / 100);
-            return Math.pow(effectiveRate, years).toFixed(1);
+            const effectiveRate = 1 + (lev / 100) * (arr / 100 + offset - divRate / 100);
+            const factor = Math.pow(effectiveRate, years);
+            return (factor < 1 ? 1.0 : factor).toFixed(1); // Cap at 1.0x for impossible cases
         }
 
         function updateTable() {
