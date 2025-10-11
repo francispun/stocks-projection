@@ -125,14 +125,14 @@
         <div class="controls">
             <div class="control-group">
                 <label for="btcArr">BTC ARR (%): 
-                    <span class="instruction">Slide to set the annualized Bitcoin return (0-50%). Higher values increase the BTC Factor by boosting growth potential.</span>
+                    <span class="instruction">Slide to set the base annualized Bitcoin return (0-50%). Adjusts the growth potential across all leverage levels.</span>
                 </label>
                 <input type="range" id="btcArr" min="0" max="50" value="30" oninput="updateTable()">
                 <div class="value-display" id="btcArrValue">30%</div>
             </div>
             <div class="control-group">
                 <label for="leverage">Leverage (%): 
-                    <span class="instruction">Adjust leverage (0-50%) to see how much borrowed capital amplifies the BTC Factor. Higher leverage boosts growth but adds risk.</span>
+                    <span class="instruction">Adjust the base leverage (0-50%) to see its impact on the BTC Factor across different ARR levels.</span>
                 </label>
                 <input type="range" id="leverage" min="0" max="50" value="30" oninput="updateTable()">
                 <div class="value-display" id="leverageValue">30%</div>
@@ -205,13 +205,26 @@
             document.getElementById('durationValue').textContent = duration;
             
             const rows = document.querySelectorAll('#btcTable tbody tr');
-            const headers = document.querySelectorAll('#btcTable thead th');
             const cells = document.querySelectorAll('#btcTable td');
             
             // Remove all highlighting classes
             cells.forEach(cell => {
                 cell.classList.remove('orange-value', 'yellow-value');
             });
+
+            // Update table values with slider inputs as base modifiers
+            for (let i = 0; i < arrValues.length; i++) {
+                for (let j = 0; j < levValues.length; j++) {
+                    const cell = rows[i].querySelectorAll('td')[j];
+                    if (cell) {
+                        // Use arrValues[i] as varying ARR, leverage as base with levValues[j] as offset
+                        const adjustedArr = arrValues[i] + (btcArr - 30); // Shift based on btcArr slider (default 30%)
+                        const adjustedLev = leverage + (levValues[j] - 30); // Shift based on leverage slider (default 30%)
+                        const factor = calculateFactor(adjustedArr, adjustedLev, dividendRate, duration);
+                        cell.textContent = factor + 'x';
+                    }
+                }
+            }
 
             // Apply conditional value highlighting
             cells.forEach(cell => {
@@ -222,17 +235,6 @@
                     cell.classList.add('orange-value');
                 }
             });
-
-            // Update table values
-            for (let i = 0; i < arrValues.length; i++) {
-                for (let j = 0; j < levValues.length; j++) {
-                    const cell = rows[i].querySelectorAll('td')[j];
-                    if (cell) {
-                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration);
-                        cell.textContent = factor + 'x';
-                    }
-                }
-            }
         }
 
         // Initial update
