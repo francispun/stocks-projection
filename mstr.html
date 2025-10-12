@@ -36,7 +36,7 @@
         }
         .control-group {
             margin-bottom: 25px;
-            padding: 15px;
+            padding: 15px 20px; /* Increased padding for mobile usability */
             background: #2a2a2a;
             border-radius: 10px;
             border: 1px solid #f7931a;
@@ -52,6 +52,9 @@
             width: 100%;
             margin-bottom: 10px;
             accent-color: #f7931a;
+        }
+        input[type="range"] {
+            height: 20px; /* Increased height for easier sliding on mobile */
         }
         button {
             padding: 10px;
@@ -128,14 +131,16 @@
         }
         caption {
             font-weight: bold;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             color: #f7931a;
             font-size: 1.2em;
         }
-        p {
-            color: #ffffff;
-            font-size: 0.9em;
-            margin-top: 10px;
+        .table-description {
+            font-style: italic;
+            color: #cccccc;
+            font-size: 0.85em;
+            margin-top: 0;
+            text-align: center;
         }
         .instruction {
             font-style: italic;
@@ -220,7 +225,8 @@
         </div>
         <div class="result">
             <table id="btcTable">
-                <caption>BTC Factor Reference Grid (Y-Axis: BTC ARR %, X-Axis: Leverage %, Updated by Dividend and Duration)</caption>
+                <caption>BTC Factor Reference Grid</caption>
+                <div class="table-description">Y-Axis: BTC ARR %, X-Axis: Leverage %, Updated by Dividend and Duration</div>
                 <thead>
                     <tr>
                         <th>BTC ARR (%)</th>
