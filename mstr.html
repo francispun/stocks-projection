@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MSTR BTC Leverage Simulator</title>
+    <title>MSTR mNAV Simulator</title>
     <style>
         body {
             font-family: 'Arial', sans-serif;
@@ -75,7 +75,7 @@
             border-radius: 5px;
             display: inline-block;
         }
-        .selected-factor {
+        .selected-mnav {
             background: #333333;
             padding: 15px;
             border-radius: 10px;
@@ -85,7 +85,7 @@
             color: #f7931a;
             border: 1px solid #f7931a;
         }
-        .selected-factor span {
+        .selected-mnav span {
             color: #ffffff;
             font-weight: bold;
         }
@@ -153,14 +153,14 @@
 </head>
 <body>
     <div class="container">
-        <h1>MSTR BTC Leverage Simulator</h1>
+        <h1>MSTR mNAV Simulator</h1>
         <div class="controls">
             <div class="control-group">
                 <button id="expertModeToggle">Enable Expert Mode</button>
             </div>
             <div class="control-group expert-controls">
                 <label for="btcPriceSlider">BTC Price (USD): 
-                    <span class="instruction">The current price of Bitcoin ($20k-$300k). Higher prices lower effective leverage by increasing NAV, reducing the BTC Factor; lower prices increase leverage, amplifying it.</span>
+                    <span class="instruction">Current Bitcoin price ($20k-$300k). Affects NAV and leverage, influencing mNAV.</span>
                 </label>
                 <input type="range" id="btcPriceSlider" min="20000" max="300000" value="112000" oninput="updateSlider('btcPrice')">
                 <input type="number" id="btcPrice" min="20000" value="112000" oninput="updateFromNumber('btcPriceSlider')">
@@ -168,15 +168,31 @@
             </div>
             <div class="control-group expert-controls">
                 <label for="debtPreferredSlider">Debt + Preferred Stock (USD): 
-                    <span class="instruction">MSTR's fixed obligations (default ~$12.8B as of Q2 2025). Higher values increase effective leverage, boosting the BTC Factor but raising risk.</span>
+                    <span class="instruction">MSTR's fixed obligations (default ~$12.8B as of Q2 2025). Higher values increase leverage, raising mNAV potential.</span>
                 </label>
                 <input type="range" id="debtPreferredSlider" min="0" max="50000000000" value="12800000000" step="1000000000" oninput="updateSlider('debtPreferred')">
                 <input type="number" id="debtPreferred" min="0" value="12800000000" step="1000000000" oninput="updateFromNumber('debtPreferredSlider')">
                 <div class="value-display" id="debtPreferredValue">$12.8B</div>
             </div>
+            <div class="control-group expert-controls">
+                <label for="btcHoldingsSlider">BTC Holdings: 
+                    <span class="instruction">MSTR's total Bitcoin owned (0-1M BTC, default 640,031 as of Q3 2025). More holdings increase NAV, affecting mNAV.</span>
+                </label>
+                <input type="range" id="btcHoldingsSlider" min="0" max="1000000" value="640031" oninput="updateSlider('btcHoldings')">
+                <input type="number" id="btcHoldings" min="0" value="640031" oninput="updateFromNumber('btcHoldingsSlider')">
+                <div class="value-display" id="btcHoldingsValue">640,031</div>
+            </div>
+            <div class="control-group expert-controls">
+                <label for="basePremiumSlider">Base Premium (%): 
+                    <span class="instruction">Strategic advantage premium (0-15%, default 8%). Higher values boost mNAV by increasing assumed growth.</span>
+                </label>
+                <input type="range" id="basePremiumSlider" min="0" max="15" value="8" step="0.1" oninput="updateSlider('basePremium')">
+                <input type="number" id="basePremium" min="0" value="8" step="0.1" oninput="updateFromNumber('basePremiumSlider')">
+                <div class="value-display" id="basePremiumValue">8%</div>
+            </div>
             <div class="control-group">
                 <label for="btcArrSlider">BTC ARR (%): 
-                    <span class="instruction">The annualized return rate for Bitcoin (0-100%). Higher ARR increases the BTC Factor by assuming faster BTC price growth, amplifying leverage's effect.</span>
+                    <span class="instruction">Annualized return rate for Bitcoin (0-100%). Higher ARR increases mNAV through leveraged growth.</span>
                 </label>
                 <input type="range" id="btcArrSlider" min="0" max="100" value="30" oninput="updateSlider('btcArr')">
                 <input type="number" id="btcArr" min="0" value="30" oninput="updateFromNumber('btcArrSlider')">
@@ -184,7 +200,7 @@
             </div>
             <div class="control-group">
                 <label for="leverageSlider">Leverage (%): 
-                    <span class="instruction">The target percentage of borrowed capital used (0-100%). In Expert Mode, this is overridden by calculated leverage; otherwise, it’s fixed.</span>
+                    <span class="instruction">Target borrowed capital percentage (0-100%). In Expert Mode, overridden by calculated leverage; otherwise, fixed.</span>
                 </label>
                 <input type="range" id="leverageSlider" min="0" max="100" value="30" oninput="updateSlider('leverage')">
                 <input type="number" id="leverage" min="0" value="30" oninput="updateFromNumber('leverageSlider')">
@@ -192,7 +208,7 @@
             </div>
             <div class="control-group">
                 <label for="dividendRateSlider">Dividend Rate (%): 
-                    <span class="instruction">The financing cost for leverage (0-20%). Higher rates decrease the BTC Factor by raising the cost of capital, reducing net amplification.</span>
+                    <span class="instruction">Financing cost for leverage (0-20%). Higher rates decrease mNAV by raising costs.</span>
                 </label>
                 <input type="range" id="dividendRateSlider" min="0" max="20" value="8" step="0.1" oninput="updateSlider('dividendRate')">
                 <input type="number" id="dividendRate" min="0" value="8" step="0.1" oninput="updateFromNumber('dividendRateSlider')">
@@ -200,19 +216,19 @@
             </div>
             <div class="control-group">
                 <label for="durationSlider">Duration (Years): 
-                    <span class="instruction">The time horizon for compounding (1-30 years). Longer durations increase the BTC Factor through exponential growth of leveraged returns.</span>
+                    <span class="instruction">Time horizon for compounding (1-30 years). Longer durations increase mNAV through leveraged returns.</span>
                 </label>
                 <input type="range" id="durationSlider" min="1" max="30" value="10" oninput="updateSlider('duration')">
                 <input type="number" id="duration" min="1" value="10" oninput="updateFromNumber('durationSlider')">
                 <div class="value-display" id="durationValue">10</div>
             </div>
         </div>
-        <div class="selected-factor">
-            Selected BTC Factor: <span id="selectedFactor">2.8x</span> (for ARR <span id="selectedArr">30%</span>, Leverage <span id="selectedLeverage">30%</span>, Dividend <span id="selectedDividend">8%</span>, Duration <span id="selectedDuration">10 years</span>)
+        <div class="selected-mnav">
+            Selected mNAV: <span id="selectedMNAV">1.5x</span> (for ARR <span id="selectedArr">30%</span>, Leverage <span id="selectedLeverage">30%</span>, Dividend <span id="selectedDividend">8%</span>, Duration <span id="selectedDuration">10 years</span>)
         </div>
         <div class="result">
-            <table id="btcTable">
-                <caption>BTC Factor Reference Grid (Updated by Dividend and Duration)</caption>
+            <table id="mnavTable">
+                <caption>mNAV Reference Grid (Updated by Dividend and Duration)</caption>
                 <thead>
                     <tr>
                         <th>BTC ARR %</th>
@@ -226,38 +242,37 @@
                 </thead>
                 <tbody>
                     <tr><th>0%</th><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td><td>1.0x</td></tr>
-                    <tr><th>20%</th><td>1.0x</td><td>1.6x</td><td>2.5x</td><td>3.9x</td><td>5.9x</td><td>8.6x</td></tr>
-                    <tr><th>40%</th><td>1.0x</td><td>2.2x</td><td>4.8x</td><td>10.3x</td><td>20.9x</td><td>41.0x</td></tr>
-                    <tr><th>60%</th><td>1.0x</td><td>2.6x</td><td>6.9x</td><td>18.2x</td><td>46.0x</td><td>113.0x</td></tr>
-                    <tr><th>80%</th><td>1.0x</td><td>3.0x</td><td>9.1x</td><td>27.0x</td><td>78.5x</td><td>224.0x</td></tr>
-                    <tr><th>100%</th><td>1.0x</td><td>3.4x</td><td>11.5x</td><td>38.0x</td><td>123.0x</td><td>394.0x</td></tr>
+                    <tr><th>20%</th><td>1.0x</td><td>1.3x</td><td>1.6x</td><td>2.0x</td><td>2.4x</td><td>2.8x</td></tr>
+                    <tr><th>40%</th><td>1.0x</td><td>1.4x</td><td>1.9x</td><td>2.5x</td><td>3.2x</td><td>3.9x</td></tr>
+                    <tr><th>60%</th><td>1.0x</td><td>1.5x</td><td>2.1x</td><td>2.9x</td><td>3.8x</td><td>4.7x</td></tr>
+                    <tr><th>80%</th><td>1.0x</td><td>1.6x</td><td>2.3x</td><td>3.3x</td><td>4.4x</td><td>5.5x</td></tr>
+                    <tr><th>100%</th><td>1.0x</td><td>1.7x</td><td>2.5x</td><td>3.7x</td><td>5.0x</td><td>6.3x</td></tr>
                 </tbody>
             </table>
-            <p>*Values rounded for display. Click to toggle Expert Mode for dynamic leverage based on BTC price and fixed obligations.</p>
+            <p>*Values are approximate mNAV estimates based on leverage effect over time. Toggle Expert Mode for dynamic adjustments.</p>
         </div>
     </div>
 
     <script>
         const arrValues = [0, 20, 40, 60, 80, 100];
         const levValues = [0, 20, 40, 60, 80, 100];
-        const btcHoldings = 640031; // 640,031 BTC as of Q3 2025
-        const navPremium = 1.5; // Assumed market premium to NAV
 
-        function calculateFactor(arr, lev, divRate, duration, effectiveLeverage = null) {
+        function calculateMNAV(arr, lev, divRate, duration, basePremium, effectiveLeverage = null) {
             const a = arr / 100;
             const d = divRate / 100;
             let l = effectiveLeverage !== null ? effectiveLeverage / 100 : lev / 100;
-            const basePremium = 0.08;
-            const growthRate = l * (a + basePremium + l * a - d);
-            const effectiveRate = 1 + growthRate;
-            const factor = Math.pow(effectiveRate, duration);
-            return (factor < 1 ? 1.0 : factor).toFixed(1);
+            const netReturn = a - d + (basePremium / 100);
+            const growthRate = l * netReturn;
+            const mnavBase = 1.0; // Starting mNAV without leverage effect
+            const mnavAdjustment = growthRate * (Math.min(duration, 10) / 10); // Scale effect, capped at 10 years
+            const mnav = mnavBase + mnavAdjustment;
+            return (mnav < 1.0 ? 1.0 : mnav).toFixed(1); // Ensure mNAV doesn't go below 1.0x
         }
 
-        function calculateDynamicLeverage(btcPrice, debtPreferred) {
-            const btcNav = btcHoldings * btcPrice;
-            const marketCap = btcNav * navPremium;
-            return (debtPreferred / marketCap) * 100;
+        function calculateDynamicLeverage(btcPrice, debtPreferred, btcHoldings) {
+            const nav = btcHoldings * btcPrice - debtPreferred; // NAV adjusted for liabilities
+            const impliedMarketCap = nav * 1.5; // Initial guess at mNAV = 1.5x (current market trend)
+            return (debtPreferred / impliedMarketCap) * 100;
         }
 
         function updateSlider(id) {
@@ -292,15 +307,21 @@
             const expertMode = button.textContent === 'Disable Expert Mode';
             let btcPrice = 112000;
             let debtPreferred = 12800000000;
+            let btcHoldings = 640031;
+            let basePremium = 8;
             let effectiveLeverage = leverage;
 
             if (expertMode) {
                 btcPrice = parseFloat(document.getElementById('btcPrice').value);
                 debtPreferred = parseFloat(document.getElementById('debtPreferred').value);
-                effectiveLeverage = calculateDynamicLeverage(btcPrice, debtPreferred);
+                btcHoldings = parseFloat(document.getElementById('btcHoldings').value);
+                basePremium = parseFloat(document.getElementById('basePremium').value);
+                effectiveLeverage = calculateDynamicLeverage(btcPrice, debtPreferred, btcHoldings);
                 document.getElementById('leverageValue').textContent = effectiveLeverage.toFixed(1) + '%';
                 document.getElementById('btcPriceValue').textContent = '$' + btcPrice.toLocaleString();
                 document.getElementById('debtPreferredValue').textContent = '$' + (debtPreferred / 1000000000).toFixed(1) + 'B';
+                document.getElementById('btcHoldingsValue').textContent = btcHoldings.toLocaleString();
+                document.getElementById('basePremiumValue').textContent = basePremium.toFixed(1) + '%';
             } else {
                 document.getElementById('leverageValue').textContent = leverage + '%';
             }
@@ -309,8 +330,8 @@
             document.getElementById('dividendRateValue').textContent = dividendRate.toFixed(1) + '%';
             document.getElementById('durationValue').textContent = duration;
 
-            const rows = document.querySelectorAll('#btcTable tbody tr');
-            const cells = document.querySelectorAll('#btcTable td');
+            const rows = document.querySelectorAll('#mnavTable tbody tr');
+            const cells = document.querySelectorAll('#mnavTable td');
             
             cells.forEach(cell => cell.classList.remove('orange-value', 'yellow-value'));
             
@@ -318,9 +339,9 @@
                 for (let j = 0; j < levValues.length; j++) {
                     const cell = rows[i].querySelectorAll('td')[j];
                     if (cell) {
-                        const dynLev = expertMode ? calculateDynamicLeverage(btcPrice, debtPreferred) : null;
-                        const factor = calculateFactor(arrValues[i], levValues[j], dividendRate, duration, dynLev);
-                        cell.textContent = factor + 'x';
+                        const dynLev = expertMode ? calculateDynamicLeverage(btcPrice, debtPreferred, btcHoldings) : null;
+                        const mnav = calculateMNAV(arrValues[i], levValues[j], dividendRate, duration, basePremium, dynLev);
+                        cell.textContent = mnav + 'x';
                     }
                 }
             }
@@ -334,9 +355,9 @@
                 }
             });
             
-            const dynLev = expertMode ? calculateDynamicLeverage(btcPrice, debtPreferred) : null;
-            const selectedFactor = calculateFactor(btcArr, leverage, dividendRate, duration, dynLev);
-            document.getElementById('selectedFactor').textContent = selectedFactor + 'x';
+            const dynLev = expertMode ? calculateDynamicLeverage(btcPrice, debtPreferred, btcHoldings) : null;
+            const selectedMNAV = calculateMNAV(btcArr, leverage, dividendRate, duration, basePremium, dynLev);
+            document.getElementById('selectedMNAV').textContent = selectedMNAV + 'x';
             document.getElementById('selectedArr').textContent = btcArr + '%';
             document.getElementById('selectedLeverage').textContent = expertMode ? effectiveLeverage.toFixed(1) + '%' : leverage + '%';
             document.getElementById('selectedDividend').textContent = dividendRate.toFixed(1) + '%';
@@ -353,12 +374,16 @@
         document.getElementById('durationSlider').addEventListener('input', () => updateSlider('duration'));
         document.getElementById('btcPriceSlider').addEventListener('input', () => updateSlider('btcPrice'));
         document.getElementById('debtPreferredSlider').addEventListener('input', () => updateSlider('debtPreferred'));
+        document.getElementById('btcHoldingsSlider').addEventListener('input', () => updateSlider('btcHoldings'));
+        document.getElementById('basePremiumSlider').addEventListener('input', () => updateSlider('basePremium'));
         document.getElementById('btcArr').addEventListener('input', () => updateFromNumber('btcArrSlider'));
         document.getElementById('leverage').addEventListener('input', () => updateFromNumber('leverageSlider'));
         document.getElementById('dividendRate').addEventListener('input', () => updateFromNumber('dividendRateSlider'));
         document.getElementById('duration').addEventListener('input', () => updateFromNumber('durationSlider'));
         document.getElementById('btcPrice').addEventListener('input', () => updateFromNumber('btcPriceSlider'));
         document.getElementById('debtPreferred').addEventListener('input', () => updateFromNumber('debtPreferredSlider'));
+        document.getElementById('btcHoldings').addEventListener('input', () => updateFromNumber('btcHoldingsSlider'));
+        document.getElementById('basePremium').addEventListener('input', () => updateFromNumber('basePremiumSlider'));
     </script>
 </body>
 </html>
