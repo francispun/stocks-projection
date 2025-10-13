@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Price Projection Model</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
+        #chart-container { width: 100%; height: 400px; }
+        .slider-container { margin: 10px 0; }
+        label { display: block; font-weight: bold; }
+        output { font-weight: bold; color: #007bff; }
+    </style>
+</head>
+<body>
+    <h1>Bitcoin Price Projection Model (Metcalfe's Law)</h1>
+    <p>Adjust the sliders to experiment with parameters. The chart updates automatically.</p>
+
+    <div class="slider-container">
+        <label for="p0">Initial Price (P₀ in USD): <output id="p0-value">115000</output></label>
+        <input type="range" id="p0" min="10000" max="200000" step="1000" value="115000">
+    </div>
+
+    <div class="slider-container">
+        <label for="g">Annual Growth Rate (g): <output id="g-value">0.14</output> (14%)</label>
+        <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.14">
+    </div>
+
+    <div class="slider-container">
+        <label for="t">Time Horizon (T in years): <output id="t-value">10</output></label>
+        <input type="range" id="t" min="1" max="20" step="1" value="10">
+    </div>
+
+    <h2>Results</h2>
+    <p>Annualized Rate of Return (ARR): <output id="arr">~30%</output></p>
+    <p>Final Price (P_T): <output id="final-price">$1,391,000</output></p>
+
+    <div id="chart-container">
+        <canvas id="price-chart"></canvas>
+    </div>
+
+    <script>
+        // Get elements
+        const p0Input = document.getElementById('p0');
+        const gInput = document.getElementById('g');
+        const tInput = document.getElementById('t');
+        const p0Value = document.getElementById('p0-value');
+        const gValue = document.getElementById('g-value');
+        const tValue = document.getElementById('t-value');
+        const arrOutput = document.getElementById('arr');
+        const finalPriceOutput = document.getElementById('final-price');
+
+        // Chart setup
+        const ctx = document.getElementById('price-chart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Projected BTC Price',
+                    data: [],
+                    borderColor: 'orange',
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: { beginAtZero: false, title: { display: true, text: 'Price (USD)' } },
+                    x: { title: { display: true, text: 'Years' } }
+                }
+            }
+        });
+
+        // Update function
+        function updateModel() {
+            const p0 = parseFloat(p0Input.value);
+            const g = parseFloat(gInput.value);
+            const T = parseInt(tInput.value);
+
+            // Update displayed values
+            p0Value.textContent = p0.toLocaleString();
+            gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
+            tValue.textContent = T;
+
+            // Calculate ARR
+            const arr = Math.pow(1 + g, 2) - 1;
+            arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
+
+            // Generate data points
+            const labels = [];
+            const data = [];
+            for (let t = 0; t <= T; t++) {
+                labels.push(t);
+                const price = p0 * Math.pow(1 + g, 2 * t);
+                data.push(price);
+            }
+
+            // Update final price
+            const finalPrice = data[data.length - 1];
+            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
+
+            // Update chart
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = data;
+            chart.update();
+        }
+
+        // Event listeners
+        p0Input.addEventListener('input', updateModel);
+        gInput.addEventListener('input', updateModel);
+        tInput.addEventListener('input', updateModel);
+
+        // Initial update
+        updateModel();
+    </script>
+</body>
+</html>
