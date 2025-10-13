@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Price Projection Model (Updated)</title>
+    <title>Bitcoin Price Projection Model (Supply-Demand Framework)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
@@ -12,11 +12,12 @@
         label { display: block; font-weight: bold; }
         output { font-weight: bold; color: #007bff; }
         .param-desc { font-size: 0.9em; color: #555; margin: 5px 0 10px 0; }
+        #halving-controls { display: none; }
     </style>
 </head>
 <body>
-    <h1>Bitcoin Price Projection Model (Metcalfe's Law)</h1>
-    <p>Adjust sliders and toggle growth type to project Bitcoin's price. The chart and results update automatically.</p>
+    <h1>Bitcoin Price Projection Model (Supply-Demand Framework)</h1>
+    <p>Adjust sliders and toggles to project Bitcoin's price. The chart and results update automatically.</p>
 
     <div class="slider-container">
         <label for="p0">Initial Price (P₀ in USD): <output id="p0-value">115000</output></label>
@@ -47,9 +48,9 @@
 
     <div id="constant-controls">
         <div class="slider-container">
-            <label for="g">Annual Growth Rate (g): <output id="g-value">0.14</output> (14%)</label>
-            <p class="param-desc">Yearly percentage increase in users (real-world: crypto grew ~33% in 2024; expect 10-20% as it matures, like social media platforms).</p>
-            <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.14">
+            <label for="g">Annual Growth Rate (g): <output id="g-value">0.10</output> (10%)</label>
+            <p class="param-desc">Yearly percentage increase in users (real-world: crypto grew ~33% in 2024; expect 5-15% as it matures, like internet post-2000s).</p>
+            <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.10">
         </div>
     </div>
 
@@ -67,15 +68,38 @@
     </div>
 
     <div class="slider-container">
+        <label for="supply-model">Supply Model: <output id="supply-model-value">Constant</output></label>
+        <p class="param-desc">How to model BTC supply: "Constant" assumes no new mined BTC (approximation for simplicity); "Halving" includes mining with halving cycles (real-world: halves new supply every ~4 years, slowing dilution from ~0.8% annual inflation now).</p>
+        <select id="supply-model">
+            <option value="constant">Constant</option>
+            <option value="halving">Halving</option>
+        </select>
+    </div>
+
+    <div id="halving-controls">
+        <div class="slider-container">
+            <label for="reserves-rate">Reserves Rate (BTC/day): <output id="reserves-rate-value">300</output></label>
+            <p class="param-desc">Daily BTC moved to long-term reserves/HODL (real-world: ETFs, institutions accumulate ~285 BTC/day in 2024; forecasts 200-500).</p>
+            <input type="range" id="reserves-rate" min="0" max="1000" step="50" value="300">
+        </div>
+        <div class="slider-container">
+            <label for="gamma">Supply Elasticity (γ): <output id="gamma-value">1.5</output></label>
+            <p class="param-desc">Sensitivity of price to liquid supply changes (real-world: higher means tighter supply from halvings/HODLing boosts price more, ~1-3 based on historical cycles).</p>
+            <input type="range" id="gamma" min="0" max="5" step="0.1" value="1.5">
+        </div>
+    </div>
+
+    <div class="slider-container">
         <label for="t">Time Horizon (T in years): <output id="t-value">10</output></label>
         <p class="param-desc">Number of years to forecast (real-world: 10 years to 2035 for long-term views, like investment planning horizons).</p>
         <input type="range" id="t" min="1" max="20" step="1" value="10">
     </div>
 
     <h2>Results</h2>
-    <p>Effective ARR (Price CAGR): <output id="arr">~34%</output></p>
-    <p>Final Price (P_T): <output id="final-price">$2,060,000</output></p>
-    <p>Final Users (U_T in millions): <output id="final-users">2090</output></p>
+    <p>Effective ARR (Price CAGR): <output id="arr">~26%</output></p>
+    <p>Final Price (P_T): <output id="final-price">$1,110,000</output></p>
+    <p>Final Users (U_T in millions): <output id="final-users">1548</output></p>
+    <p>Final Liquid Supply (S_l T in millions): <output id="final-supply">4.80</output></p>
 
     <div id="chart-container">
         <canvas id="price-chart"></canvas>
@@ -87,6 +111,9 @@
         const u0Input = document.getElementById('u0');
         const dInput = document.getElementById('d');
         const growthTypeSelect = document.getElementById('growth-type');
+        const supplyModelSelect = document.getElementById('supply-model');
+        const reservesRateInput = document.getElementById('reserves-rate');
+        const gammaInput = document.getElementById('gamma');
         const gInput = document.getElementById('g');
         const kInput = document.getElementById('k');
         const rInput = document.getElementById('r');
@@ -95,6 +122,9 @@
         const u0Value = document.getElementById('u0-value');
         const dValue = document.getElementById('d-value');
         const growthTypeValue = document.getElementById('growth-type-value');
+        const supplyModelValue = document.getElementById('supply-model-value');
+        const reservesRateValue = document.getElementById('reserves-rate-value');
+        const gammaValue = document.getElementById('gamma-value');
         const gValue = document.getElementById('g-value');
         const kValue = document.getElementById('k-value');
         const rValue = document.getElementById('r-value');
@@ -102,8 +132,10 @@
         const arrOutput = document.getElementById('arr');
         const finalPriceOutput = document.getElementById('final-price');
         const finalUsersOutput = document.getElementById('final-users');
+        const finalSupplyOutput = document.getElementById('final-supply');
         const constantControls = document.getElementById('constant-controls');
         const logisticControls = document.getElementById('logistic-controls');
+        const halvingControls = document.getElementById('halving-controls');
 
         // Chart setup
         const ctx = document.getElementById('price-chart').getContext('2d');
@@ -136,33 +168,71 @@
             updateModel();
         });
 
+        supplyModelSelect.addEventListener('change', () => {
+            const type = supplyModelSelect.value;
+            supplyModelValue.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            halvingControls.style.display = type === 'halving' ? 'block' : 'none';
+            updateModel();
+        });
+
         // Update function
         function updateModel() {
             const p0 = parseFloat(p0Input.value);
             const u0 = parseFloat(u0Input.value);
             const d = parseFloat(dInput.value);
+            const reservesRate = parseFloat(reservesRateInput.value);
+            const gamma = parseFloat(gammaInput.value);
             const type = growthTypeSelect.value;
+            const supplyType = supplyModelSelect.value;
             const T = parseInt(tInput.value);
 
             // Update displayed values
             p0Value.textContent = p0.toLocaleString();
             u0Value.textContent = u0.toLocaleString();
             dValue.textContent = d.toFixed(2) + ` (${(d * 100).toFixed(0)}%)`;
+            reservesRateValue.textContent = reservesRate.toLocaleString();
+            gammaValue.textContent = gamma.toFixed(1);
             tValue.textContent = T;
 
             let labels = [];
             let data = [];
             let finalUsers;
+            let finalLiquid;
+
+            const initialSupply = 19933250; // Oct 2025 circulating
+            const initialIlliquid = 14300000; // Estimate 14.3M illiquid
+            const initialLiquid = initialSupply - initialIlliquid;
+            const blocksPerYear = 52560;
+            const halvingYears = [3, 7, 11, 15, 19]; // From 2025
 
             if (type === 'constant') {
                 const g = parseFloat(gInput.value);
                 gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
-                    const price = p0 * Math.pow(1 + g, 2 * t) * Math.pow(1 + d, t);
+                    const ut = u0 * Math.pow(1 + g, t);
+                    let supply = initialSupply;
+                    let reward = 3.125;
+                    let liquid = initialLiquid;
+                    if (supplyType === 'halving') {
+                        for (let y = 1; y <= t; y++) {
+                            flow = reward * blocksPerYear;
+                            supply += flow;
+                            liquid += flow - reservesRate * 365; // Add emissions, subtract reserves
+                            if (halvingYears.includes(y)) {
+                                reward /= 2;
+                            }
+                        }
+                        liquid = Math.max(liquid, 0.1 * supply); // Ensure liquid doesn't go negative
+                    }
+                    const liquidFactor = (supplyType === 'halving') ? Math.pow(initialLiquid / liquid, gamma) : 1;
+                    const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t) * liquidFactor;
                     data.push(price);
+                    if (t === T) {
+                        finalUsers = ut;
+                        finalLiquid = liquid;
+                    }
                 }
-                finalUsers = u0 * Math.pow(1 + g, T);
             } else {
                 const k = parseFloat(kInput.value);
                 const r = parseFloat(rInput.value);
@@ -171,10 +241,28 @@
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
                     const ut = k / (1 + ((k / u0) - 1) * Math.exp(-r * t));
-                    const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t);
+                    let supply = initialSupply;
+                    let reward = 3.125;
+                    let liquid = initialLiquid;
+                    if (supplyType === 'halving') {
+                        for (let y = 1; y <= t; y++) {
+                            flow = reward * blocksPerYear;
+                            supply += flow;
+                            liquid += flow - reservesRate * 365;
+                            if (halvingYears.includes(y)) {
+                                reward /= 2;
+                            }
+                        }
+                        liquid = Math.max(liquid, 0.1 * supply);
+                    }
+                    const liquidFactor = (supplyType === 'halving') ? Math.pow(initialLiquid / liquid, gamma) : 1;
+                    const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t) * liquidFactor;
                     data.push(price);
+                    if (t === T) {
+                        finalUsers = ut;
+                        finalLiquid = liquid;
+                    }
                 }
-                finalUsers = k / (1 + ((k / u0) - 1) * Math.exp(-r * T));
             }
 
             // Update chart
@@ -182,7 +270,7 @@
             chart.data.datasets[0].data = data;
             chart.update();
 
-            // Calculate effective ARR (CAGR for price)
+            // Calculate effective ARR
             const finalPrice = data[data.length - 1];
             const arr = Math.pow(finalPrice / p0, 1 / T) - 1;
             arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
@@ -190,16 +278,21 @@
             // Update outputs
             finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
             finalUsersOutput.textContent = Math.round(finalUsers).toLocaleString();
+            finalSupplyOutput.textContent = (finalLiquid / 1000000).toFixed(2);
         }
 
         // Event listeners
         p0Input.addEventListener('input', updateModel);
         u0Input.addEventListener('input', updateModel);
         dInput.addEventListener('input', updateModel);
+        reservesRateInput.addEventListener('input', updateModel);
+        gammaInput.addEventListener('input', updateModel);
         gInput.addEventListener('input', updateModel);
         kInput.addEventListener('input', updateModel);
         rInput.addEventListener('input', updateModel);
         tInput.addEventListener('input', updateModel);
+        growthTypeSelect.addEventListener('change', updateModel);
+        supplyModelSelect.addEventListener('change', updateModel);
 
         // Initial update
         updateModel();
