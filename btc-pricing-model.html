@@ -12,9 +12,6 @@
         label { display: block; font-weight: bold; }
         output { font-weight: bold; color: #007bff; }
         .param-desc { font-size: 0.9em; color: #555; margin: 5px 0 10px 0; }
-        details { margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
-        summary { cursor: pointer; font-weight: bold; }
-        ul { margin: 10px 0; padding-left: 20px; }
     </style>
 </head>
 <body>
@@ -31,6 +28,12 @@
         <label for="u0">Initial Users (U₀ in millions): <output id="u0-value">600</output></label>
         <p class="param-desc">Estimated starting number of Bitcoin users/network participants (real-world: global crypto users ~560M in 2024, with BTC dominating; adjust for your estimate).</p>
         <input type="range" id="u0" min="100" max="1000" step="10" value="600">
+    </div>
+
+    <div class="slider-container">
+        <label for="d">Debasement Rate (d): <output id="d-value">0.04</output> (4%)</label>
+        <p class="param-desc">Annual percentage loss in USD purchasing power (real-world: inflation rate, ~2.4% CPI in 2025, but 4-6% reflects felt costs or money supply growth).</p>
+        <input type="range" id="d" min="0" max="0.2" step="0.01" value="0.04">
     </div>
 
     <div class="slider-container">
@@ -53,7 +56,7 @@
     <div id="logistic-controls" style="display: none;">
         <div class="slider-container">
             <label for="k">Carrying Capacity (K in millions): <output id="k-value">4000</output></label>
-            <p class="param-desc">Maximum potential global users (real-world: ~half world's 8B population, as not everyone may adopt BTC, similar to current internet penetration).</p>
+            <p class="param-desc">Maximum potential global users (real-world: ~half world's 8B population, as not everyone may adopt BTC, similar to internet penetration).</p>
             <input type="range" id="k" min="1000" max="8000" step="100" value="4000">
         </div>
         <div class="slider-container">
@@ -70,8 +73,8 @@
     </div>
 
     <h2>Results</h2>
-    <p>Effective ARR (Price CAGR): <output id="arr">~30%</output></p>
-    <p>Final Price (P_T): <output id="final-price">$1,391,000</output></p>
+    <p>Effective ARR (Price CAGR): <output id="arr">~34%</output></p>
+    <p>Final Price (P_T): <output id="final-price">$2,060,000</output></p>
     <p>Final Users (U_T in millions): <output id="final-users">2090</output></p>
 
     <div id="chart-container">
@@ -82,6 +85,7 @@
         // Get elements
         const p0Input = document.getElementById('p0');
         const u0Input = document.getElementById('u0');
+        const dInput = document.getElementById('d');
         const growthTypeSelect = document.getElementById('growth-type');
         const gInput = document.getElementById('g');
         const kInput = document.getElementById('k');
@@ -89,6 +93,7 @@
         const tInput = document.getElementById('t');
         const p0Value = document.getElementById('p0-value');
         const u0Value = document.getElementById('u0-value');
+        const dValue = document.getElementById('d-value');
         const growthTypeValue = document.getElementById('growth-type-value');
         const gValue = document.getElementById('g-value');
         const kValue = document.getElementById('k-value');
@@ -135,12 +140,14 @@
         function updateModel() {
             const p0 = parseFloat(p0Input.value);
             const u0 = parseFloat(u0Input.value);
+            const d = parseFloat(dInput.value);
             const type = growthTypeSelect.value;
             const T = parseInt(tInput.value);
 
             // Update displayed values
             p0Value.textContent = p0.toLocaleString();
             u0Value.textContent = u0.toLocaleString();
+            dValue.textContent = d.toFixed(2) + ` (${(d * 100).toFixed(0)}%)`;
             tValue.textContent = T;
 
             let labels = [];
@@ -152,7 +159,7 @@
                 gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
-                    const price = p0 * Math.pow(1 + g, 2 * t);
+                    const price = p0 * Math.pow(1 + g, 2 * t) * Math.pow(1 + d, t);
                     data.push(price);
                 }
                 finalUsers = u0 * Math.pow(1 + g, T);
@@ -164,7 +171,7 @@
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
                     const ut = k / (1 + ((k / u0) - 1) * Math.exp(-r * t));
-                    const price = p0 * Math.pow(ut / u0, 2);
+                    const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t);
                     data.push(price);
                 }
                 finalUsers = k / (1 + ((k / u0) - 1) * Math.exp(-r * T));
@@ -188,6 +195,7 @@
         // Event listeners
         p0Input.addEventListener('input', updateModel);
         u0Input.addEventListener('input', updateModel);
+        dInput.addEventListener('input', updateModel);
         gInput.addEventListener('input', updateModel);
         kInput.addEventListener('input', updateModel);
         rInput.addEventListener('input', updateModel);
