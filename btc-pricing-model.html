@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bitcoin Price Projection Model</title>
+    <title>Bitcoin Price Projection Model (Updated)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
@@ -15,7 +15,7 @@
 </head>
 <body>
     <h1>Bitcoin Price Projection Model (Metcalfe's Law)</h1>
-    <p>Adjust the sliders to experiment with parameters. The chart updates automatically.</p>
+    <p>Adjust sliders and toggle growth type. Chart updates automatically.</p>
 
     <div class="slider-container">
         <label for="p0">Initial Price (P₀ in USD): <output id="p0-value">115000</output></label>
@@ -23,8 +23,34 @@
     </div>
 
     <div class="slider-container">
-        <label for="g">Annual Growth Rate (g): <output id="g-value">0.14</output> (14%)</label>
-        <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.14">
+        <label for="u0">Initial Users (U₀ in millions): <output id="u0-value">600</output></label>
+        <input type="range" id="u0" min="100" max="1000" step="10" value="600">
+    </div>
+
+    <div class="slider-container">
+        <label for="growth-type">Growth Type: <output id="growth-type-value">Constant</output></label>
+        <select id="growth-type">
+            <option value="constant">Constant</option>
+            <option value="logistic">Logistic</option>
+        </select>
+    </div>
+
+    <div id="constant-controls">
+        <div class="slider-container">
+            <label for="g">Annual Growth Rate (g): <output id="g-value">0.14</output> (14%)</label>
+            <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.14">
+        </div>
+    </div>
+
+    <div id="logistic-controls" style="display: none;">
+        <div class="slider-container">
+            <label for="k">Carrying Capacity (K in millions): <output id="k-value">4000</output></label>
+            <input type="range" id="k" min="1000" max="8000" step="100" value="4000">
+        </div>
+        <div class="slider-container">
+            <label for="r">Intrinsic Rate (r): <output id="r-value">0.29</output></label>
+            <input type="range" id="r" min="0.1" max="0.5" step="0.01" value="0.29">
+        </div>
     </div>
 
     <div class="slider-container">
@@ -33,8 +59,9 @@
     </div>
 
     <h2>Results</h2>
-    <p>Annualized Rate of Return (ARR): <output id="arr">~30%</output></p>
+    <p>Effective ARR (Price CAGR): <output id="arr">~30%</output></p>
     <p>Final Price (P_T): <output id="final-price">$1,391,000</output></p>
+    <p>Final Users (U_T in millions): <output id="final-users">2090</output></p>
 
     <div id="chart-container">
         <canvas id="price-chart"></canvas>
@@ -43,13 +70,24 @@
     <script>
         // Get elements
         const p0Input = document.getElementById('p0');
+        const u0Input = document.getElementById('u0');
+        const growthTypeSelect = document.getElementById('growth-type');
         const gInput = document.getElementById('g');
+        const kInput = document.getElementById('k');
+        const rInput = document.getElementById('r');
         const tInput = document.getElementById('t');
         const p0Value = document.getElementById('p0-value');
+        const u0Value = document.getElementById('u0-value');
+        const growthTypeValue = document.getElementById('growth-type-value');
         const gValue = document.getElementById('g-value');
+        const kValue = document.getElementById('k-value');
+        const rValue = document.getElementById('r-value');
         const tValue = document.getElementById('t-value');
         const arrOutput = document.getElementById('arr');
         const finalPriceOutput = document.getElementById('final-price');
+        const finalUsersOutput = document.getElementById('final-users');
+        const constantControls = document.getElementById('constant-controls');
+        const logisticControls = document.getElementById('logistic-controls');
 
         // Chart setup
         const ctx = document.getElementById('price-chart').getContext('2d');
@@ -73,43 +111,75 @@
             }
         });
 
+        // Toggle controls
+        growthTypeSelect.addEventListener('change', () => {
+            const type = growthTypeSelect.value;
+            growthTypeValue.textContent = type.charAt(0).toUpperCase() + type.slice(1);
+            constantControls.style.display = type === 'constant' ? 'block' : 'none';
+            logisticControls.style.display = type === 'logistic' ? 'block' : 'none';
+            updateModel();
+        });
+
         // Update function
         function updateModel() {
             const p0 = parseFloat(p0Input.value);
-            const g = parseFloat(gInput.value);
+            const u0 = parseFloat(u0Input.value);
+            const type = growthTypeSelect.value;
             const T = parseInt(tInput.value);
 
             // Update displayed values
             p0Value.textContent = p0.toLocaleString();
-            gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
+            u0Value.textContent = u0.toLocaleString();
             tValue.textContent = T;
 
-            // Calculate ARR
-            const arr = Math.pow(1 + g, 2) - 1;
-            arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
+            let labels = [];
+            let data = [];
+            let finalUsers;
 
-            // Generate data points
-            const labels = [];
-            const data = [];
-            for (let t = 0; t <= T; t++) {
-                labels.push(t);
-                const price = p0 * Math.pow(1 + g, 2 * t);
-                data.push(price);
+            if (type === 'constant') {
+                const g = parseFloat(gInput.value);
+                gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
+                for (let t = 0; t <= T; t++) {
+                    labels.push(t);
+                    const price = p0 * Math.pow(1 + g, 2 * t);
+                    data.push(price);
+                }
+                finalUsers = u0 * Math.pow(1 + g, T);
+            } else {
+                const k = parseFloat(kInput.value);
+                const r = parseFloat(rInput.value);
+                kValue.textContent = k.toLocaleString();
+                rValue.textContent = r.toFixed(2);
+                for (let t = 0; t <= T; t++) {
+                    labels.push(t);
+                    const ut = k / (1 + ((k / u0) - 1) * Math.exp(-r * t));
+                    const price = p0 * Math.pow(ut / u0, 2);
+                    data.push(price);
+                }
+                finalUsers = k / (1 + ((k / u0) - 1) * Math.exp(-r * T));
             }
-
-            // Update final price
-            const finalPrice = data[data.length - 1];
-            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
 
             // Update chart
             chart.data.labels = labels;
             chart.data.datasets[0].data = data;
             chart.update();
+
+            // Calculate effective ARR (CAGR for price)
+            const finalPrice = data[data.length - 1];
+            const arr = Math.pow(finalPrice / p0, 1 / T) - 1;
+            arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
+
+            // Update outputs
+            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
+            finalUsersOutput.textContent = Math.round(finalUsers).toLocaleString();
         }
 
         // Event listeners
         p0Input.addEventListener('input', updateModel);
+        u0Input.addEventListener('input', updateModel);
         gInput.addEventListener('input', updateModel);
+        kInput.addEventListener('input', updateModel);
+        rInput.addEventListener('input', updateModel);
         tInput.addEventListener('input', updateModel);
 
         // Initial update
