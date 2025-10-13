@@ -8,9 +8,10 @@
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 20px auto; padding: 10px; }
         #chart-container { width: 100%; height: 400px; }
-        .slider-container { margin: 10px 0; }
+        .slider-container { margin: 20px 0; }
         label { display: block; font-weight: bold; }
         output { font-weight: bold; color: #007bff; }
+        .param-desc { font-size: 0.9em; color: #555; margin: 5px 0 10px 0; }
         details { margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
         summary { cursor: pointer; font-weight: bold; }
         ul { margin: 10px 0; padding-left: 20px; }
@@ -20,34 +21,21 @@
     <h1>Bitcoin Price Projection Model (Metcalfe's Law)</h1>
     <p>Adjust sliders and toggle growth type to project Bitcoin's price. The chart and results update automatically.</p>
 
-    <details>
-        <summary>Parameter Explanations</summary>
-        <p>This model uses Metcalfe's Law (price grows with the square of users) to project Bitcoin's price. Below are the adjustable inputs:</p>
-        <ul>
-            <li><strong>Initial Price (P₀)</strong>: Starting Bitcoin price in USD (default: $115,000, current as of Oct 2025). Sets the baseline for projections.</li>
-            <li><strong>Initial Users (U₀)</strong>: Starting number of users in millions (default: 600). Scales the network's value.</li>
-            <li><strong>Time Horizon (T)</strong>: Years to project (default: 10). Defines the forecast period.</li>
-            <li><strong>Growth Type</strong>: Choose "Constant" (steady user growth) or "Logistic" (growth slows as it nears a limit, more realistic).</li>
-            <li><strong>Annual Growth Rate (g)</strong> (Constant mode): Yearly user growth rate (default: 0.14 or 14%). Higher means faster adoption.</li>
-            <li><strong>Carrying Capacity (K)</strong> (Logistic mode): Max potential users in millions (default: 4,000). Limits growth as adoption saturates.</li>
-            <li><strong>Intrinsic Rate (r)</strong> (Logistic mode): Early growth speed (default: 0.29). Higher means faster initial takeoff.</li>
-            <li><strong>Annual Fiat Debasement Rate (d)</strong>: Annual USD inflation/debasement rate (default: 0.05 or 5%). Multiplies price growth to account for BTC as an inflation hedge.</li>
-        </ul>
-        <p>Outputs like ARR (annualized return) and final price/users update as you adjust sliders. Try different values to explore scenarios!</p>
-    </details>
-
     <div class="slider-container">
         <label for="p0">Initial Price (P₀ in USD): <output id="p0-value">115000</output></label>
+        <p class="param-desc">Starting Bitcoin price in USD (real-world: today's market price from exchanges like Coinbase; default based on Oct 2025 data).</p>
         <input type="range" id="p0" min="10000" max="200000" step="1000" value="115000">
     </div>
 
     <div class="slider-container">
         <label for="u0">Initial Users (U₀ in millions): <output id="u0-value">600</output></label>
+        <p class="param-desc">Estimated starting number of Bitcoin users/network participants (real-world: global crypto users ~560M in 2024, with BTC dominating; adjust for your estimate).</p>
         <input type="range" id="u0" min="100" max="1000" step="10" value="600">
     </div>
 
     <div class="slider-container">
         <label for="growth-type">Growth Type: <output id="growth-type-value">Constant</output></label>
+        <p class="param-desc">Select how users grow: "Constant" for steady rate (real-world: like early internet) or "Logistic" for decelerating toward a limit (real-world: like smartphone saturation).</p>
         <select id="growth-type">
             <option value="constant">Constant</option>
             <option value="logistic">Logistic</option>
@@ -57,6 +45,7 @@
     <div id="constant-controls">
         <div class="slider-container">
             <label for="g">Annual Growth Rate (g): <output id="g-value">0.14</output> (14%)</label>
+            <p class="param-desc">Yearly percentage increase in users (real-world: crypto grew ~33% in 2024; expect 10-20% as it matures, like social media platforms).</p>
             <input type="range" id="g" min="0" max="0.5" step="0.01" value="0.14">
         </div>
     </div>
@@ -64,21 +53,19 @@
     <div id="logistic-controls" style="display: none;">
         <div class="slider-container">
             <label for="k">Carrying Capacity (K in millions): <output id="k-value">4000</output></label>
+            <p class="param-desc">Maximum potential global users (real-world: ~half world's 8B population, as not everyone may adopt BTC, similar to current internet penetration).</p>
             <input type="range" id="k" min="1000" max="8000" step="100" value="4000">
         </div>
         <div class="slider-container">
             <label for="r">Intrinsic Rate (r): <output id="r-value">0.29</output></label>
+            <p class="param-desc">Controls initial growth speed before slowing (real-world: tuned for 25-30% early growth, like tech adoption booms e.g., early Uber or TikTok).</p>
             <input type="range" id="r" min="0.1" max="0.5" step="0.01" value="0.29">
         </div>
     </div>
 
     <div class="slider-container">
-        <label for="d">Annual Fiat Debasement Rate (d): <output id="d-value">0.05</output> (5%)</label>
-        <input type="range" id="d" min="0" max="0.2" step="0.01" value="0.05">
-    </div>
-
-    <div class="slider-container">
         <label for="t">Time Horizon (T in years): <output id="t-value">10</output></label>
+        <p class="param-desc">Number of years to forecast (real-world: 10 years to 2035 for long-term views, like investment planning horizons).</p>
         <input type="range" id="t" min="1" max="20" step="1" value="10">
     </div>
 
@@ -99,7 +86,6 @@
         const gInput = document.getElementById('g');
         const kInput = document.getElementById('k');
         const rInput = document.getElementById('r');
-        const dInput = document.getElementById('d');
         const tInput = document.getElementById('t');
         const p0Value = document.getElementById('p0-value');
         const u0Value = document.getElementById('u0-value');
@@ -107,7 +93,6 @@
         const gValue = document.getElementById('g-value');
         const kValue = document.getElementById('k-value');
         const rValue = document.getElementById('r-value');
-        const dValue = document.getElementById('d-value');
         const tValue = document.getElementById('t-value');
         const arrOutput = document.getElementById('arr');
         const finalPriceOutput = document.getElementById('final-price');
@@ -151,13 +136,11 @@
             const p0 = parseFloat(p0Input.value);
             const u0 = parseFloat(u0Input.value);
             const type = growthTypeSelect.value;
-            const d = parseFloat(dInput.value);
             const T = parseInt(tInput.value);
 
             // Update displayed values
             p0Value.textContent = p0.toLocaleString();
             u0Value.textContent = u0.toLocaleString();
-            dValue.textContent = d.toFixed(2) + ` (${(d * 100).toFixed(0)}%)`;
             tValue.textContent = T;
 
             let labels = [];
@@ -169,8 +152,7 @@
                 gValue.textContent = g.toFixed(2) + ` (${(g * 100).toFixed(0)}%)`;
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
-                    let price = p0 * Math.pow(1 + g, 2 * t);
-                    price *= Math.pow(1 + d, t);
+                    const price = p0 * Math.pow(1 + g, 2 * t);
                     data.push(price);
                 }
                 finalUsers = u0 * Math.pow(1 + g, T);
@@ -182,8 +164,7 @@
                 for (let t = 0; t <= T; t++) {
                     labels.push(t);
                     const ut = k / (1 + ((k / u0) - 1) * Math.exp(-r * t));
-                    let price = p0 * Math.pow(ut / u0, 2);
-                    price *= Math.pow(1 + d, t);
+                    const price = p0 * Math.pow(ut / u0, 2);
                     data.push(price);
                 }
                 finalUsers = k / (1 + ((k / u0) - 1) * Math.exp(-r * T));
@@ -210,7 +191,6 @@
         gInput.addEventListener('input', updateModel);
         kInput.addEventListener('input', updateModel);
         rInput.addEventListener('input', updateModel);
-        dInput.addEventListener('input', updateModel);
         tInput.addEventListener('input', updateModel);
 
         // Initial update
