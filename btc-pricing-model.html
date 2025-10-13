@@ -13,6 +13,7 @@
         output { font-weight: bold; color: #007bff; }
         .param-desc { font-size: 0.9em; color: #555; margin: 5px 0 10px 0; }
         #halving-controls { display: none; }
+        .results p { margin: 10px 0; } /* Consistent spacing for results */
     </style>
 </head>
 <body>
@@ -99,13 +100,28 @@
     <p class="param-desc">Market Price is the projected Bitcoin price in year T (e.g., 2035) USD, as seen on exchanges. Inflation-Adjusted Price adjusts it to 2025 USD, showing value in today’s purchasing power. ARR is the annual growth rate for each.</p>
     <p>Market ARR (Price CAGR): <output id="arr">~26%</output></p>
     <p>Inflation-Adjusted ARR (Price CAGR): <output id="real-arr">~21%</output></p>
-    <p>Final Price (P_T): <output id="final-price">$1,110,000</output></p>
+    <p>Market Price (Year <span id="year-t">2035</span> USD): <output id="market-price">$1,110,000</output></p>
+    <p>Inflation-Adjusted Price (2025 USD): <output id="inflation-price">$773,000</output></p>
     <p>Final Users (U_T in millions): <output id="final-users">1548</output></p>
     <p>Final Liquid Supply (millions of BTC): <output id="final-supply">4.80</output></p>
 
     <div id="chart-container">
         <canvas id="price-chart"></canvas>
     </div>
+
+    <!-- Optional Table Idea (Comment Only):
+    Replace the <p> tags under Results with:
+    <table style="border-collapse: collapse; width: 100%; margin-top: 10px;">
+        <tr style="border-bottom: 1px solid #ddd;"><th style="padding: 8px; text-align: left;">Metric</th><th style="padding: 8px;">Value</th></tr>
+        <tr><td>Market ARR (Price CAGR)</td><td><output id="arr">~26%</output></td></tr>
+        <tr><td>Inflation-Adjusted ARR (Price CAGR)</td><td><output id="real-arr">~21%</output></td></tr>
+        <tr><td>Market Price (Year <span id="year-t">2035</span> USD)</td><td><output id="market-price">$1,110,000</output></td></tr>
+        <tr><td>Inflation-Adjusted Price (2025 USD)</td><td><output id="inflation-price">$773,000</output></td></tr>
+        <tr><td>Final Users (millions)</td><td><output id="final-users">1548</output></td></tr>
+        <tr><td>Final Liquid Supply (millions of BTC)</td><td><output id="final-supply">4.80</output></td></tr>
+    </table>
+    This organizes outputs in a clean table, but separate lines are simpler and meet your request.
+    -->
 
     <script>
         // Get elements
@@ -133,9 +149,11 @@
         const tValue = document.getElementById('t-value');
         const arrOutput = document.getElementById('arr');
         const realArrOutput = document.getElementById('real-arr');
-        const finalPriceOutput = document.getElementById('final-price');
+        const marketPriceOutput = document.getElementById('market-price');
+        const inflationPriceOutput = document.getElementById('inflation-price');
         const finalUsersOutput = document.getElementById('final-users');
         const finalSupplyOutput = document.getElementById('final-supply');
+        const yearT = document.getElementById('year-t');
         const constantControls = document.getElementById('constant-controls');
         const logisticControls = document.getElementById('logistic-controls');
         const halvingControls = document.getElementById('halving-controls');
@@ -196,6 +214,7 @@
             reservesRateValue.textContent = reservesRate.toLocaleString();
             gammaValue.textContent = gamma.toFixed(1);
             tValue.textContent = T;
+            yearT.textContent = 2025 + T;
 
             let labels = [];
             let data = [];
@@ -291,7 +310,8 @@
             const realArr = Math.pow(finalPrice / Math.pow(1 + d, T) / p0, 1 / T) - 1;
             arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
             realArrOutput.textContent = `~${(realArr * 100).toFixed(0)}%`;
-            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()} (Market Price, Year ${2025 + T} USD) / $${Math.round(finalPrice / Math.pow(1 + d, T)).toLocaleString()} (Inflation-Adjusted Price, 2025 USD)`;
+            marketPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
+            inflationPriceOutput.textContent = `$${Math.round(finalPrice / Math.pow(1 + d, T)).toLocaleString()}`;
             finalUsersOutput.textContent = Math.round(finalUsers).toLocaleString();
             finalSupplyOutput.textContent = (finalLiquid / 1000000).toFixed(2);
         }
