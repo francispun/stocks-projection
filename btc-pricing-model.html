@@ -99,7 +99,7 @@
     <p>Effective ARR (Price CAGR): <output id="arr">~26%</output></p>
     <p>Final Price (P_T): <output id="final-price">$1,110,000</output></p>
     <p>Final Users (U_T in millions): <output id="final-users">1548</output></p>
-    <p>Final Liquid Supply (S_l T in millions): <output id="final-supply">4.80</output></p>
+    <p>Final Liquid Supply (millions of BTC): <output id="final-supply">4.80</output></p>
 
     <div id="chart-container">
         <canvas id="price-chart"></canvas>
@@ -214,18 +214,24 @@
                     let supply = initialSupply;
                     let reward = 3.125;
                     let liquid = initialLiquid;
+                    let illiquid = initialIlliquid;
                     if (supplyType === 'halving') {
                         for (let y = 1; y <= t; y++) {
-                            flow = reward * blocksPerYear;
+                            let flow = reward * blocksPerYear;
                             supply += flow;
-                            liquid += flow - reservesRate * 365; // Add emissions, subtract reserves
+                            const reservesAnnual = reservesRate * 365;
+                            const reservesApplied = Math.min(reservesAnnual, liquid + flow);
+                            liquid += flow - reservesApplied;
+                            illiquid += reservesApplied;
+                            const lost = liquid * 0.002; // 0.2%/yr lost coins
+                            liquid -= lost;
+                            illiquid += lost;
                             if (halvingYears.includes(y)) {
                                 reward /= 2;
                             }
                         }
-                        liquid = Math.max(liquid, 0.1 * supply); // Ensure liquid doesn't go negative
                     }
-                    const liquidFactor = (supplyType === 'halving') ? Math.pow(initialLiquid / liquid, gamma) : 1;
+                    const liquidFactor = (supplyType === 'halving') ? Math.min(Math.pow(initialLiquid / liquid, gamma), 10) : 1;
                     const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t) * liquidFactor;
                     data.push(price);
                     if (t === T) {
@@ -244,18 +250,24 @@
                     let supply = initialSupply;
                     let reward = 3.125;
                     let liquid = initialLiquid;
+                    let illiquid = initialIlliquid;
                     if (supplyType === 'halving') {
                         for (let y = 1; y <= t; y++) {
-                            flow = reward * blocksPerYear;
+                            let flow = reward * blocksPerYear;
                             supply += flow;
-                            liquid += flow - reservesRate * 365;
+                            const reservesAnnual = reservesRate * 365;
+                            const reservesApplied = Math.min(reservesAnnual, liquid + flow);
+                            liquid += flow - reservesApplied;
+                            illiquid += reservesApplied;
+                            const lost = liquid * 0.002; // 0.2%/yr lost coins
+                            liquid -= lost;
+                            illiquid += lost;
                             if (halvingYears.includes(y)) {
                                 reward /= 2;
                             }
                         }
-                        liquid = Math.max(liquid, 0.1 * supply);
                     }
-                    const liquidFactor = (supplyType === 'halving') ? Math.pow(initialLiquid / liquid, gamma) : 1;
+                    const liquidFactor = (supplyType === 'halving') ? Math.min(Math.pow(initialLiquid / liquid, gamma), 10) : 1;
                     const price = p0 * Math.pow(ut / u0, 2) * Math.pow(1 + d, t) * liquidFactor;
                     data.push(price);
                     if (t === T) {
@@ -273,10 +285,10 @@
             // Calculate effective ARR
             const finalPrice = data[data.length - 1];
             const arr = Math.pow(finalPrice / p0, 1 / T) - 1;
-            arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
+            arrOutput.textContent = `~${(arr * 100).toFixed(0)}% (Nominal)`;
 
             // Update outputs
-            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()}`;
+            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()} (Nominal) / $${Math.round(finalPrice / Math.pow(1 + d, T)).toLocaleString()} (Real)`;
             finalUsersOutput.textContent = Math.round(finalUsers).toLocaleString();
             finalSupplyOutput.textContent = (finalLiquid / 1000000).toFixed(2);
         }
