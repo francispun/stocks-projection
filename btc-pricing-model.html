@@ -11,11 +11,29 @@
         .slider-container { margin: 10px 0; }
         label { display: block; font-weight: bold; }
         output { font-weight: bold; color: #007bff; }
+        details { margin: 20px 0; padding: 10px; border: 1px solid #ccc; border-radius: 5px; }
+        summary { cursor: pointer; font-weight: bold; }
+        ul { margin: 10px 0; padding-left: 20px; }
     </style>
 </head>
 <body>
     <h1>Bitcoin Price Projection Model (Metcalfe's Law)</h1>
-    <p>Adjust sliders and toggle growth type. Chart updates automatically.</p>
+    <p>Adjust sliders and toggle growth type to project Bitcoin's price. The chart and results update automatically.</p>
+
+    <details>
+        <summary>Parameter Explanations</summary>
+        <p>This model uses Metcalfe's Law (price grows with the square of users) to project Bitcoin's price. Below are the adjustable inputs:</p>
+        <ul>
+            <li><strong>Initial Price (P₀)</strong>: Starting Bitcoin price in USD (default: $115,000, current as of Oct 2025). Sets the baseline for projections.</li>
+            <li><strong>Initial Users (U₀)</strong>: Starting number of users in millions (default: 600). Scales the network's value.</li>
+            <li><strong>Time Horizon (T)</strong>: Years to project (default: 10). Defines the forecast period.</li>
+            <li><strong>Growth Type</strong>: Choose "Constant" (steady user growth) or "Logistic" (growth slows as it nears a limit, more realistic).</li>
+            <li><strong>Annual Growth Rate (g)</strong> (Constant mode): Yearly user growth rate (default: 0.14 or 14%). Higher means faster adoption.</li>
+            <li><strong>Carrying Capacity (K)</strong> (Logistic mode): Max potential users in millions (default: 4,000). Limits growth as adoption saturates.</li>
+            <li><strong>Intrinsic Rate (r)</strong> (Logistic mode): Early growth speed (default: 0.29). Higher means faster initial takeoff.</li>
+        </ul>
+        <p>Outputs like ARR (annualized return) and final price/users update as you adjust sliders. Try different values to explore scenarios!</p>
+    </details>
 
     <div class="slider-container">
         <label for="p0">Initial Price (P₀ in USD): <output id="p0-value">115000</output></label>
