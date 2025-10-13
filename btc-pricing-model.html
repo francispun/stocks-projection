@@ -96,7 +96,9 @@
     </div>
 
     <h2>Results</h2>
-    <p>Effective ARR (Price CAGR): <output id="arr">~26%</output></p>
+    <p class="param-desc">Market Price is the projected Bitcoin price in year T (e.g., 2035) USD, as seen on exchanges. Inflation-Adjusted Price adjusts it to 2025 USD, showing value in today’s purchasing power. ARR is the annual growth rate for each.</p>
+    <p>Market ARR (Price CAGR): <output id="arr">~26%</output></p>
+    <p>Inflation-Adjusted ARR (Price CAGR): <output id="real-arr">~21%</output></p>
     <p>Final Price (P_T): <output id="final-price">$1,110,000</output></p>
     <p>Final Users (U_T in millions): <output id="final-users">1548</output></p>
     <p>Final Liquid Supply (millions of BTC): <output id="final-supply">4.80</output></p>
@@ -130,6 +132,7 @@
         const rValue = document.getElementById('r-value');
         const tValue = document.getElementById('t-value');
         const arrOutput = document.getElementById('arr');
+        const realArrOutput = document.getElementById('real-arr');
         const finalPriceOutput = document.getElementById('final-price');
         const finalUsersOutput = document.getElementById('final-users');
         const finalSupplyOutput = document.getElementById('final-supply');
@@ -285,10 +288,10 @@
             // Calculate effective ARR
             const finalPrice = data[data.length - 1];
             const arr = Math.pow(finalPrice / p0, 1 / T) - 1;
-            arrOutput.textContent = `~${(arr * 100).toFixed(0)}% (Nominal)`;
-
-            // Update outputs
-            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()} (Nominal) / $${Math.round(finalPrice / Math.pow(1 + d, T)).toLocaleString()} (Real)`;
+            const realArr = Math.pow(finalPrice / Math.pow(1 + d, T) / p0, 1 / T) - 1;
+            arrOutput.textContent = `~${(arr * 100).toFixed(0)}%`;
+            realArrOutput.textContent = `~${(realArr * 100).toFixed(0)}%`;
+            finalPriceOutput.textContent = `$${Math.round(finalPrice).toLocaleString()} (Market Price, Year ${2025 + T} USD) / $${Math.round(finalPrice / Math.pow(1 + d, T)).toLocaleString()} (Inflation-Adjusted Price, 2025 USD)`;
             finalUsersOutput.textContent = Math.round(finalUsers).toLocaleString();
             finalSupplyOutput.textContent = (finalLiquid / 1000000).toFixed(2);
         }
