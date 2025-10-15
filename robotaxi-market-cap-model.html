@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotaxi Market Projection Model (With Country Breakdown & Tesla Share)</title>
+    <title>Robotaxi Market Projection Model (With Margin % & P/E)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -76,7 +76,7 @@
 </head>
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
-    <p style="text-align: center;">This updated model breaks down the initial market size (M₀) into top 5 countries + others, based on 2025 projections for combined taxi and ride-hailing markets. Adjust each country's initial size to see the total M₀ update. Also includes sliders for Tesla's projected market share in the robotaxi market (default 50%, based on ARK Invest projections<grok-card data-id="2a01f1" data-type="citation_card"></grok-card>) and a valuation multiple (default 10x P/S on final-year revenue, conservative for high-growth tech/mobility). The chart now includes Tesla's portion of the robotaxi market. Below the chart, see the projected market cap for Tesla's robotaxi business portion.</p>
+    <p style="text-align: center;">This model breaks down the initial market size (M₀) into top 5 countries + others. Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs, as per your feedback—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029<grok-card data-id="de1bd0" data-type="citation_card"></grok-card>) and a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA in bull/bear cases). The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, now based on final-year earnings (revenue * margin %) * P/E.</p>
     
     <h2>Initial Market Size Breakdown by Country (USD Billion)</h2>
     <div class="slider-container">
@@ -121,8 +121,13 @@
     </div>
     
     <div class="slider-container">
-        <label class="slider-label" for="val_multiple">Valuation Multiple (P/S x): <span id="val_multiple-value">10</span></label>
-        <input type="range" id="val_multiple" min="1" max="50" step="1" value="10">
+        <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span></label>
+        <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span></label>
+        <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
     </div>
     
     <div class="slider-container">
@@ -253,6 +258,7 @@
             const g = parseFloat(document.getElementById('g').value);
             const r = parseFloat(document.getElementById('r').value);
             const tesla_share = parseFloat(document.getElementById('tesla_share').value);
+            const margin_percent = parseFloat(document.getElementById('margin_percent').value);
             const val_multiple = parseFloat(document.getElementById('val_multiple').value);
             const years = parseInt(document.getElementById('years').value);
 
@@ -267,6 +273,7 @@
             document.getElementById('g-value').textContent = g.toFixed(3) + ` (${(g * 100).toFixed(1)}%)`;
             document.getElementById('r-value').textContent = r.toFixed(3) + ` (${(r * 100).toFixed(1)}%)`;
             document.getElementById('tesla_share-value').textContent = tesla_share;
+            document.getElementById('margin_percent-value').textContent = margin_percent;
             document.getElementById('val_multiple-value').textContent = val_multiple;
             document.getElementById('years-value').textContent = years;
 
@@ -300,8 +307,9 @@
             // Update Tesla market cap projection
             const lastYear = labels[years];
             const lastTeslaRevenue = teslaRobotaxi[years];
-            const marketCap = (lastTeslaRevenue * val_multiple).toFixed(2);
-            document.getElementById('tesla-cap').textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/S on final-year revenue)`;
+            const lastTeslaEarnings = lastTeslaRevenue * (margin_percent / 100);
+            const marketCap = (lastTeslaEarnings * val_multiple).toFixed(2);
+            document.getElementById('tesla-cap').textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/E on final-year earnings: Revenue * ${margin_percent}% Margin)`;
         }
 
         function resetSliders() {
@@ -314,7 +322,8 @@
             document.getElementById('g').value = 0.113;
             document.getElementById('r').value = 0.05;
             document.getElementById('tesla_share').value = 50;
-            document.getElementById('val_multiple').value = 10;
+            document.getElementById('margin_percent').value = 32;
+            document.getElementById('val_multiple').value = 18;
             document.getElementById('years').value = 10;
             updateChart();
         }
