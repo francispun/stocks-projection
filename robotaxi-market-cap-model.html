@@ -149,7 +149,7 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), Adoption Speed and Peak Adoption Year (for growth acceleration), and an autonomy price discount (default 30%) to reflect lower ride fees without human drivers. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
+        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), Adoption Speed and Peak Adoption Year (for robotaxi penetration growth), and an autonomy price discount (default 30%) to reflect lower ride fees without human drivers. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -476,10 +476,11 @@
                 let pt_avg = 0;
 
                 countries.forEach(country => {
-                    // Logistic growth rate: peaks at user-defined peak_adoption_year, with user-defined adoption_speed
-                    let g_t = country.g * (1 / (1 + Math.exp(-adoption_speed * (t - peak_adoption_year)))) * Math.pow(1 - growth_decline, t);
+                    // Total market growth: steady with base growth rate and decline
+                    let g_t = country.g * Math.pow(1 - growth_decline, t);
                     const mt_country = country.m0 * Math.pow(1 + g_t, t);
-                    const pt_country = (1 - Math.pow(1 - country.r, t)) * 100;
+                    // Robotaxi penetration: S-curve with adoption_speed and peak_adoption_year, capped at country.r
+                    const pt_country = country.r * (1 / (1 + Math.exp(-adoption_speed * (t - peak_adoption_year)))) * 100;
                     // Apply price discount to robotaxi revenue
                     const robotaxi_country = mt_country * (pt_country / 100) * (1 - price_discount / 100);
 
