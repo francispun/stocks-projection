@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Robotaxi Market Projection Model</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .slider-container {
+            margin-bottom: 20px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .slider-label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        input[type="range"] {
+            width: 100%;
+        }
+        canvas {
+            max-width: 800px;
+            margin: 20px auto;
+            display: block;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <h1>Interactive Robotaxi Market Projection Model</h1>
+    <p style="text-align: center;">Adjust the sliders to modify the model variables and see the projected market sizes and robotaxi penetration over time.</p>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="m0">Initial Market Size (M₀, USD Billion): <span id="m0-value">301.52</span></label>
+        <input type="range" id="m0" min="100" max="500" step="1" value="301.52">
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="g">Annual Market Growth Rate (g): <span id="g-value">0.113</span> (11.3%)</label>
+        <input type="range" id="g" min="0" max="0.2" step="0.001" value="0.113">
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="r">Annual Replacement Rate (r): <span id="r-value">0.05</span> (5%)</label>
+        <input type="range" id="r" min="0" max="0.2" step="0.001" value="0.05">
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
+        <input type="range" id="years" min="5" max="20" step="1" value="10">
+    </div>
+    
+    <canvas id="marketChart"></canvas>
+    
+    <script>
+        // Initialize Chart.js
+        const ctx = document.getElementById('marketChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Total Market Size (USD Billion)',
+                        borderColor: '#1f77b4',
+                        backgroundColor: 'rgba(31, 119, 180, 0.1)',
+                        fill: false,
+                        data: []
+                    },
+                    {
+                        label: 'Robotaxi Market Size (USD Billion)',
+                        borderColor: '#2ca02c',
+                        backgroundColor: 'rgba(44, 160, 44, 0.1)',
+                        fill: false,
+                        data: []
+                    },
+                    {
+                        label: 'Robotaxi Penetration (%)',
+                        borderColor: '#d62728',
+                        backgroundColor: 'rgba(214, 39, 40, 0.1)',
+                        fill: false,
+                        data: [],
+                        yAxisID: 'percentage'
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Year' }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Market Size (USD Billion)' },
+                        beginAtZero: false
+                    },
+                    percentage: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Penetration (%)' },
+                        grid: { drawOnChartArea: false },
+                        min: 0,
+                        max: 100
+                    }
+                },
+                plugins: {
+                    legend: { position: 'top' },
+                    title: { display: true, text: 'Robotaxi Market Projection' }
+                }
+            }
+        });
+
+        // Update chart based on slider inputs
+        function updateChart() {
+            const m0 = parseFloat(document.getElementById('m0').value);
+            const g = parseFloat(document.getElementById('g').value);
+            const r = parseFloat(document.getElementById('r').value);
+            const years = parseInt(document.getElementById('years').value);
+
+            // Update displayed values
+            document.getElementById('m0-value').textContent = m0.toFixed(2);
+            document.getElementById('g-value').textContent = g.toFixed(3) + ` (${(g * 100).toFixed(1)}%)`;
+            document.getElementById('r-value').textContent = r.toFixed(3) + ` (${(r * 100).toFixed(1)}%)`;
+            document.getElementById('years-value').textContent = years;
+
+            // Calculate projections
+            const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
+            const totalMarket = [];
+            const robotaxiMarket = [];
+            const penetration = [];
+
+            for (let t = 0; t <= years; t++) {
+                const mt = m0 * Math.pow(1 + g, t); // Total market size: M0 * (1 + g)^t
+                const pt = (1 - Math.pow(1 - r, t)) * 100; // Penetration: (1 - (1 - r)^t) * 100
+                const robotaxi = mt * (pt / 100); // Robotaxi market: mt * pt
+
+                totalMarket.push(mt.toFixed(2));
+                robotaxiMarket.push(robotaxi.toFixed(2));
+                penetration.push(pt.toFixed(2));
+            }
+
+            // Update chart data
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = totalMarket;
+            chart.data.datasets[1].data = robotaxiMarket;
+            chart.data.datasets[2].data = penetration;
+            chart.update();
+        }
+
+        // Attach event listeners to sliders
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', updateChart);
+        });
+
+        // Initial chart render
+        updateChart();
+    </script>
+</body>
+</html>
