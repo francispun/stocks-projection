@@ -148,7 +148,6 @@
     </style>
 </head>
 <body>
-    <!-- HTML content remains unchanged -->
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
         <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029) and a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA in bull/bear cases). The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, now based on final-year earnings (revenue * margin %) * P/E.</p>
@@ -343,34 +342,34 @@
                 },
                 scales: {
                     x: {
-                        title: { display: true, text: 'Year', font: { size: clamp(10, 3vw, 12) } }
+                        title: { display: true, text: 'Year', font: { size: 12 } }
                     },
                     y: {
                         type: 'linear',
                         position: 'left',
-                        title: { display: true, text: 'Market Size (USD Billion)', font: { size: clamp(10, 3vw, 12) } },
+                        title: { display: true, text: 'Market Size (USD Billion)', font: { size: 12 } },
                         beginAtZero: true,
-                        ticks: { font: { size: clamp(8, 2.5vw, 10) } }
+                        ticks: { font: { size: 10 } }
                     },
                     percentage: {
                         type: 'linear',
                         position: 'right',
-                        title: { display: true, text: 'Penetration (%)', font: { size: clamp(10, 3vw, 12) } },
+                        title: { display: true, text: 'Penetration (%)', font: { size: 12 } },
                         grid: { drawOnChartArea: false },
                         min: 0,
                         max: 100,
-                        ticks: { font: { size: clamp(8, 2.5vw, 10) } }
+                        ticks: { font: { size: 10 } }
                     }
                 },
                 plugins: {
                     legend: { 
                         position: 'top',
-                        labels: { font: { size: clamp(8, 2.5vw, 10) } }
+                        labels: { font: { size: 10 } }
                     },
                     title: { 
                         display: true, 
                         text: 'Robotaxi Market Projection',
-                        font: { size: clamp(12, 4vw, 14) }
+                        font: { size: 14 }
                     },
                     tooltip: {
                         mode: 'index',
@@ -419,7 +418,6 @@
             document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
             document.getElementById('japan_m0-value').textContent = japan_m0.toFixed(1);
             document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
-
             document.getElementById('total_m0-value').textContent = m0.toFixed(2);
 
             document.getElementById('china_g-value').textContent = china_g.toFixed(2) + ` (${(china_g * 100).toFixed(0)}%)`;
