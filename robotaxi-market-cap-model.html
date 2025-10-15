@@ -80,21 +80,30 @@
             height: 500px;
         }
         #tesla-cap {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #f7e9e9;
+            border-radius: 8px;
             text-align: center;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             color: #ae2727;
-            margin-top: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .sources-section {
             max-width: 900px;
             margin: 20px auto;
-            font-size: 11pt;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            font-size: 10pt;
             line-height: 1.5;
-            color: #333;
+            color: #555;
         }
         .sources-section h3 {
-            font-size: 14pt;
+            font-size: 12pt;
             margin-bottom: 10px;
         }
         .sources-section ul {
@@ -123,7 +132,7 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model breaks down the initial market size (M₀) into top 5 countries + others, with per-country growth rates (g) and replacement rates (r). Defaults reflect market data (e.g., higher g in China/India, faster r in China/US). Added Annual Growth Decline % (d) for descending growth (g_t = g * (1 - d)^t). Includes Tesla's market share, Profit Margin % (default 32%, ARK Invest's 2029 EBITDA projection), and P/E multiple (default 18x, ARK's bull/bear cases). Chart shows Tesla's portion; market cap below uses final-year earnings (revenue * margin %) * P/E.</p>
+        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029) and a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA in bull/bear cases). The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, now based on final-year earnings (revenue * margin %) * P/E.</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -192,34 +201,18 @@
     </div>
     
     <div class="country-section">
-        <h3>Germany</h3>
+        <h3>Others (incl. Germany)</h3>
         <div class="slider-container">
-            <label class="slider-label" for="germany_m0">Initial Market Size (USD Billion): <span id="germany_m0-value">10.0</span></label>
-            <input type="range" id="germany_m0" min="0" max="200" step="0.1" value="10.0">
+            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span></label>
+            <input type="range" id="others_m0" min="0" max="200" step="0.1" value="77.52">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="germany_g">Growth Rate (g): <span id="germany_g-value">0.08</span> (8%)</label>
-            <input type="range" id="germany_g" min="0" max="0.3" step="0.001" value="0.08">
+            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%)</label>
+            <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="germany_r">Replacement Rate (r): <span id="germany_r-value">0.03</span> (3%)</label>
-            <input type="range" id="germany_r" min="0" max="0.2" step="0.001" value="0.03">
-        </div>
-    </div>
-    
-    <div class="country-section">
-        <h3>Others</h3>
-        <div class="slider-container">
-            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">67.52</span></label>
-            <input type="range" id="others_m0" min="0" max="200" step="0.1" value="67.52">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.12</span> (12%)</label>
-            <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.12">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="others_r">Replacement Rate (r): <span id="others_r-value">0.05</span> (5%)</label>
-            <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.05">
+            <label class="slider-label" for="others_r">Replacement Rate (r): <span id="others_r-value">0.04</span> (4%)</label>
+            <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
     
@@ -265,8 +258,7 @@
             <li><strong>United States (USD 62.3B)</strong>: Statista (ride-hailing ~USD 59.27B, 107M users); Mordor Intelligence (~USD 40B ride-hailing); Business Research Insights (~USD 104B combined, high-end); Global Market Insights (~USD 31B ride-sharing in 2025 at 6.9% CAGR).</li>
             <li><strong>India (USD 30.6B)</strong>: Mordor Intelligence (combined ~USD 22.25B); Data Insights Market (~USD 20.6B); IMARC (~USD 23B in 2025 at 13% CAGR); Statista (ride-hailing ~USD 8.3B); Markets and Data (~USD 1.1B ride-hailing, subset).</li>
             <li><strong>Japan (USD 15.0B)</strong>: IMARC (ride-hailing ~USD 12.2B at 14.2% CAGR); Statista (ride-hailing ~USD 0.7B, taxis ~USD 2.8B by 2025); Cognitive (~USD 6.7B ride-hailing); Maximize (~USD 4.7B combined).</li>
-            <li><strong>Germany (USD 10.0B)</strong>: Statista (ride-hailing ~USD 1.6B, taxis ~USD 3B by 2025); Cognitive (Europe ~USD 59B, Germany ~10-15%); Virtue (~USD 4B in 2025).</li>
-            <li><strong>Others (USD 67.52B)</strong>: Aggregated from Straits Research (APAC ex-China/India/Japan ~USD 18B); Business Research Insights (Europe ex-Germany ~USD 20-25B); Grand View/Mordor (Latin America ~USD 12-20B); Future Market Insights (MEA ~USD 11B).</li>
+            <li><strong>Others incl. Germany (USD 77.52B)</strong>: Aggregated from Straits Research (APAC ex-China/India/Japan ~USD 18B); Business Research Insights (Europe ex-Germany ~USD 20-25B); Grand View/Mordor (Latin America ~USD 12-20B); Future Market Insights (MEA ~USD 11B); Statista (Germany ride-hailing ~USD 1.6B, taxis ~USD 3B by 2025).</li>
             <li><strong>Other Parameters</strong>: ARK Invest (Tesla market share ~50%, profit margin ~32% EBITDA for 2029, P/E ~18x aligned with bull/bear enterprise value/EBITDA).</li>
         </ul>
     </div>
@@ -375,27 +367,24 @@
 
         // Update chart based on inputs
         function updateChart() {
-            // Get M0, g, and r values
+            // Get M0, g, and r values (Germany combined into Others)
             const china_m0 = parseFloat(document.getElementById('china_m0').value);
             const us_m0 = parseFloat(document.getElementById('us_m0').value);
             const india_m0 = parseFloat(document.getElementById('india_m0').value);
             const japan_m0 = parseFloat(document.getElementById('japan_m0').value);
-            const germany_m0 = parseFloat(document.getElementById('germany_m0').value);
             const others_m0 = parseFloat(document.getElementById('others_m0').value);
-            const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + germany_m0 + others_m0;
+            const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + others_m0;
 
             const china_g = parseFloat(document.getElementById('china_g').value);
             const us_g = parseFloat(document.getElementById('us_g').value);
             const india_g = parseFloat(document.getElementById('india_g').value);
             const japan_g = parseFloat(document.getElementById('japan_g').value);
-            const germany_g = parseFloat(document.getElementById('germany_g').value);
             const others_g = parseFloat(document.getElementById('others_g').value);
 
             const china_r = parseFloat(document.getElementById('china_r').value);
             const us_r = parseFloat(document.getElementById('us_r').value);
             const india_r = parseFloat(document.getElementById('india_r').value);
             const japan_r = parseFloat(document.getElementById('japan_r').value);
-            const germany_r = parseFloat(document.getElementById('germany_r').value);
             const others_r = parseFloat(document.getElementById('others_r').value);
 
             const growth_decline = parseFloat(document.getElementById('growth_decline').value);
@@ -409,7 +398,6 @@
             document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
             document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
             document.getElementById('japan_m0-value').textContent = japan_m0.toFixed(1);
-            document.getElementById('germany_m0-value').textContent = germany_m0.toFixed(1);
             document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
             document.getElementById('total_m0-value').textContent = m0.toFixed(2);
 
@@ -417,14 +405,12 @@
             document.getElementById('us_g-value').textContent = us_g.toFixed(2) + ` (${(us_g * 100).toFixed(0)}%)`;
             document.getElementById('india_g-value').textContent = india_g.toFixed(2) + ` (${(india_g * 100).toFixed(0)}%)`;
             document.getElementById('japan_g-value').textContent = japan_g.toFixed(2) + ` (${(japan_g * 100).toFixed(0)}%)`;
-            document.getElementById('germany_g-value').textContent = germany_g.toFixed(2) + ` (${(germany_g * 100).toFixed(0)}%)`;
             document.getElementById('others_g-value').textContent = others_g.toFixed(2) + ` (${(others_g * 100).toFixed(0)}%)`;
 
             document.getElementById('china_r-value').textContent = china_r.toFixed(2) + ` (${(china_r * 100).toFixed(0)}%)`;
             document.getElementById('us_r-value').textContent = us_r.toFixed(2) + ` (${(us_r * 100).toFixed(0)}%)`;
             document.getElementById('india_r-value').textContent = india_r.toFixed(2) + ` (${(india_r * 100).toFixed(0)}%)`;
             document.getElementById('japan_r-value').textContent = japan_r.toFixed(2) + ` (${(japan_r * 100).toFixed(0)}%)`;
-            document.getElementById('germany_r-value').textContent = germany_r.toFixed(2) + ` (${(germany_r * 100).toFixed(0)}%)`;
             document.getElementById('others_r-value').textContent = others_r.toFixed(2) + ` (${(others_r * 100).toFixed(0)}%)`;
 
             document.getElementById('growth_decline-value').textContent = (growth_decline * 100).toFixed(1) + '%';
@@ -446,7 +432,6 @@
                     {m0: us_m0, g: us_g, r: us_r},
                     {m0: india_m0, g: india_g, r: india_r},
                     {m0: japan_m0, g: japan_g, r: japan_r},
-                    {m0: germany_m0, g: germany_g, r: germany_r},
                     {m0: others_m0, g: others_g, r: others_r}
                 ];
 
@@ -494,22 +479,19 @@
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
             document.getElementById('japan_m0').value = 15.0;
-            document.getElementById('germany_m0').value = 10.0;
-            document.getElementById('others_m0').value = 67.52;
+            document.getElementById('others_m0').value = 77.52;
 
             document.getElementById('china_g').value = 0.20;
             document.getElementById('us_g').value = 0.15;
             document.getElementById('india_g').value = 0.20;
             document.getElementById('japan_g').value = 0.10;
-            document.getElementById('germany_g').value = 0.08;
-            document.getElementById('others_g').value = 0.12;
+            document.getElementById('others_g').value = 0.10;
 
             document.getElementById('china_r').value = 0.10;
             document.getElementById('us_r').value = 0.08;
             document.getElementById('india_r').value = 0.05;
             document.getElementById('japan_r').value = 0.04;
-            document.getElementById('germany_r').value = 0.03;
-            document.getElementById('others_r').value = 0.05;
+            document.getElementById('others_r').value = 0.04;
 
             document.getElementById('growth_decline').value = 0;
             document.getElementById('tesla_share').value = 50;
