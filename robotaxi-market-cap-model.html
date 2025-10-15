@@ -149,7 +149,7 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), Adoption Speed and Peak Adoption Year (for robotaxi penetration growth), and an autonomy price discount (default 30%) to reflect lower ride fees without human drivers. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
+        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), Adoption Speed and Peak Adoption Year (for robotaxi penetration growth), an autonomy price discount (default 30%) to reflect lower ride fees without human drivers, and Price Elasticity Boost (default 1.0) to model how lower prices expand the market and accelerate adoption. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -254,8 +254,8 @@
             <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
-            <input type="range" id="years" min="5" max="20" step="1" value="10">
+            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span></label>
+            <input type="range" id="years" min="5" max="30" step="1" value="15">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span></label>
@@ -263,11 +263,15 @@
         </div>
         <div class="slider-container">
             <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span></label>
-            <input type="range" id="peak_adoption_year" min="3" max="10" step="1" value="5">
+            <input type="range" id="peak_adoption_year" min="3" max="15" step="1" value="5">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span></label>
-            <input type="range" id="price_discount" min="0" max="50" step="1" value="30">
+            <input type="range" id="price_discount" min="0" max="80" step="1" value="30">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span></label>
+            <input type="range" id="elasticity_boost" min="0.5" max="2.0" step="0.1" value="1.0">
         </div>
     </div>
     
@@ -425,6 +429,7 @@
             const adoption_speed = parseFloat(document.getElementById('adoption_speed').value);
             const peak_adoption_year = parseInt(document.getElementById('peak_adoption_year').value);
             const price_discount = parseFloat(document.getElementById('price_discount').value);
+            const elasticity_boost = parseFloat(document.getElementById('elasticity_boost').value);
 
             // Update displayed values
             document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
@@ -454,6 +459,7 @@
             document.getElementById('adoption_speed-value').textContent = adoption_speed.toFixed(1);
             document.getElementById('peak_adoption_year-value').textContent = peak_adoption_year;
             document.getElementById('price_discount-value').textContent = price_discount;
+            document.getElementById('elasticity_boost-value').textContent = elasticity_boost.toFixed(1);
 
             // Calculate projections
             const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
@@ -476,11 +482,14 @@
                 let pt_avg = 0;
 
                 countries.forEach(country => {
-                    // Total market growth: steady with base growth rate and decline
+                    // Total market growth: steady with base growth rate and decline, boosted by price elasticity
                     let g_t = country.g * Math.pow(1 - growth_decline, t);
+                    g_t += (price_discount / 100) * elasticity_boost;
                     const mt_country = country.m0 * Math.pow(1 + g_t, t);
-                    // Robotaxi penetration: S-curve with adoption_speed and peak_adoption_year, capped at country.r
-                    const pt_country = country.r * (1 / (1 + Math.exp(-adoption_speed * (t - peak_adoption_year)))) * 100;
+                    // Robotaxi penetration: S-curve with adoption_speed and peak_adoption_year, scaled by effective r (including price_discount boost)
+                    const effective_r = country.r + (price_discount / 100);
+                    let pt_country = (1 / (1 + Math.exp(-adoption_speed * effective_r * (t - peak_adoption_year)))) * 100;
+                    pt_country = Math.min(pt_country, 100);
                     // Apply price discount to robotaxi revenue
                     const robotaxi_country = mt_country * (pt_country / 100) * (1 - price_discount / 100);
 
@@ -536,10 +545,11 @@
             document.getElementById('tesla_share').value = 50;
             document.getElementById('margin_percent').value = 32;
             document.getElementById('val_multiple').value = 18;
-            document.getElementById('years').value = 10;
+            document.getElementById('years').value = 15;
             document.getElementById('adoption_speed').value = 0.5;
             document.getElementById('peak_adoption_year').value = 5;
             document.getElementById('price_discount').value = 30;
+            document.getElementById('elasticity_boost').value = 1.0;
             updateChart();
         }
 
