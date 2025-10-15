@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotaxi Market Projection Model (With Margin % & P/E)</title>
+    <title>Robotaxi Market Projection Model (Per-Country Rates & Grouped Sliders)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -21,10 +21,24 @@
             font-size: 18px;
         }
         .slider-container {
-            margin-bottom: 20px;
+            margin-bottom: 10px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
+        }
+        .country-section {
+            margin-bottom: 30px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .global-section {
+            margin-top: 40px;
+            padding: 15px;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .slider-label {
             display: block;
@@ -69,70 +83,170 @@
             text-align: center;
             font-size: 16px;
             font-weight: bold;
-            color: #d62728;
+            color: #ae2727;
             margin-top: 20px;
+        }
+        .sources-section {
+            max-width: 900px;
+            margin: 20px auto;
+            font-size: 11pt;
+            line-height: 1.5;
+            color: #333;
+        }
+        .sources-section h3 {
+            font-size: 14pt;
+            margin-bottom: 10px;
+        }
+        .sources-section ul {
+            margin-top: 0;
+            padding-left: 20px;
+        }
+        .sources-section li {
+            margin-bottom: 8px;
+        }
+        .description-container {
+            max-width: 900px;
+            margin: 20px auto;
+            padding: 15px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+        }
+        p.description {
+            font-size: 10pt;
+            text-align: center;
+            color: #555;
+            margin: 0;
         }
     </style>
 </head>
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
-    <p style="text-align: center; font-size: 11px;">This model breaks down the initial market size (M₀) into top 5 countries + others. Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs, as per your feedback—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029<grok-card data-id="de1bd0" data-type="citation_card"></grok-card>) and a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA in bull/bear cases). The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, now based on final-year earnings (revenue * margin %) * P/E.</p>
+    <div class="description-container">
+        <p class="description">This model breaks down the initial market size (M₀) into top 5 countries + others, with per-country growth rates (g) and replacement rates (r). Defaults reflect market data (e.g., higher g in China/India, faster r in China/US). Added Annual Growth Decline % (d) for descending growth (g_t = g * (1 - d)^t). Includes Tesla's market share, Profit Margin % (default 32%, ARK Invest's 2029 EBITDA projection), and P/E multiple (default 18x, ARK's bull/bear cases). Chart shows Tesla's portion; market cap below uses final-year earnings (revenue * margin %) * P/E.</p>
+    </div>
     
-    <h2>Initial Market Size Breakdown by Country (USD Billion)</h2>
-    <div class="slider-container">
-        <label class="slider-label" for="china_m0">China: <span id="china_m0-value">116.1</span></label>
-        <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
+    <h2>Country-Specific Parameters</h2>
+    <div class="country-section">
+        <h3>China</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span></label>
+            <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%)</label>
+            <input type="range" id="china_g" min="0" max="0.3" step="0.001" value="0.20">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="china_r">Replacement Rate (r): <span id="china_r-value">0.10</span> (10%)</label>
+            <input type="range" id="china_r" min="0" max="0.2" step="0.001" value="0.10">
+        </div>
     </div>
-    <div class="slider-container">
-        <label class="slider-label" for="us_m0">United States: <span id="us_m0-value">62.3</span></label>
-        <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
+    
+    <div class="country-section">
+        <h3>United States</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span></label>
+            <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%)</label>
+            <input type="range" id="us_g" min="0" max="0.3" step="0.001" value="0.15">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="us_r">Replacement Rate (r): <span id="us_r-value">0.08</span> (8%)</label>
+            <input type="range" id="us_r" min="0" max="0.2" step="0.001" value="0.08">
+        </div>
     </div>
-    <div class="slider-container">
-        <label class="slider-label" for="india_m0">India: <span id="india_m0-value">30.6</span></label>
-        <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
+    
+    <div class="country-section">
+        <h3>India</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span></label>
+            <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%)</label>
+            <input type="range" id="india_g" min="0" max="0.3" step="0.001" value="0.20">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="india_r">Replacement Rate (r): <span id="india_r-value">0.05</span> (5%)</label>
+            <input type="range" id="india_r" min="0" max="0.2" step="0.001" value="0.05">
+        </div>
     </div>
-    <div class="slider-container">
-        <label class="slider-label" for="japan_m0">Japan: <span id="japan_m0-value">15.0</span></label>
-        <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
+    
+    <div class="country-section">
+        <h3>Japan</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span></label>
+            <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%)</label>
+            <input type="range" id="japan_g" min="0" max="0.3" step="0.001" value="0.10">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="japan_r">Replacement Rate (r): <span id="japan_r-value">0.04</span> (4%)</label>
+            <input type="range" id="japan_r" min="0" max="0.2" step="0.001" value="0.04">
+        </div>
     </div>
-    <div class="slider-container">
-        <label class="slider-label" for="germany_m0">Germany: <span id="germany_m0-value">10.0</span></label>
-        <input type="range" id="germany_m0" min="0" max="200" step="0.1" value="10.0">
+    
+    <div class="country-section">
+        <h3>Germany</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="germany_m0">Initial Market Size (USD Billion): <span id="germany_m0-value">10.0</span></label>
+            <input type="range" id="germany_m0" min="0" max="200" step="0.1" value="10.0">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="germany_g">Growth Rate (g): <span id="germany_g-value">0.08</span> (8%)</label>
+            <input type="range" id="germany_g" min="0" max="0.3" step="0.001" value="0.08">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="germany_r">Replacement Rate (r): <span id="germany_r-value">0.03</span> (3%)</label>
+            <input type="range" id="germany_r" min="0" max="0.2" step="0.001" value="0.03">
+        </div>
     </div>
-    <div class="slider-container">
-        <label class="slider-label" for="others_m0">Others: <span id="others_m0-value">67.52</span></label>
-        <input type="range" id="others_m0" min="0" max="200" step="0.1" value="67.52">
+    
+    <div class="country-section">
+        <h3>Others</h3>
+        <div class="slider-container">
+            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">67.52</span></label>
+            <input type="range" id="others_m0" min="0" max="200" step="0.1" value="67.52">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.12</span> (12%)</label>
+            <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.12">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="others_r">Replacement Rate (r): <span id="others_r-value">0.05</span> (5%)</label>
+            <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.05">
+        </div>
     </div>
+    
     <p style="text-align: center; font-weight: bold;">Total Initial Market Size (M₀): <span id="total_m0-value">301.52</span> USD Billion</p>
     
-    <div class="slider-container">
-        <label class="slider-label" for="g">Annual Market Growth Rate (g): <span id="g-value">0.113</span> (11.3%)</label>
-        <input type="range" id="g" min="0" max="0.2" step="0.001" value="0.113">
-    </div>
-    
-    <div class="slider-container">
-        <label class="slider-label" for="r">Annual Replacement Rate (r): <span id="r-value">0.05</span> (5%)</label>
-        <input type="range" id="r" min="0" max="0.2" step="0.001" value="0.05">
-    </div>
-    
-    <div class="slider-container">
-        <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span></label>
-        <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
-    </div>
-    
-    <div class="slider-container">
-        <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span></label>
-        <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
-    </div>
-    
-    <div class="slider-container">
-        <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span></label>
-        <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
-    </div>
-    
-    <div class="slider-container">
-        <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
-        <input type="range" id="years" min="5" max="20" step="1" value="10">
+    <div class="global-section">
+        <h2>Global Parameters</h2>
+        <div class="slider-container">
+            <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span></label>
+            <input type="range" id="growth_decline" min="0" max="0.1" step="0.001" value="0">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span></label>
+            <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span></label>
+            <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span></label>
+            <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
+            <input type="range" id="years" min="5" max="20" step="1" value="10">
+        </div>
     </div>
     
     <button id="reset-btn" onclick="resetSliders()">Reset to Defaults</button>
@@ -142,6 +256,20 @@
     </div>
     
     <p id="tesla-cap"></p>
+    
+    <div class="sources-section">
+        <h3>Sources for Initial Market Size (2025 Projections)</h3>
+        <ul>
+            <li><strong>Global Total (USD 301.52B)</strong>: Straits Research, combined taxi and ride-hailing market projection for 2025.</li>
+            <li><strong>China (USD 116.1B)</strong>: Statista (ride-hailing ~USD 62.35B, 721M users); Statista (taxis ~USD 54.11B); Business Research Insights (~USD 93B combined, conservative); Cognitive (~USD 22B ride-hailing in 2025 at 10.5% CAGR).</li>
+            <li><strong>United States (USD 62.3B)</strong>: Statista (ride-hailing ~USD 59.27B, 107M users); Mordor Intelligence (~USD 40B ride-hailing); Business Research Insights (~USD 104B combined, high-end); Global Market Insights (~USD 31B ride-sharing in 2025 at 6.9% CAGR).</li>
+            <li><strong>India (USD 30.6B)</strong>: Mordor Intelligence (combined ~USD 22.25B); Data Insights Market (~USD 20.6B); IMARC (~USD 23B in 2025 at 13% CAGR); Statista (ride-hailing ~USD 8.3B); Markets and Data (~USD 1.1B ride-hailing, subset).</li>
+            <li><strong>Japan (USD 15.0B)</strong>: IMARC (ride-hailing ~USD 12.2B at 14.2% CAGR); Statista (ride-hailing ~USD 0.7B, taxis ~USD 2.8B by 2025); Cognitive (~USD 6.7B ride-hailing); Maximize (~USD 4.7B combined).</li>
+            <li><strong>Germany (USD 10.0B)</strong>: Statista (ride-hailing ~USD 1.6B, taxis ~USD 3B by 2025); Cognitive (Europe ~USD 59B, Germany ~10-15%); Virtue (~USD 4B in 2025).</li>
+            <li><strong>Others (USD 67.52B)</strong>: Aggregated from Straits Research (APAC ex-China/India/Japan ~USD 18B); Business Research Insights (Europe ex-Germany ~USD 20-25B); Grand View/Mordor (Latin America ~USD 12-20B); Future Market Insights (MEA ~USD 11B).</li>
+            <li><strong>Other Parameters</strong>: ARK Invest (Tesla market share ~50%, profit margin ~32% EBITDA for 2029, P/E ~18x aligned with bull/bear enterprise value/EBITDA).</li>
+        </ul>
+    </div>
     
     <script>
         // Initialize Chart.js
@@ -247,6 +375,7 @@
 
         // Update chart based on inputs
         function updateChart() {
+            // Get M0, g, and r values
             const china_m0 = parseFloat(document.getElementById('china_m0').value);
             const us_m0 = parseFloat(document.getElementById('us_m0').value);
             const india_m0 = parseFloat(document.getElementById('india_m0').value);
@@ -255,8 +384,21 @@
             const others_m0 = parseFloat(document.getElementById('others_m0').value);
             const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + germany_m0 + others_m0;
 
-            const g = parseFloat(document.getElementById('g').value);
-            const r = parseFloat(document.getElementById('r').value);
+            const china_g = parseFloat(document.getElementById('china_g').value);
+            const us_g = parseFloat(document.getElementById('us_g').value);
+            const india_g = parseFloat(document.getElementById('india_g').value);
+            const japan_g = parseFloat(document.getElementById('japan_g').value);
+            const germany_g = parseFloat(document.getElementById('germany_g').value);
+            const others_g = parseFloat(document.getElementById('others_g').value);
+
+            const china_r = parseFloat(document.getElementById('china_r').value);
+            const us_r = parseFloat(document.getElementById('us_r').value);
+            const india_r = parseFloat(document.getElementById('india_r').value);
+            const japan_r = parseFloat(document.getElementById('japan_r').value);
+            const germany_r = parseFloat(document.getElementById('germany_r').value);
+            const others_r = parseFloat(document.getElementById('others_r').value);
+
+            const growth_decline = parseFloat(document.getElementById('growth_decline').value);
             const tesla_share = parseFloat(document.getElementById('tesla_share').value);
             const margin_percent = parseFloat(document.getElementById('margin_percent').value);
             const val_multiple = parseFloat(document.getElementById('val_multiple').value);
@@ -270,8 +412,22 @@
             document.getElementById('germany_m0-value').textContent = germany_m0.toFixed(1);
             document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
             document.getElementById('total_m0-value').textContent = m0.toFixed(2);
-            document.getElementById('g-value').textContent = g.toFixed(3) + ` (${(g * 100).toFixed(1)}%)`;
-            document.getElementById('r-value').textContent = r.toFixed(3) + ` (${(r * 100).toFixed(1)}%)`;
+
+            document.getElementById('china_g-value').textContent = china_g.toFixed(2) + ` (${(china_g * 100).toFixed(0)}%)`;
+            document.getElementById('us_g-value').textContent = us_g.toFixed(2) + ` (${(us_g * 100).toFixed(0)}%)`;
+            document.getElementById('india_g-value').textContent = india_g.toFixed(2) + ` (${(india_g * 100).toFixed(0)}%)`;
+            document.getElementById('japan_g-value').textContent = japan_g.toFixed(2) + ` (${(japan_g * 100).toFixed(0)}%)`;
+            document.getElementById('germany_g-value').textContent = germany_g.toFixed(2) + ` (${(germany_g * 100).toFixed(0)}%)`;
+            document.getElementById('others_g-value').textContent = others_g.toFixed(2) + ` (${(others_g * 100).toFixed(0)}%)`;
+
+            document.getElementById('china_r-value').textContent = china_r.toFixed(2) + ` (${(china_r * 100).toFixed(0)}%)`;
+            document.getElementById('us_r-value').textContent = us_r.toFixed(2) + ` (${(us_r * 100).toFixed(0)}%)`;
+            document.getElementById('india_r-value').textContent = india_r.toFixed(2) + ` (${(india_r * 100).toFixed(0)}%)`;
+            document.getElementById('japan_r-value').textContent = japan_r.toFixed(2) + ` (${(japan_r * 100).toFixed(0)}%)`;
+            document.getElementById('germany_r-value').textContent = germany_r.toFixed(2) + ` (${(germany_r * 100).toFixed(0)}%)`;
+            document.getElementById('others_r-value').textContent = others_r.toFixed(2) + ` (${(others_r * 100).toFixed(0)}%)`;
+
+            document.getElementById('growth_decline-value').textContent = (growth_decline * 100).toFixed(1) + '%';
             document.getElementById('tesla_share-value').textContent = tesla_share;
             document.getElementById('margin_percent-value').textContent = margin_percent;
             document.getElementById('val_multiple-value').textContent = val_multiple;
@@ -285,15 +441,36 @@
             const penetration = [];
 
             for (let t = 0; t <= years; t++) {
-                const mt = m0 * Math.pow(1 + g, t);
-                const pt = (1 - Math.pow(1 - r, t)) * 100;
-                const robotaxi = mt * (pt / 100);
-                const tesla_rt = robotaxi * (tesla_share / 100);
+                const countries = [
+                    {m0: china_m0, g: china_g, r: china_r},
+                    {m0: us_m0, g: us_g, r: us_r},
+                    {m0: india_m0, g: india_g, r: india_r},
+                    {m0: japan_m0, g: japan_g, r: japan_r},
+                    {m0: germany_m0, g: germany_g, r: germany_r},
+                    {m0: others_m0, g: others_g, r: others_r}
+                ];
 
-                totalMarket.push(parseFloat(mt.toFixed(2)));
-                robotaxiMarket.push(parseFloat(robotaxi.toFixed(2)));
+                let mt_total = 0;
+                let robotaxi_total = 0;
+                let pt_avg = 0;
+
+                countries.forEach(country => {
+                    let g_t = country.g * Math.pow(1 - growth_decline, t);
+                    const mt_country = country.m0 * Math.pow(1 + g_t, t);
+                    const pt_country = (1 - Math.pow(1 - country.r, t)) * 100;
+                    const robotaxi_country = mt_country * (pt_country / 100);
+
+                    mt_total += mt_country;
+                    robotaxi_total += robotaxi_country;
+                    pt_avg += (pt_country * country.m0 / m0);
+                });
+
+                const tesla_rt = robotaxi_total * (tesla_share / 100);
+
+                totalMarket.push(parseFloat(mt_total.toFixed(2)));
+                robotaxiMarket.push(parseFloat(robotaxi_total.toFixed(2)));
                 teslaRobotaxi.push(parseFloat(tesla_rt.toFixed(2)));
-                penetration.push(parseFloat(pt.toFixed(2)));
+                penetration.push(parseFloat(pt_avg.toFixed(2)));
             }
 
             // Update chart data
@@ -319,8 +496,22 @@
             document.getElementById('japan_m0').value = 15.0;
             document.getElementById('germany_m0').value = 10.0;
             document.getElementById('others_m0').value = 67.52;
-            document.getElementById('g').value = 0.113;
-            document.getElementById('r').value = 0.05;
+
+            document.getElementById('china_g').value = 0.20;
+            document.getElementById('us_g').value = 0.15;
+            document.getElementById('india_g').value = 0.20;
+            document.getElementById('japan_g').value = 0.10;
+            document.getElementById('germany_g').value = 0.08;
+            document.getElementById('others_g').value = 0.12;
+
+            document.getElementById('china_r').value = 0.10;
+            document.getElementById('us_r').value = 0.08;
+            document.getElementById('india_r').value = 0.05;
+            document.getElementById('japan_r').value = 0.04;
+            document.getElementById('germany_r').value = 0.03;
+            document.getElementById('others_r').value = 0.05;
+
+            document.getElementById('growth_decline').value = 0;
             document.getElementById('tesla_share').value = 50;
             document.getElementById('margin_percent').value = 32;
             document.getElementById('val_multiple').value = 18;
