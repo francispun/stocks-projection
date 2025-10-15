@@ -49,6 +49,13 @@
             color: #333;
             font-size: clamp(0.8rem, 3vw, 0.9rem);
         }
+        .tooltip {
+            font-weight: normal;
+            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            color: #555;
+            margin-left: 5px;
+            cursor: help;
+        }
         input[type="range"] {
             width: 100%;
         }
@@ -149,22 +156,22 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model projects the robotaxi market by breaking down the initial ride-hailing market size (M₀, 2025) into top 4 countries + others (Germany in Others). Adjust sliders to update total M₀. Includes Tesla's market share, Profit Margin % (default 32%, per ARK Invest's 2029 EBITDA projection), P/E Valuation Multiple (default 18x, aligned with ARK), Adoption Speed and Peak Adoption Year (for robotaxi penetration via Gompertz curve, where acceleration increases initially, peaks, then decelerates), Autonomy Price Discount (default 30%, reflecting lower fares), and Price Elasticity Boost (default 1.0, modeling market expansion from affordability, e.g., bus users switching). Adoption Readiness (r) scales adoption speed, not penetration cap, allowing full replacement. The chart shows Total Market Size, Robotaxi Market Size, Tesla Robotaxi Size, and Penetration %. Below: Tesla's projected market cap (final-year revenue * margin % * P/E).</p>
+        <p class="description">Projects robotaxi market using 2025 ride-hailing size (M₀) for top 4 countries + others. Adjust sliders for market size, growth, and adoption. Uses Gompertz curve for penetration (slow start, rising acceleration, peak, then slowdown). Includes Tesla share, margin (32%), P/E (18x), price discount (30%), and elasticity boost (1.0) for demand growth. Adoption Readiness (r) scales speed, not cap. Shows Total Market, Robotaxi Market, Tesla Robotaxi, Penetration %, and Tesla market cap.</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
     <div class="country-section">
         <h3>China</h3>
         <div class="slider-container">
-            <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span></label>
+            <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span> <span class="tooltip" title="2025 ride-hailing market size ($116.1B). Sets growth baseline. Source: Statista">ℹ️</span></label>
             <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%)</label>
+            <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%) <span class="tooltip" title="Annual market growth (20%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
             <input type="range" id="china_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="china_r">Adoption Readiness (r): <span id="china_r-value">0.10</span> (10%)</label>
+            <label class="slider-label" for="china_r">Adoption Readiness (r): <span id="china_r-value">0.10</span> (10%) <span class="tooltip" title="Readiness for robotaxi adoption (10%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
             <input type="range" id="china_r" min="0" max="0.2" step="0.001" value="0.10">
         </div>
     </div>
@@ -172,15 +179,15 @@
     <div class="country-section">
         <h3>United States</h3>
         <div class="slider-container">
-            <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span></label>
+            <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span> <span class="tooltip" title="2025 ride-hailing market size ($62.3B). Sets growth baseline. Source: Statista">ℹ️</span></label>
             <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%)</label>
+            <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%) <span class="tooltip" title="Annual market growth (15%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
             <input type="range" id="us_g" min="0" max="0.3" step="0.001" value="0.15">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="us_r">Adoption Readiness (r): <span id="us_r-value">0.08</span> (8%)</label>
+            <label class="slider-label" for="us_r">Adoption Readiness (r): <span id="us_r-value">0.08</span> (8%) <span class="tooltip" title="Readiness for robotaxi adoption (8%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
             <input type="range" id="us_r" min="0" max="0.2" step="0.001" value="0.08">
         </div>
     </div>
@@ -188,15 +195,15 @@
     <div class="country-section">
         <h3>India</h3>
         <div class="slider-container">
-            <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span></label>
+            <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span> <span class="tooltip" title="2025 ride-hailing market size ($30.6B). Sets growth baseline. Source: IMARC">ℹ️</span></label>
             <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%)</label>
+            <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%) <span class="tooltip" title="Annual market growth (20%). Models demand rise (urbanization, apps). Source: IMARC">ℹ️</span></label>
             <input type="range" id="india_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="india_r">Adoption Readiness (r): <span id="india_r-value">0.05</span> (5%)</label>
+            <label class="slider-label" for="india_r">Adoption Readiness (r): <span id="india_r-value">0.05</span> (5%) <span class="tooltip" title="Readiness for robotaxi adoption (5%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
             <input type="range" id="india_r" min="0" max="0.2" step="0.001" value="0.05">
         </div>
     </div>
@@ -204,15 +211,15 @@
     <div class="country-section">
         <h3>Japan</h3>
         <div class="slider-container">
-            <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span></label>
+            <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span> <span class="tooltip" title="2025 ride-hailing market size ($15B). Sets growth baseline. Source: IMARC">ℹ️</span></label>
             <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%)</label>
+            <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%) <span class="tooltip" title="Annual market growth (10%). Models demand rise (urbanization, apps). Source: IMARC">ℹ️</span></label>
             <input type="range" id="japan_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="japan_r">Adoption Readiness (r): <span id="japan_r-value">0.04</span> (4%)</label>
+            <label class="slider-label" for="japan_r">Adoption Readiness (r): <span id="japan_r-value">0.04</span> (4%) <span class="tooltip" title="Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
             <input type="range" id="japan_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
@@ -220,15 +227,15 @@
     <div class="country-section">
         <h3>Others (incl. Germany)</h3>
         <div class="slider-container">
-            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span></label>
+            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span> <span class="tooltip" title="2025 ride-hailing market size ($77.52B). Sets growth baseline. Source: Straits Research">ℹ️</span></label>
             <input type="range" id="others_m0" min="0" max="200" step="0.1" value="77.52">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%)</label>
+            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%) <span class="tooltip" title="Annual market growth (10%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
             <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="others_r">Adoption Readiness (r): <span id="others_r-value">0.04</span> (4%)</label>
+            <label class="slider-label" for="others_r">Adoption Readiness (r): <span id="others_r-value">0.04</span> (4%) <span class="tooltip" title="Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
             <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
@@ -238,39 +245,39 @@
     <div class="global-section">
         <h2>Global Parameters</h2>
         <div class="slider-container">
-            <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span></label>
+            <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span> <span class="tooltip" title="Yearly reduction in growth rate (0–5%). Reflects market maturity or slowdown.">ℹ️</span></label>
             <input type="range" id="growth_decline" min="0" max="0.1" step="0.001" value="0">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span></label>
+            <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span> <span class="tooltip" title="Tesla’s share of robotaxi revenue (50%). Models competition (Waymo, Baidu). Source: ARK Invest">ℹ️</span></label>
             <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span></label>
+            <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span> <span class="tooltip" title="Tesla’s robotaxi profit margin (32%). Reflects cost efficiency. Source: ARK’s 2029 EBITDA">ℹ️</span></label>
             <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span></label>
+            <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span> <span class="tooltip" title="Multiplier for Tesla’s market cap (18x). Models investor confidence. Source: ARK">ℹ️</span></label>
             <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span></label>
+            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span> <span class="tooltip" title="Forecast duration (15 = 2040). Sets time horizon for market growth.">ℹ️</span></label>
             <input type="range" id="years" min="5" max="30" step="1" value="15">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span></label>
+            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span> <span class="tooltip" title="Speed of robotaxi adoption (0.1–1.0). Higher = sharper acceleration increase (e.g., Tesla FSD scaling).">ℹ️</span></label>
             <input type="range" id="adoption_speed" min="0.1" max="1.0" step="0.1" value="0.5">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span></label>
+            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span> <span class="tooltip" title="Year of max robotaxi growth rate (5 = 2030). Sets acceleration peak (e.g., 10 = 2035).">ℹ️</span></label>
             <input type="range" id="peak_adoption_year" min="3" max="15" step="1" value="5">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span></label>
+            <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span> <span class="tooltip" title="Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, cuts revenue.">ℹ️</span></label>
             <input type="range" id="price_discount" min="0" max="80" step="1" value="30">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span></label>
+            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span> <span class="tooltip" title="Demand increase from lower fares (0.5–2.0). Models new users (e.g., bus riders). Source: Uber elasticity">ℹ️</span></label>
             <input type="range" id="elasticity_boost" min="0.5" max="2.0" step="0.1" value="1.0">
         </div>
     </div>
@@ -286,20 +293,18 @@
     <div class="sources-section">
         <h3>Sources for Initial Market Size (2025 Projections)</h3>
         <ul>
-            <li><strong>Global Total (USD 301.52B)</strong>: Straits Research, combined taxi and ride-hailing market projection for 2025.</li>
-            <li><strong>China (USD 116.1B)</strong>: Statista (ride-hailing ~USD 62.35B, 721M users); Statista (taxis ~USD 54.11B); Business Research Insights (~USD 93B combined, conservative); Cognitive (~USD 22B ride-hailing in 2025 at 10.5% CAGR).</li>
-            <li><strong>United States (USD 62.3B)</strong>: Statista (ride-hailing ~USD 59.27B, 107M users); Mordor Intelligence (~USD 40B ride-hailing); Business Research Insights (~USD 104B combined, high-end); Global Market Insights (~USD 31B ride-sharing in 2025 at 6.9% CAGR).</li>
-            <li><strong>India (USD 30.6B)</strong>: Mordor Intelligence (combined ~USD 22.25B); Data Insights Market (~USD 20.6B); IMARC (~USD 23B in 2025 at 13% CAGR); Statista (ride-hailing ~USD 8.3B); Markets and Data (~USD 1.1B ride-hailing, subset).</li>
-            <li><strong>Japan (USD 15.0B)</strong>: IMARC (ride-hailing ~USD 12.2B at 14.2% CAGR); Statista (ride-hailing ~USD 0.7B, taxis ~USD 2.8B by 2025); Cognitive (~USD 6.7B ride-hailing); Maximize (~USD 4.7B combined).</li>
-            <li><strong>Others incl. Germany (USD 77.52B)</strong>: Aggregated from Straits Research (APAC ex-China/India/Japan ~USD 18B); Business Research Insights (Europe ex-Germany ~USD 20-25B); Grand View/Mordor (Latin America ~USD 12-20B); Future Market Insights (MEA ~USD 11B); Statista (Germany ride-hailing ~USD 1.6B, taxis ~USD 3B by 2025).</li>
-            <li><strong>Other Parameters</strong>: ARK Invest (Tesla market share ~50%, profit margin ~32% EBITDA for 2029, P/E ~18x aligned with bull/bear enterprise value/EBITDA); Uber elasticity studies (-0.5 to -1.0 demand elasticity).</li>
+            <li><strong>Global Total ($301.52B)</strong>: Straits Research, combined taxi and ride-hailing projection for 2025.</li>
+            <li><strong>China ($116.1B)</strong>: Statista (ride-hailing $62.35B, taxis $54.11B); Business Research Insights ($93B combined).</li>
+            <li><strong>United States ($62.3B)</strong>: Statista (ride-hailing $59.27B); Mordor Intelligence ($40B ride-hailing).</li>
+            <li><strong>India ($30.6B)</strong>: IMARC ($23B in 2025 at 13% CAGR); Statista (ride-hailing $8.3B).</li>
+            <li><strong>Japan ($15.0B)</strong>: IMARC (ride-hailing $12.2B at 14.2% CAGR); Statista (taxis $2.8B).</li>
+            <li><strong>Others incl. Germany ($77.52B)</strong>: Straits Research (APAC $18B); Statista (Germany $4.6B).</li>
+            <li><strong>Other Parameters</strong>: ARK Invest (Tesla share 50%, margin 32%, P/E 18x); Uber elasticity (-0.5 to -1.0).</li>
         </ul>
     </div>
     
     <script>
-        // Wait for DOM to load
         window.onload = function() {
-            // Initialize Chart.js
             const ctx = document.getElementById('marketChart')?.getContext('2d');
             if (!ctx) {
                 console.error('Canvas element "marketChart" not found');
@@ -386,15 +391,8 @@
                             }
                         },
                         plugins: {
-                            legend: { 
-                                position: 'top',
-                                labels: { font: { size: 10 } }
-                            },
-                            title: { 
-                                display: true, 
-                                text: 'Robotaxi Market Projection',
-                                font: { size: 14 }
-                            },
+                            legend: { position: 'top', labels: { font: { size: 10 } } },
+                            title: { display: true, text: 'Robotaxi Market Projection', font: { size: 14 } },
                             tooltip: {
                                 mode: 'index',
                                 intersect: false,
@@ -412,10 +410,8 @@
                 return;
             }
 
-            // Update chart based on inputs
             function updateChart() {
                 try {
-                    // Get M0, g, and r values
                     const china_m0 = parseFloat(document.getElementById('china_m0')?.value || 116.1);
                     const us_m0 = parseFloat(document.getElementById('us_m0')?.value || 62.3);
                     const india_m0 = parseFloat(document.getElementById('india_m0')?.value || 30.6);
@@ -445,7 +441,6 @@
                     const price_discount = parseFloat(document.getElementById('price_discount')?.value || 30);
                     const elasticity_boost = parseFloat(document.getElementById('elasticity_boost')?.value || 1.0);
 
-                    // Update displayed values
                     document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
                     document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
                     document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
@@ -475,7 +470,6 @@
                     document.getElementById('price_discount-value').textContent = price_discount;
                     document.getElementById('elasticity_boost-value').textContent = elasticity_boost.toFixed(1);
 
-                    // Calculate projections
                     const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
                     const totalMarket = [];
                     const robotaxiMarket = [];
@@ -499,15 +493,12 @@
 
                         countries.forEach((country, index) => {
                             try {
-                                // Total market growth: steady with base growth rate and decline, boosted by price elasticity
                                 let g_t = country.g * Math.pow(1 - growth_decline, t);
                                 g_t += (price_discount / 100) * elasticity_boost;
                                 const mt_country = country.m0 * Math.pow(1 + g_t, t);
-                                // Robotaxi penetration: Gompertz curve with increasing acceleration initially
-                                const effective_r = Math.max(0.01, country.r + (price_discount / 100)); // Prevent negative/zero
+                                const effective_r = Math.max(0.01, country.r + (price_discount / 100));
                                 let pt_country = 100 * Math.exp(-Math.exp(-adoption_speed * effective_r * (t - peak_adoption_year)));
-                                pt_country = Math.min(Math.max(pt_country, 0), 100); // Bound 0–100%
-                                // Apply price discount to robotaxi revenue
+                                pt_country = Math.min(Math.max(pt_country, 0), 100);
                                 const robotaxi_country = mt_country * (pt_country / 100) * (1 - price_discount / 100);
 
                                 console.log(`Year ${t}, Country ${index}: mt_country=${mt_country.toFixed(2)}, pt_country=${pt_country.toFixed(2)}, robotaxi_country=${robotaxi_country.toFixed(2)}`);
@@ -530,7 +521,6 @@
 
                     console.log('Data for chart:', { totalMarket, robotaxiMarket, teslaRobotaxi, penetration });
 
-                    // Update chart data
                     chart.data.labels = labels;
                     chart.data.datasets[0].data = totalMarket;
                     chart.data.datasets[1].data = robotaxiMarket;
@@ -538,7 +528,6 @@
                     chart.data.datasets[3].data = penetration;
                     chart.update('none');
 
-                    // Update Tesla market cap projection
                     const lastYear = labels[years];
                     const lastTeslaRevenue = teslaRobotaxi[years] || 0;
                     const lastTeslaEarnings = lastTeslaRevenue * (margin_percent / 100);
@@ -589,7 +578,6 @@
                 }
             }
 
-            // Attach event listeners to sliders
             document.querySelectorAll('input[type="range"]').forEach(slider => {
                 slider.addEventListener('input', () => {
                     try {
@@ -600,7 +588,6 @@
                 });
             });
 
-            // Initial chart render
             updateChart();
         };
     </script>
