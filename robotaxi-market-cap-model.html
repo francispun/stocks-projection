@@ -8,65 +8,96 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 20px;
+            margin: 3vw;
             background-color: #f4f4f4;
+            overscroll-behavior: none;
         }
         h1 {
             text-align: center;
             color: #333;
-            font-size: clamp(1.5rem, 5vw, 2rem);
+            font-size: clamp(1.2rem, 4vw, 1.8rem);
+            margin: 2vw 0;
         }
         h2 {
             text-align: center;
             color: #555;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: clamp(0.9rem, 3.5vw, 1.2rem);
+            margin: 2vw 0;
         }
         .slider-container {
-            margin-bottom: 10px;
-            max-width: 600px;
+            margin-bottom: 2vw;
+            max-width: 90vw;
             margin-left: auto;
             margin-right: auto;
-            padding: 0 10px;
+            padding: 0 2vw;
         }
         .country-section {
-            margin-bottom: 20px;
-            padding: 10px;
+            margin-bottom: 3vw;
+            padding: 2vw;
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 2vw;
+            box-shadow: 0 0.2vw 0.6vw rgba(0,0,0,0.1);
         }
         .global-section {
-            margin-top: 20px;
-            padding: 10px;
+            margin-top: 3vw;
+            padding: 2vw;
             background-color: #ffffff;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-radius: 2vw;
+            box-shadow: 0 0.2vw 0.6vw rgba(0,0,0,0.1);
         }
         .slider-label {
-            display: block;
-            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 1vw;
             font-weight: bold;
             color: #333;
-            font-size: clamp(0.8rem, 3vw, 0.9rem);
+            font-size: clamp(0.8rem, 3vw, 1rem);
         }
-        .tooltip {
-            font-weight: normal;
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+        .info-icon {
+            cursor: pointer;
+            color: #007bff;
+            margin-left: 1vw;
+            font-size: clamp(0.8rem, 2.5vw, 0.9rem);
+        }
+        .description {
+            display: none;
+            font-size: clamp(0.7rem, 2.5vw, 0.875rem);
             color: #555;
-            margin-left: 5px;
-            cursor: help;
+            margin-top: 1vw;
+            padding: 1vw;
+            background-color: #f9f9f9;
+            border-radius: 1vw;
+        }
+        .description.show {
+            display: block;
         }
         input[type="range"] {
             width: 100%;
+            height: 10vw;
+            max-height: 40px;
+            touch-action: manipulation;
+            -webkit-appearance: none;
+            background: #ddd;
+            border-radius: 1vw;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 6vw;
+            height: 6vw;
+            max-width: 24px;
+            max-height: 24px;
+            background: #007bff;
+            border-radius: 50%;
+            cursor: pointer;
         }
         #reset-btn {
             display: block;
-            margin: 20px auto;
-            padding: 8px 16px;
+            margin: 3vw auto;
+            padding: 2vw 4vw;
             background-color: #007bff;
             color: white;
             border: none;
-            border-radius: 5px;
+            border-radius: 1vw;
             cursor: pointer;
             font-size: clamp(0.9rem, 3.5vw, 1rem);
         }
@@ -74,81 +105,87 @@
             background-color: #0056b3;
         }
         .chart-container {
-            position: relative;
             width: 100%;
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
-            height: auto;
+            max-width: 90vw;
+            margin: 3vw auto;
+            padding: 2vw;
+            height: 40vh;
         }
         canvas {
             width: 100% !important;
-            max-width: 100%;
-            height: auto !important;
+            height: 100% !important;
             background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 2vw;
+            box-shadow: 0 0.4vw 1vw rgba(0,0,0,0.1);
         }
         #tesla-cap {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 90vw;
+            margin: 3vw auto;
+            padding: 2vw;
             background-color: #f7e9e9;
-            border-radius: 8px;
+            border-radius: 2vw;
             text-align: center;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            font-size: clamp(0.8rem, 3vw, 1rem);
             font-weight: bold;
             color: #ae2727;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            box-shadow: 0 0.2vw 0.6vw rgba(0,0,0,0.1);
         }
         .sources-section {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 90vw;
+            margin: 3vw auto;
+            padding: 2vw;
             background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            border-radius: 2vw;
+            box-shadow: 0 0.2vw 0.6vw rgba(0,0,0,0.05);
+            font-size: clamp(0.7rem, 2.5vw, 0.875rem);
             line-height: 1.5;
             color: #555;
         }
         .sources-section h3 {
             font-size: clamp(0.9rem, 3vw, 1rem);
-            margin-bottom: 10px;
+            margin-bottom: 2vw;
         }
         .sources-section ul {
-            margin-top: 0;
-            padding-left: 20px;
+            margin: 0;
+            padding-left: 4vw;
         }
         .sources-section li {
-            margin-bottom: 8px;
+            margin-bottom: 1.5vw;
         }
         .description-container {
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
+            max-width: 90vw;
+            margin: 3vw auto;
+            padding: 2vw;
             background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border-radius: 2vw;
+            box-shadow: 0 0.2vw 0.6vw rgba(0,0,0,0.05);
         }
         p.description {
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: clamp(0.7rem, 2.5vw, 0.875rem);
             text-align: center;
             color: #555;
             margin: 0;
         }
         @media (max-width: 600px) {
             body {
-                margin: 10px;
+                margin: 2vw;
             }
             .slider-container {
-                padding: 0 5px;
+                padding: 0 1vw;
             }
             .country-section, .global-section {
-                padding: 8px;
+                padding: 1.5vw;
             }
             .chart-container {
-                padding: 5px;
+                padding: 1vw;
+                height: 50vh;
+            }
+            input[type="range"] {
+                height: 12vw;
+            }
+            input[type="range"]::-webkit-slider-thumb {
+                width: 8vw;
+                height: 8vw;
             }
         }
     </style>
@@ -163,15 +200,18 @@
     <div class="country-section">
         <h3>China</h3>
         <div class="slider-container">
-            <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span> <span class="tooltip" title="2025 ride-hailing market size ($116.1B). Sets growth baseline. Source: Statista">ℹ️</span></label>
+            <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="china_m0-desc">2025 ride-hailing market size ($116.1B). Sets growth baseline. Source: Statista</div>
             <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%) <span class="tooltip" title="Annual market growth (20%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
+            <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="china_g-desc">Annual market growth (20%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</div>
             <input type="range" id="china_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="china_r">Adoption Readiness (r): <span id="china_r-value">0.10</span> (10%) <span class="tooltip" title="Readiness for robotaxi adoption (10%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
+            <label class="slider-label" for="china_r">Adoption Readiness (r): <span id="china_r-value">0.10</span> (10%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="china_r-desc">Readiness for robotaxi adoption (10%). Scales speed (higher = faster due to tech/regulations). Not a cap.</div>
             <input type="range" id="china_r" min="0" max="0.2" step="0.001" value="0.10">
         </div>
     </div>
@@ -179,15 +219,18 @@
     <div class="country-section">
         <h3>United States</h3>
         <div class="slider-container">
-            <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span> <span class="tooltip" title="2025 ride-hailing market size ($62.3B). Sets growth baseline. Source: Statista">ℹ️</span></label>
+            <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="us_m0-desc">2025 ride-hailing market size ($62.3B). Sets growth baseline. Source: Statista</div>
             <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%) <span class="tooltip" title="Annual market growth (15%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
+            <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="us_g-desc">Annual market growth (15%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</div>
             <input type="range" id="us_g" min="0" max="0.3" step="0.001" value="0.15">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="us_r">Adoption Readiness (r): <span id="us_r-value">0.08</span> (8%) <span class="tooltip" title="Readiness for robotaxi adoption (8%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
+            <label class="slider-label" for="us_r">Adoption Readiness (r): <span id="us_r-value">0.08</span> (8%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="us_r-desc">Readiness for robotaxi adoption (8%). Scales speed (higher = faster due to tech/regulations). Not a cap.</div>
             <input type="range" id="us_r" min="0" max="0.2" step="0.001" value="0.08">
         </div>
     </div>
@@ -195,15 +238,18 @@
     <div class="country-section">
         <h3>India</h3>
         <div class="slider-container">
-            <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span> <span class="tooltip" title="2025 ride-hailing market size ($30.6B). Sets growth baseline. Source: IMARC">ℹ️</span></label>
+            <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="india_m0-desc">2025 ride-hailing market size ($30.6B). Sets growth baseline. Source: IMARC</div>
             <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%) <span class="tooltip" title="Annual market growth (20%). Models demand rise (urbanization, apps). Source: IMARC">ℹ️</span></label>
+            <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="india_g-desc">Annual market growth (20%). Models demand rise (urbanization, apps). Source: IMARC</div>
             <input type="range" id="india_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="india_r">Adoption Readiness (r): <span id="india_r-value">0.05</span> (5%) <span class="tooltip" title="Readiness for robotaxi adoption (5%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
+            <label class="slider-label" for="india_r">Adoption Readiness (r): <span id="india_r-value">0.05</span> (5%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="india_r-desc">Readiness for robotaxi adoption (5%). Scales speed (higher = faster due to tech/regulations). Not a cap.</div>
             <input type="range" id="india_r" min="0" max="0.2" step="0.001" value="0.05">
         </div>
     </div>
@@ -211,15 +257,18 @@
     <div class="country-section">
         <h3>Japan</h3>
         <div class="slider-container">
-            <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span> <span class="tooltip" title="2025 ride-hailing market size ($15B). Sets growth baseline. Source: IMARC">ℹ️</span></label>
+            <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="japan_m0-desc">2025 ride-hailing market size ($15B). Sets growth baseline. Source: IMARC</div>
             <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%) <span class="tooltip" title="Annual market growth (10%). Models demand rise (urbanization, apps). Source: IMARC">ℹ️</span></label>
+            <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="japan_g-desc">Annual market growth (10%). Models demand rise (urbanization, apps). Source: IMARC</div>
             <input type="range" id="japan_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="japan_r">Adoption Readiness (r): <span id="japan_r-value">0.04</span> (4%) <span class="tooltip" title="Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
+            <label class="slider-label" for="japan_r">Adoption Readiness (r): <span id="japan_r-value">0.04</span> (4%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="japan_r-desc">Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.</div>
             <input type="range" id="japan_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
@@ -227,57 +276,69 @@
     <div class="country-section">
         <h3>Others (incl. Germany)</h3>
         <div class="slider-container">
-            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span> <span class="tooltip" title="2025 ride-hailing market size ($77.52B). Sets growth baseline. Source: Straits Research">ℹ️</span></label>
+            <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="others_m0-desc">2025 ride-hailing market size ($77.52B). Sets growth baseline. Source: Straits Research</div>
             <input type="range" id="others_m0" min="0" max="200" step="0.1" value="77.52">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%) <span class="tooltip" title="Annual market growth (10%). Models demand rise (urbanization, apps). Source: Mordor Intelligence">ℹ️</span></label>
+            <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="others_g-desc">Annual market growth (10%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</div>
             <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="others_r">Adoption Readiness (r): <span id="others_r-value">0.04</span> (4%) <span class="tooltip" title="Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.">ℹ️</span></label>
+            <label class="slider-label" for="others_r">Adoption Readiness (r): <span id="others_r-value">0.04</span> (4%) <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="others_r-desc">Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.</div>
             <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
     
-    <p style="text-align: center; font-weight: bold;">Total Initial Market Size (M₀): <span id="total_m0-value">301.52</span> USD Billion</p>
+    <p style="text-align: center; font-weight: bold; font-size: clamp(0.8rem, 3vw, 1rem);">Total Initial Market Size (M₀): <span id="total_m0-value">301.52</span> USD Billion</p>
     
     <div class="global-section">
         <h2>Global Parameters</h2>
         <div class="slider-container">
-            <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span> <span class="tooltip" title="Yearly reduction in growth rate (0–5%). Reflects market maturity or slowdown.">ℹ️</span></label>
+            <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="growth_decline-desc">Yearly reduction in growth rate (0–5%). Reflects market maturity or slowdown.</div>
             <input type="range" id="growth_decline" min="0" max="0.1" step="0.001" value="0">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span> <span class="tooltip" title="Tesla’s share of robotaxi revenue (50%). Models competition (Waymo, Baidu). Source: ARK Invest">ℹ️</span></label>
+            <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="tesla_share-desc">Tesla’s share of robotaxi revenue (50%). Models competition (Waymo, Baidu). Source: ARK Invest</div>
             <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span> <span class="tooltip" title="Tesla’s robotaxi profit margin (32%). Reflects cost efficiency. Source: ARK’s 2029 EBITDA">ℹ️</span></label>
+            <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="margin_percent-desc">Tesla’s robotaxi profit margin (32%). Reflects cost efficiency. Source: ARK’s 2029 EBITDA</div>
             <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span> <span class="tooltip" title="Multiplier for Tesla’s market cap (18x). Models investor confidence. Source: ARK">ℹ️</span></label>
+            <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="val_multiple-desc">Multiplier for Tesla’s market cap (18x). Models investor confidence. Source: ARK</div>
             <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span> <span class="tooltip" title="Forecast duration (15 = 2040). Sets time horizon for market growth.">ℹ️</span></label>
+            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="years-desc">Forecast duration (15 = 2040). Sets time horizon for market growth.</div>
             <input type="range" id="years" min="5" max="30" step="1" value="15">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span> <span class="tooltip" title="Speed of robotaxi adoption (0.1–1.0). Higher = sharper acceleration increase (e.g., Tesla FSD scaling).">ℹ️</span></label>
+            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="adoption_speed-desc">Speed of robotaxi adoption (0.1–1.0). Higher = sharper acceleration increase (e.g., Tesla FSD scaling).</div>
             <input type="range" id="adoption_speed" min="0.1" max="1.0" step="0.1" value="0.5">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span> <span class="tooltip" title="Year of max robotaxi growth rate (5 = 2030). Sets acceleration peak (e.g., 10 = 2035).">ℹ️</span></label>
+            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="peak_adoption_year-desc">Year of max robotaxi growth rate (5 = 2030). Sets acceleration peak (e.g., 10 = 2035).</div>
             <input type="range" id="peak_adoption_year" min="3" max="15" step="1" value="5">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span> <span class="tooltip" title="Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, cuts revenue.">ℹ️</span></label>
+            <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="price_discount-desc">Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, cuts revenue.</div>
             <input type="range" id="price_discount" min="0" max="80" step="1" value="30">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span> <span class="tooltip" title="Demand increase from lower fares (0.5–2.0). Models new users (e.g., bus riders). Source: Uber elasticity">ℹ️</span></label>
+            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span> <span class="info-icon">ℹ️</span></label>
+            <div class="description" id="elasticity_boost-desc">Demand increase from lower fares (0.5–2.0). Models new users (e.g., bus riders). Source: Uber elasticity</div>
             <input type="range" id="elasticity_boost" min="0.5" max="2.0" step="0.1" value="1.0">
         </div>
     </div>
@@ -305,6 +366,16 @@
     
     <script>
         window.onload = function() {
+            // Toggle description visibility on tap
+            document.querySelectorAll('.info-icon').forEach(icon => {
+                icon.addEventListener('click', () => {
+                    const desc = icon.parentElement.nextElementSibling;
+                    if (desc && desc.classList.contains('description')) {
+                        desc.classList.toggle('show');
+                    }
+                });
+            });
+
             const ctx = document.getElementById('marketChart')?.getContext('2d');
             if (!ctx) {
                 console.error('Canvas element "marketChart" not found');
@@ -363,36 +434,35 @@
                     },
                     options: {
                         responsive: true,
-                        maintainAspectRatio: true,
-                        aspectRatio: 1.5,
+                        maintainAspectRatio: false,
                         interaction: {
                             intersect: false,
                             mode: 'index'
                         },
                         scales: {
                             x: {
-                                title: { display: true, text: 'Year', font: { size: 12 } }
+                                title: { display: true, text: 'Year', font: { size: clamp(10, 2.5vw, 12) } }
                             },
                             y: {
                                 type: 'linear',
                                 position: 'left',
-                                title: { display: true, text: 'Market Size (USD Billion)', font: { size: 12 } },
+                                title: { display: true, text: 'Market Size (USD Billion)', font: { size: clamp(10, 2.5vw, 12) } },
                                 beginAtZero: true,
-                                ticks: { font: { size: 10 } }
+                                ticks: { font: { size: clamp(8, 2vw, 10) } }
                             },
                             percentage: {
                                 type: 'linear',
                                 position: 'right',
-                                title: { display: true, text: 'Penetration (%)', font: { size: 12 } },
+                                title: { display: true, text: 'Penetration (%)', font: { size: clamp(10, 2.5vw, 12) } },
                                 grid: { drawOnChartArea: false },
                                 min: 0,
                                 max: 100,
-                                ticks: { font: { size: 10 } }
+                                ticks: { font: { size: clamp(8, 2vw, 10) } }
                             }
                         },
                         plugins: {
-                            legend: { position: 'top', labels: { font: { size: 10 } } },
-                            title: { display: true, text: 'Robotaxi Market Projection', font: { size: 14 } },
+                            legend: { position: 'top', labels: { font: { size: clamp(8, 2vw, 10) } } },
+                            title: { display: true, text: 'Robotaxi Market Projection', font: { size: clamp(10, 3vw, 14) } },
                             tooltip: {
                                 mode: 'index',
                                 intersect: false,
