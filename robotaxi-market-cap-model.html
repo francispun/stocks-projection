@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotaxi Market Projection Model (Improved)</title>
+    <title>Robotaxi Market Projection Model (With Country Breakdown & Tesla Share)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -14,6 +14,11 @@
         h1 {
             text-align: center;
             color: #333;
+        }
+        h2 {
+            text-align: center;
+            color: #555;
+            font-size: 18px;
         }
         .slider-container {
             margin-bottom: 20px;
@@ -60,16 +65,45 @@
             width: 100%;
             height: 500px;
         }
+        #tesla-cap {
+            text-align: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #d62728;
+            margin-top: 20px;
+        }
     </style>
 </head>
 <body>
-    <h1>Interactive Robotaxi Market Projection Model (Improved Readability)</h1>
-    <p style="text-align: center;">Adjust sliders to see updates. Hover over lines for exact values. Chart is now larger and more responsive.</p>
+    <h1>Interactive Robotaxi Market Projection Model</h1>
+    <p style="text-align: center;">This updated model breaks down the initial market size (M₀) into top 5 countries + others, based on 2025 projections for combined taxi and ride-hailing markets. Adjust each country's initial size to see the total M₀ update. Also includes sliders for Tesla's projected market share in the robotaxi market (default 50%, based on ARK Invest projections<grok-card data-id="2a01f1" data-type="citation_card"></grok-card>) and a valuation multiple (default 10x P/S on final-year revenue, conservative for high-growth tech/mobility). The chart now includes Tesla's portion of the robotaxi market. Below the chart, see the projected market cap for Tesla's robotaxi business portion.</p>
     
+    <h2>Initial Market Size Breakdown by Country (USD Billion)</h2>
     <div class="slider-container">
-        <label class="slider-label" for="m0">Initial Market Size (M₀, USD Billion): <span id="m0-value">301.52</span></label>
-        <input type="range" id="m0" min="100" max="500" step="1" value="301.52">
+        <label class="slider-label" for="china_m0">China: <span id="china_m0-value">116.1</span></label>
+        <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
     </div>
+    <div class="slider-container">
+        <label class="slider-label" for="us_m0">United States: <span id="us_m0-value">62.3</span></label>
+        <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
+    </div>
+    <div class="slider-container">
+        <label class="slider-label" for="india_m0">India: <span id="india_m0-value">30.6</span></label>
+        <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
+    </div>
+    <div class="slider-container">
+        <label class="slider-label" for="japan_m0">Japan: <span id="japan_m0-value">15.0</span></label>
+        <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
+    </div>
+    <div class="slider-container">
+        <label class="slider-label" for="germany_m0">Germany: <span id="germany_m0-value">10.0</span></label>
+        <input type="range" id="germany_m0" min="0" max="200" step="0.1" value="10.0">
+    </div>
+    <div class="slider-container">
+        <label class="slider-label" for="others_m0">Others: <span id="others_m0-value">67.52</span></label>
+        <input type="range" id="others_m0" min="0" max="200" step="0.1" value="67.52">
+    </div>
+    <p style="text-align: center; font-weight: bold;">Total Initial Market Size (M₀): <span id="total_m0-value">301.52</span> USD Billion</p>
     
     <div class="slider-container">
         <label class="slider-label" for="g">Annual Market Growth Rate (g): <span id="g-value">0.113</span> (11.3%)</label>
@@ -82,6 +116,16 @@
     </div>
     
     <div class="slider-container">
+        <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span></label>
+        <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
+    </div>
+    
+    <div class="slider-container">
+        <label class="slider-label" for="val_multiple">Valuation Multiple (P/S x): <span id="val_multiple-value">10</span></label>
+        <input type="range" id="val_multiple" min="1" max="50" step="1" value="10">
+    </div>
+    
+    <div class="slider-container">
         <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
         <input type="range" id="years" min="5" max="20" step="1" value="10">
     </div>
@@ -91,6 +135,8 @@
     <div class="chart-container">
         <canvas id="marketChart"></canvas>
     </div>
+    
+    <p id="tesla-cap"></p>
     
     <script>
         // Initialize Chart.js
@@ -114,6 +160,16 @@
                         label: 'Robotaxi Market Size (USD Billion)',
                         borderColor: '#2ca02c',
                         backgroundColor: 'rgba(44, 160, 44, 0.1)',
+                        fill: false,
+                        data: [],
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Tesla Robotaxi Size (USD Billion)',
+                        borderColor: '#ff7f0e',
+                        backgroundColor: 'rgba(255, 127, 14, 0.1)',
                         fill: false,
                         data: [],
                         borderWidth: 3,
@@ -184,32 +240,52 @@
             }
         });
 
-        // Update chart based on slider inputs
+        // Update chart based on inputs
         function updateChart() {
-            const m0 = parseFloat(document.getElementById('m0').value);
+            const china_m0 = parseFloat(document.getElementById('china_m0').value);
+            const us_m0 = parseFloat(document.getElementById('us_m0').value);
+            const india_m0 = parseFloat(document.getElementById('india_m0').value);
+            const japan_m0 = parseFloat(document.getElementById('japan_m0').value);
+            const germany_m0 = parseFloat(document.getElementById('germany_m0').value);
+            const others_m0 = parseFloat(document.getElementById('others_m0').value);
+            const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + germany_m0 + others_m0;
+
             const g = parseFloat(document.getElementById('g').value);
             const r = parseFloat(document.getElementById('r').value);
+            const tesla_share = parseFloat(document.getElementById('tesla_share').value);
+            const val_multiple = parseFloat(document.getElementById('val_multiple').value);
             const years = parseInt(document.getElementById('years').value);
 
             // Update displayed values
-            document.getElementById('m0-value').textContent = m0.toFixed(2);
+            document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
+            document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
+            document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
+            document.getElementById('japan_m0-value').textContent = japan_m0.toFixed(1);
+            document.getElementById('germany_m0-value').textContent = germany_m0.toFixed(1);
+            document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
+            document.getElementById('total_m0-value').textContent = m0.toFixed(2);
             document.getElementById('g-value').textContent = g.toFixed(3) + ` (${(g * 100).toFixed(1)}%)`;
             document.getElementById('r-value').textContent = r.toFixed(3) + ` (${(r * 100).toFixed(1)}%)`;
+            document.getElementById('tesla_share-value').textContent = tesla_share;
+            document.getElementById('val_multiple-value').textContent = val_multiple;
             document.getElementById('years-value').textContent = years;
 
             // Calculate projections
             const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
             const totalMarket = [];
             const robotaxiMarket = [];
+            const teslaRobotaxi = [];
             const penetration = [];
 
             for (let t = 0; t <= years; t++) {
                 const mt = m0 * Math.pow(1 + g, t);
                 const pt = (1 - Math.pow(1 - r, t)) * 100;
                 const robotaxi = mt * (pt / 100);
+                const tesla_rt = robotaxi * (tesla_share / 100);
 
                 totalMarket.push(parseFloat(mt.toFixed(2)));
                 robotaxiMarket.push(parseFloat(robotaxi.toFixed(2)));
+                teslaRobotaxi.push(parseFloat(tesla_rt.toFixed(2)));
                 penetration.push(parseFloat(pt.toFixed(2)));
             }
 
@@ -217,14 +293,28 @@
             chart.data.labels = labels;
             chart.data.datasets[0].data = totalMarket;
             chart.data.datasets[1].data = robotaxiMarket;
-            chart.data.datasets[2].data = penetration;
-            chart.update('none'); // Smooth update
+            chart.data.datasets[2].data = teslaRobotaxi;
+            chart.data.datasets[3].data = penetration;
+            chart.update('none');
+
+            // Update Tesla market cap projection
+            const lastYear = labels[years];
+            const lastTeslaRevenue = teslaRobotaxi[years];
+            const marketCap = (lastTeslaRevenue * val_multiple).toFixed(2);
+            document.getElementById('tesla-cap').textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/S on final-year revenue)`;
         }
 
         function resetSliders() {
-            document.getElementById('m0').value = 301.52;
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('germany_m0').value = 10.0;
+            document.getElementById('others_m0').value = 67.52;
             document.getElementById('g').value = 0.113;
             document.getElementById('r').value = 0.05;
+            document.getElementById('tesla_share').value = 50;
+            document.getElementById('val_multiple').value = 10;
             document.getElementById('years').value = 10;
             updateChart();
         }
