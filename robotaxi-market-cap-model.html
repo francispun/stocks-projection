@@ -149,7 +149,7 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), S-curve parameters (steepness and peak year for growth acceleration), and an autonomy price discount (default 30%) to reflect lower ride fees without human drivers. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
+        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029), a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA), Adoption Speed and Peak Adoption Year (for growth acceleration), and an autonomy price discount (default 30%) to reflect lower ride fees without human drivers. The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, based on final-year earnings (revenue * margin % * P/E).</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -258,12 +258,12 @@
             <input type="range" id="years" min="5" max="20" step="1" value="10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="s_steepness">S-Curve Steepness (k): <span id="s_steepness-value">0.5</span></label>
-            <input type="range" id="s_steepness" min="0.1" max="1.0" step="0.1" value="0.5">
+            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span></label>
+            <input type="range" id="adoption_speed" min="0.1" max="1.0" step="0.1" value="0.5">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="s_midpoint">S-Curve Peak Year (midpoint): <span id="s_midpoint-value">5</span></label>
-            <input type="range" id="s_midpoint" min="3" max="10" step="1" value="5">
+            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span></label>
+            <input type="range" id="peak_adoption_year" min="3" max="10" step="1" value="5">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span></label>
@@ -422,8 +422,8 @@
             const margin_percent = parseFloat(document.getElementById('margin_percent').value);
             const val_multiple = parseFloat(document.getElementById('val_multiple').value);
             const years = parseInt(document.getElementById('years').value);
-            const s_steepness = parseFloat(document.getElementById('s_steepness').value);
-            const s_midpoint = parseInt(document.getElementById('s_midpoint').value);
+            const adoption_speed = parseFloat(document.getElementById('adoption_speed').value);
+            const peak_adoption_year = parseInt(document.getElementById('peak_adoption_year').value);
             const price_discount = parseFloat(document.getElementById('price_discount').value);
 
             // Update displayed values
@@ -451,8 +451,8 @@
             document.getElementById('margin_percent-value').textContent = margin_percent;
             document.getElementById('val_multiple-value').textContent = val_multiple;
             document.getElementById('years-value').textContent = years;
-            document.getElementById('s_steepness-value').textContent = s_steepness.toFixed(1);
-            document.getElementById('s_midpoint-value').textContent = s_midpoint;
+            document.getElementById('adoption_speed-value').textContent = adoption_speed.toFixed(1);
+            document.getElementById('peak_adoption_year-value').textContent = peak_adoption_year;
             document.getElementById('price_discount-value').textContent = price_discount;
 
             // Calculate projections
@@ -476,8 +476,8 @@
                 let pt_avg = 0;
 
                 countries.forEach(country => {
-                    // Logistic growth rate: peaks at user-defined midpoint, with user-defined steepness
-                    let g_t = country.g * (1 / (1 + Math.exp(-s_steepness * (t - s_midpoint)))) * Math.pow(1 - growth_decline, t);
+                    // Logistic growth rate: peaks at user-defined peak_adoption_year, with user-defined adoption_speed
+                    let g_t = country.g * (1 / (1 + Math.exp(-adoption_speed * (t - peak_adoption_year)))) * Math.pow(1 - growth_decline, t);
                     const mt_country = country.m0 * Math.pow(1 + g_t, t);
                     const pt_country = (1 - Math.pow(1 - country.r, t)) * 100;
                     // Apply price discount to robotaxi revenue
@@ -536,8 +536,8 @@
             document.getElementById('margin_percent').value = 32;
             document.getElementById('val_multiple').value = 18;
             document.getElementById('years').value = 10;
-            document.getElementById('s_steepness').value = 0.5;
-            document.getElementById('s_midpoint').value = 5;
+            document.getElementById('adoption_speed').value = 0.5;
+            document.getElementById('peak_adoption_year').value = 5;
             document.getElementById('price_discount').value = 30;
             updateChart();
         }
