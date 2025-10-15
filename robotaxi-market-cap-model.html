@@ -14,7 +14,7 @@
         h1 {
             text-align: center;
             color: #333;
-            font-size: clamp(1.5rem, 5vw, 2rem); /* Responsive font size */
+            font-size: clamp(1.5rem, 5vw, 2rem);
         }
         h2 {
             text-align: center;
@@ -26,7 +26,7 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            padding: 0 10px; /* Add padding for smaller screens */
+            padding: 0 10px;
         }
         .country-section {
             margin-bottom: 20px;
@@ -72,12 +72,12 @@
             max-width: 900px;
             margin: 20px auto;
             padding: 10px;
-            height: auto; /* Let height adjust based on content */
+            height: auto;
         }
         canvas {
-            width: 100% !important; /* Ensure canvas scales with container */
+            width: 100% !important;
             max-width: 100%;
-            height: auto !important; /* Allow height to adjust */
+            height: auto !important;
             background-color: #fff;
             border-radius: 8px;
             box-shadow: 0 2px 10px rgba(0,0,0,0.1);
@@ -130,7 +130,6 @@
             color: #555;
             margin: 0;
         }
-        /* Media query for mobile devices */
         @media (max-width: 600px) {
             body {
                 margin: 10px;
@@ -334,8 +333,8 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: true, // Allow Chart.js to adjust aspect ratio
-                aspectRatio: 1.5, // Adjust for better mobile display (wider than tall)
+                maintainAspectRatio: true,
+                aspectRatio: 1.5,
                 interaction: {
                     intersect: false,
                     mode: 'index'
@@ -459,7 +458,8 @@
                 let pt_avg = 0;
 
                 countries.forEach(country => {
-                    let g_t = country.g * Math.pow(1 - growth_decline, t);
+                    // Logistic growth rate: peaks around year 5 (2030), adjustable
+                    let g_t = country.g * (1 / (1 + Math.exp(-0.5 * (t - 5)))) * Math.pow(1 - growth_decline, t);
                     const mt_country = country.m0 * Math.pow(1 + g_t, t);
                     const pt_country = (1 - Math.pow(1 - country.r, t)) * 100;
                     const robotaxi_country = mt_country * (pt_country / 100);
