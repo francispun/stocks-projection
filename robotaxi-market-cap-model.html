@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotaxi Market Projection Model</title>
+    <title>Robotaxi Market Projection Model (Per-Country Rates & Grouped Sliders)</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -14,36 +14,28 @@
         h1 {
             text-align: center;
             color: #333;
-            font-size: clamp(1.5rem, 5vw, 2rem);
         }
         h2 {
             text-align: center;
             color: #555;
-            font-size: clamp(1rem, 4vw, 1.2rem);
+            font-size: 18px;
         }
         .slider-container {
             margin-bottom: 10px;
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-            padding: 0 10px;
         }
         .country-section {
-            margin-bottom: 20px;
-            padding: 10px;
+            margin-bottom: 30px;
+            padding: 15px;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 900px;
         }
         .global-section {
-            margin-top: 20px;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 900px;
-            padding: 10px;
+            margin-top: 40px;
+            padding: 15px;
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -53,13 +45,7 @@
             margin-bottom: 5px;
             font-weight: bold;
             color: #333;
-            font-size: clamp(0.8rem, 3vw, 0.9rem);
-        }
-        .description {
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
-            color: #555;
-            margin-bottom: 5px;
-            display: block;
+            font-size: 14px;
         }
         input[type="range"] {
             width: 100%;
@@ -67,41 +53,58 @@
         #reset-btn {
             display: block;
             margin: 20px auto;
-            padding: 8px 16px;
+            padding: 10px 20px;
             background-color: #007bff;
             color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            font-size: clamp(0.9rem, 3.5vw, 1rem);
+            font-size: 16px;
         }
         #reset-btn:hover {
             background-color: #0056b3;
         }
+        .scenario-buttons {
+            text-align: center;
+            margin: 20px auto;
+            max-width: 900px;
+        }
+        .scenario-btn {
+            margin: 5px;
+            padding: 10px 15px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .scenario-btn:hover {
+            background-color: #5a6268;
+        }
+        canvas {
+            max-width: 900px;
+            height: 500px !important;
+            margin: 20px auto;
+            display: block;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
         .chart-container {
             position: relative;
             width: 100%;
-            max-width: 900px;
-            margin: 20px auto;
-            padding: 10px;
-            height: auto;
-        }
-        canvas {
-            width: 100% !important;
-            max-width: 100%;
-            height: auto !important;
-            background-color: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            height: 500px;
         }
         #tesla-cap {
             max-width: 900px;
             margin: 20px auto;
-            padding: 10px;
+            padding: 15px;
             background-color: #f7e9e9;
             border-radius: 8px;
             text-align: center;
-            font-size: clamp(0.9rem, 3.5vw, 1.1rem);
+            font-size: 18px;
             font-weight: bold;
             color: #ae2727;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
@@ -109,16 +112,16 @@
         .sources-section {
             max-width: 900px;
             margin: 20px auto;
-            padding: 10px;
+            padding: 15px;
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: 10pt;
             line-height: 1.5;
             color: #555;
         }
         .sources-section h3 {
-            font-size: clamp(0.9rem, 3vw, 1rem);
+            font-size: 12pt;
             margin-bottom: 10px;
         }
         .sources-section ul {
@@ -131,37 +134,23 @@
         .description-container {
             max-width: 900px;
             margin: 20px auto;
-            padding: 10px;
+            padding: 15px;
             background-color: #f9f9f9;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.05);
         }
         p.description {
-            font-size: clamp(0.7rem, 2.5vw, 0.8rem);
+            font-size: 10pt;
             text-align: center;
             color: #555;
             margin: 0;
-        }
-        @media (max-width: 600px) {
-            body {
-                margin: 10px;
-            }
-            .slider-container {
-                padding: 0 5px;
-            }
-            .country-section, .global-section {
-                padding: 8px;
-            }
-            .chart-container {
-                padding: 5px;
-            }
         }
     </style>
 </head>
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model projects the robotaxi market by breaking down the initial ride-hailing market size (M₀, 2025) into top 4 countries + others (Germany in Others). Adjust sliders to update total M₀. Includes Tesla's market share, Profit Margin % (default 32%, per ARK Invest's 2029 EBITDA projection), P/E Valuation Multiple (default 18x, aligned with ARK), Adoption Speed and Peak Adoption Year (for robotaxi penetration via Gompertz curve, where acceleration increases initially, peaks, then decelerates), Autonomy Price Discount (default 30%, reflecting lower fares), and Price Elasticity Boost (default 1.0, modeling market expansion from affordability, e.g., bus users switching). Adoption Readiness (r) scales adoption speed, not penetration cap, allowing full replacement. The chart shows Total Market Size, Robotaxi Market Size, Tesla Robotaxi Size, and Penetration %. Below: Tesla's projected market cap (final-year revenue * margin % * P/E).</p>
+        <p class="description">This model breaks down the initial market size (M₀) into top 4 countries + others (Germany combined into Others). Adjust each to see the total M₀ update. Includes Tesla's market share in robotaxi. Updated to include a Profit Margin % slider (to account for costs—default 32% based on ARK Invest's EBITDA margin projections for Tesla robotaxi in 2029) and a P/E valuation multiple (default 18x, aligned with ARK's enterprise value/EBITDA in bull/bear cases). The chart shows Tesla's portion. Below the chart: projected market cap for Tesla's robotaxi business, now based on final-year earnings (revenue * margin %) * P/E.</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -169,17 +158,14 @@
         <h3>China</h3>
         <div class="slider-container">
             <label class="slider-label" for="china_m0">Initial Market Size (USD Billion): <span id="china_m0-value">116.1</span></label>
-            <span class="description">2025 ride-hailing market size ($116.1B). Sets growth baseline. Source: Statista</span>
             <input type="range" id="china_m0" min="0" max="200" step="0.1" value="116.1">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="china_g">Growth Rate (g): <span id="china_g-value">0.20</span> (20%)</label>
-            <span class="description">Annual market growth (20%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</span>
             <input type="range" id="china_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="china_r">Adoption Readiness (r): <span id="china_r-value">0.10</span> (10%)</label>
-            <span class="description">Readiness for robotaxi adoption (10%). Scales speed (higher = faster due to tech/regulations). Not a cap.</span>
+            <label class="slider-label" for="china_r">Replacement Rate (r): <span id="china_r-value">0.10</span> (10%)</label>
             <input type="range" id="china_r" min="0" max="0.2" step="0.001" value="0.10">
         </div>
     </div>
@@ -188,17 +174,14 @@
         <h3>United States</h3>
         <div class="slider-container">
             <label class="slider-label" for="us_m0">Initial Market Size (USD Billion): <span id="us_m0-value">62.3</span></label>
-            <span class="description">2025 ride-hailing market size ($62.3B). Sets growth baseline. Source: Statista</span>
             <input type="range" id="us_m0" min="0" max="200" step="0.1" value="62.3">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="us_g">Growth Rate (g): <span id="us_g-value">0.15</span> (15%)</label>
-            <span class="description">Annual market growth (15%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</span>
             <input type="range" id="us_g" min="0" max="0.3" step="0.001" value="0.15">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="us_r">Adoption Readiness (r): <span id="us_r-value">0.08</span> (8%)</label>
-            <span class="description">Readiness for robotaxi adoption (8%). Scales speed (higher = faster due to tech/regulations). Not a cap.</span>
+            <label class="slider-label" for="us_r">Replacement Rate (r): <span id="us_r-value">0.08</span> (8%)</label>
             <input type="range" id="us_r" min="0" max="0.2" step="0.001" value="0.08">
         </div>
     </div>
@@ -207,17 +190,14 @@
         <h3>India</h3>
         <div class="slider-container">
             <label class="slider-label" for="india_m0">Initial Market Size (USD Billion): <span id="india_m0-value">30.6</span></label>
-            <span class="description">2025 ride-hailing market size ($30.6B). Sets growth baseline. Source: IMARC</span>
             <input type="range" id="india_m0" min="0" max="200" step="0.1" value="30.6">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="india_g">Growth Rate (g): <span id="india_g-value">0.20</span> (20%)</label>
-            <span class="description">Annual market growth (20%). Models demand rise (urbanization, apps). Source: IMARC</span>
             <input type="range" id="india_g" min="0" max="0.3" step="0.001" value="0.20">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="india_r">Adoption Readiness (r): <span id="india_r-value">0.05</span> (5%)</label>
-            <span class="description">Readiness for robotaxi adoption (5%). Scales speed (higher = faster due to tech/regulations). Not a cap.</span>
+            <label class="slider-label" for="india_r">Replacement Rate (r): <span id="india_r-value">0.05</span> (5%)</label>
             <input type="range" id="india_r" min="0" max="0.2" step="0.001" value="0.05">
         </div>
     </div>
@@ -226,17 +206,14 @@
         <h3>Japan</h3>
         <div class="slider-container">
             <label class="slider-label" for="japan_m0">Initial Market Size (USD Billion): <span id="japan_m0-value">15.0</span></label>
-            <span class="description">2025 ride-hailing market size ($15B). Sets growth baseline. Source: IMARC</span>
             <input type="range" id="japan_m0" min="0" max="200" step="0.1" value="15.0">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="japan_g">Growth Rate (g): <span id="japan_g-value">0.10</span> (10%)</label>
-            <span class="description">Annual market growth (10%). Models demand rise (urbanization, apps). Source: IMARC</span>
             <input type="range" id="japan_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="japan_r">Adoption Readiness (r): <span id="japan_r-value">0.04</span> (4%)</label>
-            <span class="description">Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.</span>
+            <label class="slider-label" for="japan_r">Replacement Rate (r): <span id="japan_r-value">0.04</span> (4%)</label>
             <input type="range" id="japan_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
@@ -245,17 +222,14 @@
         <h3>Others (incl. Germany)</h3>
         <div class="slider-container">
             <label class="slider-label" for="others_m0">Initial Market Size (USD Billion): <span id="others_m0-value">77.52</span></label>
-            <span class="description">2025 ride-hailing market size ($77.52B). Sets growth baseline. Source: Straits Research</span>
             <input type="range" id="others_m0" min="0" max="200" step="0.1" value="77.52">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="others_g">Growth Rate (g): <span id="others_g-value">0.10</span> (10%)</label>
-            <span class="description">Annual market growth (10%). Models demand rise (urbanization, apps). Source: Mordor Intelligence</span>
             <input type="range" id="others_g" min="0" max="0.3" step="0.001" value="0.10">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="others_r">Adoption Readiness (r): <span id="others_r-value">0.04</span> (4%)</label>
-            <span class="description">Readiness for robotaxi adoption (4%). Scales speed (higher = faster due to tech/regulations). Not a cap.</span>
+            <label class="slider-label" for="others_r">Replacement Rate (r): <span id="others_r-value">0.04</span> (4%)</label>
             <input type="range" id="others_r" min="0" max="0.2" step="0.001" value="0.04">
         </div>
     </div>
@@ -266,52 +240,35 @@
         <h2>Global Parameters</h2>
         <div class="slider-container">
             <label class="slider-label" for="growth_decline">Annual Growth Decline % (d): <span id="growth_decline-value">0</span></label>
-            <span class="description">Yearly reduction in growth rate (0–5%). Reflects market maturity or slowdown.</span>
             <input type="range" id="growth_decline" min="0" max="0.1" step="0.001" value="0">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="tesla_share">Tesla Market Share (%): <span id="tesla_share-value">50</span></label>
-            <span class="description">Tesla’s share of robotaxi revenue (50%). Models competition (Waymo, Baidu). Source: ARK Invest</span>
             <input type="range" id="tesla_share" min="0" max="100" step="1" value="50">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="margin_percent">Profit Margin (%): <span id="margin_percent-value">32</span></label>
-            <span class="description">Tesla’s robotaxi profit margin (32%). Reflects cost efficiency. Source: ARK’s 2029 EBITDA</span>
             <input type="range" id="margin_percent" min="0" max="100" step="1" value="32">
         </div>
         <div class="slider-container">
             <label class="slider-label" for="val_multiple">P/E Valuation Multiple (x): <span id="val_multiple-value">18</span></label>
-            <span class="description">Multiplier for Tesla’s market cap (18x). Models investor confidence. Source: ARK</span>
             <input type="range" id="val_multiple" min="1" max="50" step="1" value="18">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="years">Projection Years: <span id="years-value">15</span></label>
-            <span class="description">Forecast duration (15 = 2040). Sets time horizon for market growth.</span>
-            <input type="range" id="years" min="5" max="30" step="1" value="15">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="adoption_speed">Adoption Speed: <span id="adoption_speed-value">0.5</span></label>
-            <span class="description">Speed of robotaxi adoption (0.1–1.0). Higher = sharper acceleration increase (e.g., Tesla FSD scaling).</span>
-            <input type="range" id="adoption_speed" min="0.1" max="1.0" step="0.1" value="0.5">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="peak_adoption_year">Peak Adoption Year: <span id="peak_adoption_year-value">5</span></label>
-            <span class="description">Year of max robotaxi growth rate (5 = 2030). Sets acceleration peak (e.g., 10 = 2035).</span>
-            <input type="range" id="peak_adoption_year" min="3" max="15" step="1" value="5">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span></label>
-            <span class="description">Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, cuts revenue.</span>
-            <input type="range" id="price_discount" min="0" max="80" step="1" value="30">
-        </div>
-        <div class="slider-container">
-            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span></label>
-            <span class="description">Demand increase from lower fares (0.5–2.0). Models new users (e.g., bus riders). Source: Uber elasticity</span>
-            <input type="range" id="elasticity_boost" min="0.5" max="2.0" step="0.1" value="1.0">
+            <label class="slider-label" for="years">Projection Years: <span id="years-value">10</span></label>
+            <input type="range" id="years" min="5" max="20" step="1" value="10">
         </div>
     </div>
     
     <button id="reset-btn" onclick="resetSliders()">Reset to Defaults</button>
+    
+    <div class="scenario-buttons">
+        <button class="scenario-btn" onclick="setExtremelyBullish()">Extremely Bullish</button>
+        <button class="scenario-btn" onclick="setBullish()">Bullish</button>
+        <button class="scenario-btn" onclick="setNormal()">Normal</button>
+        <button class="scenario-btn" onclick="setBearish()">Bearish</button>
+        <button class="scenario-btn" onclick="setSuperBearish()">Super Bearish</button>
+    </div>
     
     <div class="chart-container">
         <canvas id="marketChart"></canvas>
@@ -328,329 +285,377 @@
             <li><strong>India (USD 30.6B)</strong>: Mordor Intelligence (combined ~USD 22.25B); Data Insights Market (~USD 20.6B); IMARC (~USD 23B in 2025 at 13% CAGR); Statista (ride-hailing ~USD 8.3B); Markets and Data (~USD 1.1B ride-hailing, subset).</li>
             <li><strong>Japan (USD 15.0B)</strong>: IMARC (ride-hailing ~USD 12.2B at 14.2% CAGR); Statista (ride-hailing ~USD 0.7B, taxis ~USD 2.8B by 2025); Cognitive (~USD 6.7B ride-hailing); Maximize (~USD 4.7B combined).</li>
             <li><strong>Others incl. Germany (USD 77.52B)</strong>: Aggregated from Straits Research (APAC ex-China/India/Japan ~USD 18B); Business Research Insights (Europe ex-Germany ~USD 20-25B); Grand View/Mordor (Latin America ~USD 12-20B); Future Market Insights (MEA ~USD 11B); Statista (Germany ride-hailing ~USD 1.6B, taxis ~USD 3B by 2025).</li>
-            <li><strong>Other Parameters</strong>: ARK Invest (Tesla market share ~50%, profit margin ~32% EBITDA for 2029, P/E ~18x aligned with bull/bear enterprise value/EBITDA); Uber elasticity studies (-0.5 to -1.0 demand elasticity).</li>
+            <li><strong>Other Parameters</strong>: ARK Invest (Tesla market share ~50%, profit margin ~32% EBITDA for 2029, P/E ~18x aligned with bull/bear enterprise value/EBITDA).</li>
         </ul>
     </div>
     
     <script>
-        window.onload = function() {
-            const ctx = document.getElementById('marketChart')?.getContext('2d');
-            if (!ctx) {
-                console.error('Canvas element "marketChart" not found');
-                alert('Chart failed to load. Please check if the canvas element exists.');
-                return;
-            }
-
-            if (typeof Chart === 'undefined') {
-                console.error('Chart.js not loaded. CDN may have failed.');
-                alert('Chart.js failed to load. Please check internet or try another browser.');
-                return;
-            }
-
-            let chart;
-            try {
-                chart = new Chart(ctx, {
-                    type: 'line',
-                    data: {
-                        labels: [],
-                        datasets: [
-                            {
-                                label: 'Total Market Size (USD Billion)',
-                                borderColor: '#1f77b4',
-                                backgroundColor: 'rgba(31, 119, 180, 0.1)',
-                                fill: false,
-                                data: [],
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                tension: 0.1
-                            },
-                            {
-                                label: 'Robotaxi Market Size (USD Billion)',
-                                borderColor: '#2ca02c',
-                                backgroundColor: 'rgba(44, 160, 44, 0.1)',
-                                fill: false,
-                                data: [],
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                tension: 0.1
-                            },
-                            {
-                                label: 'Tesla Robotaxi Size (USD Billion)',
-                                borderColor: '#ff7f0e',
-                                backgroundColor: 'rgba(255, 127, 14, 0.1)',
-                                fill: false,
-                                data: [],
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                tension: 0.1
-                            },
-                            {
-                                label: 'Robotaxi Penetration (%)',
-                                borderColor: '#d62728',
-                                backgroundColor: 'rgba(214, 39, 40, 0.1)',
-                                fill: false,
-                                data: [],
-                                yAxisID: 'percentage',
-                                borderWidth: 3,
-                                pointRadius: 4,
-                                tension: 0.1
-                            }
-                        ]
+        // Initialize Chart.js
+        const ctx = document.getElementById('marketChart').getContext('2d');
+        let chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Total Market Size (USD Billion)',
+                        borderColor: '#1f77b4',
+                        backgroundColor: 'rgba(31, 119, 180, 0.1)',
+                        fill: false,
+                        data: [],
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.1
                     },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: true,
-                        aspectRatio: 1.5,
-                        interaction: {
-                            intersect: false,
-                            mode: 'index'
-                        },
-                        scales: {
-                            x: {
-                                title: { display: true, text: 'Year', font: { size: 12 } }
-                            },
-                            y: {
-                                type: 'linear',
-                                position: 'left',
-                                title: { display: true, text: 'Market Size (USD Billion)', font: { size: 12 } },
-                                beginAtZero: true,
-                                ticks: { font: { size: 10 } }
-                            },
-                            percentage: {
-                                type: 'linear',
-                                position: 'right',
-                                title: { display: true, text: 'Penetration (%)', font: { size: 12 } },
-                                grid: { drawOnChartArea: false },
-                                min: 0,
-                                max: 100,
-                                ticks: { font: { size: 10 } }
-                            }
-                        },
-                        plugins: {
-                            legend: { 
-                                position: 'top',
-                                labels: { font: { size: 10 } }
-                            },
-                            title: { 
-                                display: true, 
-                                text: 'Robotaxi Market Projection',
-                                font: { size: 14 }
-                            },
-                            tooltip: {
-                                mode: 'index',
-                                intersect: false,
-                                callbacks: {
-                                    label: function(context) {
-                                        return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}`;
-                                    }
-                                }
+                    {
+                        label: 'Robotaxi Market Size (USD Billion)',
+                        borderColor: '#2ca02c',
+                        backgroundColor: 'rgba(44, 160, 44, 0.1)',
+                        fill: false,
+                        data: [],
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Tesla Robotaxi Size (USD Billion)',
+                        borderColor: '#ff7f0e',
+                        backgroundColor: 'rgba(255, 127, 14, 0.1)',
+                        fill: false,
+                        data: [],
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.1
+                    },
+                    {
+                        label: 'Robotaxi Penetration (%)',
+                        borderColor: '#d62728',
+                        backgroundColor: 'rgba(214, 39, 40, 0.1)',
+                        fill: false,
+                        data: [],
+                        yAxisID: 'percentage',
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        tension: 0.1
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: {
+                    intersect: false,
+                    mode: 'index'
+                },
+                scales: {
+                    x: {
+                        title: { display: true, text: 'Year', font: { size: 14 } }
+                    },
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        title: { display: true, text: 'Market Size (USD Billion)', font: { size: 14 } },
+                        beginAtZero: true,
+                        ticks: { font: { size: 12 } }
+                    },
+                    percentage: {
+                        type: 'linear',
+                        position: 'right',
+                        title: { display: true, text: 'Penetration (%)', font: { size: 14 } },
+                        grid: { drawOnChartArea: false },
+                        min: 0,
+                        max: 100,
+                        ticks: { font: { size: 12 } }
+                    }
+                },
+                plugins: {
+                    legend: { 
+                        position: 'top',
+                        labels: { font: { size: 12 } }
+                    },
+                    title: { 
+                        display: true, 
+                        text: 'Robotaxi Market Projection',
+                        font: { size: 16 }
+                    },
+                    tooltip: {
+                        mode: 'index',
+                        intersect: false,
+                        callbacks: {
+                            label: function(context) {
+                                return `${context.dataset.label}: ${context.parsed.y.toFixed(2)}`;
                             }
                         }
                     }
-                });
-            } catch (e) {
-                console.error('Chart initialization failed:', e);
-                alert('Chart initialization failed. Please check console for details.');
-                return;
-            }
-
-            function updateChart() {
-                try {
-                    const china_m0 = parseFloat(document.getElementById('china_m0')?.value || 116.1);
-                    const us_m0 = parseFloat(document.getElementById('us_m0')?.value || 62.3);
-                    const india_m0 = parseFloat(document.getElementById('india_m0')?.value || 30.6);
-                    const japan_m0 = parseFloat(document.getElementById('japan_m0')?.value || 15.0);
-                    const others_m0 = parseFloat(document.getElementById('others_m0')?.value || 77.52);
-                    const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + others_m0;
-
-                    const china_g = parseFloat(document.getElementById('china_g')?.value || 0.20);
-                    const us_g = parseFloat(document.getElementById('us_g')?.value || 0.15);
-                    const india_g = parseFloat(document.getElementById('india_g')?.value || 0.20);
-                    const japan_g = parseFloat(document.getElementById('japan_g')?.value || 0.10);
-                    const others_g = parseFloat(document.getElementById('others_g')?.value || 0.10);
-
-                    const china_r = parseFloat(document.getElementById('china_r')?.value || 0.10);
-                    const us_r = parseFloat(document.getElementById('us_r')?.value || 0.08);
-                    const india_r = parseFloat(document.getElementById('india_r')?.value || 0.05);
-                    const japan_r = parseFloat(document.getElementById('japan_r')?.value || 0.04);
-                    const others_r = parseFloat(document.getElementById('others_r')?.value || 0.04);
-
-                    const growth_decline = parseFloat(document.getElementById('growth_decline')?.value || 0);
-                    const tesla_share = parseFloat(document.getElementById('tesla_share')?.value || 50);
-                    const margin_percent = parseFloat(document.getElementById('margin_percent')?.value || 32);
-                    const val_multiple = parseFloat(document.getElementById('val_multiple')?.value || 18);
-                    const years = parseInt(document.getElementById('years')?.value || 15);
-                    const adoption_speed = parseFloat(document.getElementById('adoption_speed')?.value || 0.5);
-                    const peak_adoption_year = parseInt(document.getElementById('peak_adoption_year')?.value || 5);
-                    const price_discount = parseFloat(document.getElementById('price_discount')?.value || 30);
-                    const elasticity_boost = parseFloat(document.getElementById('elasticity_boost')?.value || 1.0);
-
-                    document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
-                    document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
-                    document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
-                    document.getElementById('japan_m0-value').textContent = japan_m0.toFixed(1);
-                    document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
-                    document.getElementById('total_m0-value').textContent = m0.toFixed(2);
-
-                    document.getElementById('china_g-value').textContent = china_g.toFixed(2) + ` (${(china_g * 100).toFixed(0)}%)`;
-                    document.getElementById('us_g-value').textContent = us_g.toFixed(2) + ` (${(us_g * 100).toFixed(0)}%)`;
-                    document.getElementById('india_g-value').textContent = india_g.toFixed(2) + ` (${(india_g * 100).toFixed(0)}%)`;
-                    document.getElementById('japan_g-value').textContent = japan_g.toFixed(2) + ` (${(japan_g * 100).toFixed(0)}%)`;
-                    document.getElementById('others_g-value').textContent = others_g.toFixed(2) + ` (${(others_g * 100).toFixed(0)}%)`;
-
-                    document.getElementById('china_r-value').textContent = china_r.toFixed(2) + ` (${(china_r * 100).toFixed(0)}%)`;
-                    document.getElementById('us_r-value').textContent = us_r.toFixed(2) + ` (${(us_r * 100).toFixed(0)}%)`;
-                    document.getElementById('india_r-value').textContent = india_r.toFixed(2) + ` (${(india_r * 100).toFixed(0)}%)`;
-                    document.getElementById('japan_r-value').textContent = japan_r.toFixed(2) + ` (${(japan_r * 100).toFixed(0)}%)`;
-                    document.getElementById('others_r-value').textContent = others_r.toFixed(2) + ` (${(others_r * 100).toFixed(0)}%)`;
-
-                    document.getElementById('growth_decline-value').textContent = (growth_decline * 100).toFixed(1) + '%';
-                    document.getElementById('tesla_share-value').textContent = tesla_share;
-                    document.getElementById('margin_percent-value').textContent = margin_percent;
-                    document.getElementById('val_multiple-value').textContent = val_multiple;
-                    document.getElementById('years-value').textContent = years;
-                    document.getElementById('adoption_speed-value').textContent = adoption_speed.toFixed(1);
-                    document.getElementById('peak_adoption_year-value').textContent = peak_adoption_year;
-                    document.getElementById('price_discount-value').textContent = price_discount;
-                    document.getElementById('elasticity_boost-value').textContent = elasticity_boost.toFixed(1);
-
-                    const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
-                    const totalMarket = [];
-                    const robotaxiMarket = [];
-                    const teslaRobotaxi = [];
-                    const penetration = [];
-
-                    console.log('Starting calculations for', years, 'years');
-
-                    for (let t = 0; t <= years; t++) {
-                        const countries = [
-                            {m0: china_m0, g: china_g, r: china_r},
-                            {m0: us_m0, g: us_g, r: us_r},
-                            {m0: india_m0, g: india_g, r: india_r},
-                            {m0: japan_m0, g: japan_g, r: japan_r},
-                            {m0: others_m0, g: others_g, r: others_r}
-                        ];
-
-                        let mt_total = 0;
-                        let robotaxi_total = 0;
-                        let pt_avg = 0;
-
-                        countries.forEach((country, index) => {
-                            try {
-                                let g_t = country.g * Math.pow(1 - growth_decline, t);
-                                g_t += (price_discount / 100) * elasticity_boost;
-                                if (isNaN(g_t) || !isFinite(g_t)) {
-                                    console.error(`Invalid g_t for country ${index}, year ${t}:`, g_t);
-                                    return;
-                                }
-                                const mt_country = country.m0 * Math.pow(1 + g_t, t);
-                                const effective_r = Math.max(0.01, country.r + (price_discount / 100));
-                                let pt_country = 100 * Math.exp(-Math.exp(-adoption_speed * effective_r * (t - peak_adoption_year)));
-                                pt_country = Math.min(Math.max(pt_country, 0), 100);
-                                const robotaxi_country = mt_country * (pt_country / 100) * (1 - price_discount / 100);
-
-                                if (isNaN(mt_country) || isNaN(pt_country) || isNaN(robotaxi_country)) {
-                                    console.error(`Invalid values for country ${index}, year ${t}: mt_country=${mt_country}, pt_country=${pt_country}, robotaxi_country=${robotaxi_country}`);
-                                    return;
-                                }
-
-                                console.log(`Year ${t}, Country ${index}: mt_country=${mt_country.toFixed(2)}, pt_country=${pt_country.toFixed(2)}, robotaxi_country=${robotaxi_country.toFixed(2)}`);
-
-                                mt_total += mt_country;
-                                robotaxi_total += robotaxi_country;
-                                pt_avg += (pt_country * country.m0 / m0);
-                            } catch (e) {
-                                console.error(`Error in country ${index}, year ${t}:`, e);
-                            }
-                        });
-
-                        const tesla_rt = robotaxi_total * (tesla_share / 100);
-
-                        totalMarket.push(parseFloat(mt_total.toFixed(2)));
-                        robotaxiMarket.push(parseFloat(robotaxi_total.toFixed(2)));
-                        teslaRobotaxi.push(parseFloat(tesla_rt.toFixed(2)));
-                        penetration.push(parseFloat(pt_avg.toFixed(2)));
-                    }
-
-                    console.log('Data for chart:', { totalMarket, robotaxiMarket, teslaRobotaxi, penetration });
-
-                    if (totalMarket.some(isNaN) || robotaxiMarket.some(isNaN) || teslaRobotaxi.some(isNaN) || penetration.some(isNaN)) {
-                        console.error('Invalid chart data detected:', { totalMarket, robotaxiMarket, teslaRobotaxi, penetration });
-                        alert('Chart data invalid. Please check console for details.');
-                        return;
-                    }
-
-                    chart.data.labels = labels;
-                    chart.data.datasets[0].data = totalMarket;
-                    chart.data.datasets[1].data = robotaxiMarket;
-                    chart.data.datasets[2].data = teslaRobotaxi;
-                    chart.data.datasets[3].data = penetration;
-                    chart.update('none');
-
-                    const lastYear = labels[years];
-                    const lastTeslaRevenue = teslaRobotaxi[years] || 0;
-                    const lastTeslaEarnings = lastTeslaRevenue * (margin_percent / 100);
-                    const marketCap = (lastTeslaEarnings * val_multiple).toFixed(2);
-                    const capElement = document.getElementById('tesla-cap');
-                    if (capElement) {
-                        capElement.textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/E on final-year earnings: Revenue * ${margin_percent}% Margin)`;
-                    } else {
-                        console.error('Element "tesla-cap" not found');
-                        alert('Tesla market cap element not found. Please check console.');
-                    }
-                } catch (e) {
-                    console.error('Error in updateChart:', e);
-                    alert('Chart update failed. Please check console for details.');
                 }
             }
+        });
 
-            function resetSliders() {
-                try {
-                    document.getElementById('china_m0').value = 116.1;
-                    document.getElementById('us_m0').value = 62.3;
-                    document.getElementById('india_m0').value = 30.6;
-                    document.getElementById('japan_m0').value = 15.0;
-                    document.getElementById('others_m0').value = 77.52;
+        // Update chart based on inputs
+        function updateChart() {
+            // Get M0, g, and r values (Germany combined into Others)
+            const china_m0 = parseFloat(document.getElementById('china_m0').value);
+            const us_m0 = parseFloat(document.getElementById('us_m0').value);
+            const india_m0 = parseFloat(document.getElementById('india_m0').value);
+            const japan_m0 = parseFloat(document.getElementById('japan_m0').value);
+            const others_m0 = parseFloat(document.getElementById('others_m0').value);
+            const m0 = china_m0 + us_m0 + india_m0 + japan_m0 + others_m0;
 
-                    document.getElementById('china_g').value = 0.20;
-                    document.getElementById('us_g').value = 0.15;
-                    document.getElementById('india_g').value = 0.20;
-                    document.getElementById('japan_g').value = 0.10;
-                    document.getElementById('others_g').value = 0.10;
+            const china_g = parseFloat(document.getElementById('china_g').value);
+            const us_g = parseFloat(document.getElementById('us_g').value);
+            const india_g = parseFloat(document.getElementById('india_g').value);
+            const japan_g = parseFloat(document.getElementById('japan_g').value);
+            const others_g = parseFloat(document.getElementById('others_g').value);
 
-                    document.getElementById('china_r').value = 0.10;
-                    document.getElementById('us_r').value = 0.08;
-                    document.getElementById('india_r').value = 0.05;
-                    document.getElementById('japan_r').value = 0.04;
-                    document.getElementById('others_r').value = 0.04;
+            const china_r = parseFloat(document.getElementById('china_r').value);
+            const us_r = parseFloat(document.getElementById('us_r').value);
+            const india_r = parseFloat(document.getElementById('india_r').value);
+            const japan_r = parseFloat(document.getElementById('japan_r').value);
+            const others_r = parseFloat(document.getElementById('others_r').value);
 
-                    document.getElementById('growth_decline').value = 0;
-                    document.getElementById('tesla_share').value = 50;
-                    document.getElementById('margin_percent').value = 32;
-                    document.getElementById('val_multiple').value = 18;
-                    document.getElementById('years').value = 15;
-                    document.getElementById('adoption_speed').value = 0.5;
-                    document.getElementById('peak_adoption_year').value = 5;
-                    document.getElementById('price_discount').value = 30;
-                    document.getElementById('elasticity_boost').value = 1.0;
-                    updateChart();
-                } catch (e) {
-                    console.error('Error in resetSliders:', e);
-                }
+            const growth_decline = parseFloat(document.getElementById('growth_decline').value);
+            const tesla_share = parseFloat(document.getElementById('tesla_share').value);
+            const margin_percent = parseFloat(document.getElementById('margin_percent').value);
+            const val_multiple = parseFloat(document.getElementById('val_multiple').value);
+            const years = parseInt(document.getElementById('years').value);
+
+            // Update displayed values
+            document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
+            document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
+            document.getElementById('india_m0-value').textContent = india_m0.toFixed(1);
+            document.getElementById('japan_m0-value').textContent = japan_m0.toFixed(1);
+            document.getElementById('others_m0-value').textContent = others_m0.toFixed(2);
+            document.getElementById('total_m0-value').textContent = m0.toFixed(2);
+
+            document.getElementById('china_g-value').textContent = china_g.toFixed(2) + ` (${(china_g * 100).toFixed(0)}%)`;
+            document.getElementById('us_g-value').textContent = us_g.toFixed(2) + ` (${(us_g * 100).toFixed(0)}%)`;
+            document.getElementById('india_g-value').textContent = india_g.toFixed(2) + ` (${(india_g * 100).toFixed(0)}%)`;
+            document.getElementById('japan_g-value').textContent = japan_g.toFixed(2) + ` (${(japan_g * 100).toFixed(0)}%)`;
+            document.getElementById('others_g-value').textContent = others_g.toFixed(2) + ` (${(others_g * 100).toFixed(0)}%)`;
+
+            document.getElementById('china_r-value').textContent = china_r.toFixed(2) + ` (${(china_r * 100).toFixed(0)}%)`;
+            document.getElementById('us_r-value').textContent = us_r.toFixed(2) + ` (${(us_r * 100).toFixed(0)}%)`;
+            document.getElementById('india_r-value').textContent = india_r.toFixed(2) + ` (${(india_r * 100).toFixed(0)}%)`;
+            document.getElementById('japan_r-value').textContent = japan_r.toFixed(2) + ` (${(japan_r * 100).toFixed(0)}%)`;
+            document.getElementById('others_r-value').textContent = others_r.toFixed(2) + ` (${(others_r * 100).toFixed(0)}%)`;
+
+            document.getElementById('growth_decline-value').textContent = (growth_decline * 100).toFixed(1) + '%';
+            document.getElementById('tesla_share-value').textContent = tesla_share;
+            document.getElementById('margin_percent-value').textContent = margin_percent;
+            document.getElementById('val_multiple-value').textContent = val_multiple;
+            document.getElementById('years-value').textContent = years;
+
+            // Calculate projections
+            const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
+            const totalMarket = [];
+            const robotaxiMarket = [];
+            const teslaRobotaxi = [];
+            const penetration = [];
+
+            for (let t = 0; t <= years; t++) {
+                const countries = [
+                    {m0: china_m0, g: china_g, r: china_r},
+                    {m0: us_m0, g: us_g, r: us_r},
+                    {m0: india_m0, g: india_g, r: india_r},
+                    {m0: japan_m0, g: japan_g, r: japan_r},
+                    {m0: others_m0, g: others_g, r: others_r}
+                ];
+
+                let mt_total = 0;
+                let robotaxi_total = 0;
+                let pt_avg = 0;
+
+                countries.forEach(country => {
+                    let g_t = country.g * Math.pow(1 - growth_decline, t);
+                    const mt_country = country.m0 * Math.pow(1 + g_t, t);
+                    const pt_country = (1 - Math.pow(1 - country.r, t)) * 100;
+                    const robotaxi_country = mt_country * (pt_country / 100);
+
+                    mt_total += mt_country;
+                    robotaxi_total += robotaxi_country;
+                    pt_avg += (pt_country * country.m0 / m0);
+                });
+
+                const tesla_rt = robotaxi_total * (tesla_share / 100);
+
+                totalMarket.push(parseFloat(mt_total.toFixed(2)));
+                robotaxiMarket.push(parseFloat(robotaxi_total.toFixed(2)));
+                teslaRobotaxi.push(parseFloat(tesla_rt.toFixed(2)));
+                penetration.push(parseFloat(pt_avg.toFixed(2)));
             }
 
-            document.querySelectorAll('input[type="range"]').forEach(slider => {
-                slider.addEventListener('input', () => {
-                    try {
-                        updateChart();
-                    } catch (e) {
-                        console.error('Error on slider input:', e);
-                    }
-                });
-            });
+            // Update chart data
+            chart.data.labels = labels;
+            chart.data.datasets[0].data = totalMarket;
+            chart.data.datasets[1].data = robotaxiMarket;
+            chart.data.datasets[2].data = teslaRobotaxi;
+            chart.data.datasets[3].data = penetration;
+            chart.update('none');
 
+            // Update Tesla market cap projection
+            const lastYear = labels[years];
+            const lastTeslaRevenue = teslaRobotaxi[years];
+            const lastTeslaEarnings = lastTeslaRevenue * (margin_percent / 100);
+            const marketCap = (lastTeslaEarnings * val_multiple).toFixed(2);
+            document.getElementById('tesla-cap').textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/E on final-year earnings: Revenue * ${margin_percent}% Margin)`;
+        }
+
+        function resetSliders() {
+            setExtremelyBullish(); // Reset to defaults, which is Extremely Bullish
+        }
+
+        // Scenario functions
+        function setExtremelyBullish() {
+            // Original defaults (Extremely Bullish)
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('others_m0').value = 77.52;
+
+            document.getElementById('china_g').value = 0.20;
+            document.getElementById('us_g').value = 0.15;
+            document.getElementById('india_g').value = 0.20;
+            document.getElementById('japan_g').value = 0.10;
+            document.getElementById('others_g').value = 0.10;
+
+            document.getElementById('china_r').value = 0.10;
+            document.getElementById('us_r').value = 0.08;
+            document.getElementById('india_r').value = 0.05;
+            document.getElementById('japan_r').value = 0.04;
+            document.getElementById('others_r').value = 0.04;
+
+            document.getElementById('growth_decline').value = 0;
+            document.getElementById('tesla_share').value = 50;
+            document.getElementById('margin_percent').value = 32;
+            document.getElementById('val_multiple').value = 18;
+            document.getElementById('years').value = 10;
             updateChart();
-        };
+        }
+
+        function setBullish() {
+            // Bullish: Slightly reduced growth/replacement, Tesla share 40%, margin 30%, P/E 15x, decline 1%
+            // Keep m0 the same, scale g and r down by ~20%
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('others_m0').value = 77.52;
+
+            document.getElementById('china_g').value = 0.16;
+            document.getElementById('us_g').value = 0.12;
+            document.getElementById('india_g').value = 0.16;
+            document.getElementById('japan_g').value = 0.08;
+            document.getElementById('others_g').value = 0.08;
+
+            document.getElementById('china_r').value = 0.08;
+            document.getElementById('us_r').value = 0.064;
+            document.getElementById('india_r').value = 0.04;
+            document.getElementById('japan_r').value = 0.032;
+            document.getElementById('others_r').value = 0.032;
+
+            document.getElementById('growth_decline').value = 0.01;
+            document.getElementById('tesla_share').value = 40;
+            document.getElementById('margin_percent').value = 30;
+            document.getElementById('val_multiple').value = 15;
+            document.getElementById('years').value = 10;
+            updateChart();
+        }
+
+        function setNormal() {
+            // Normal: Moderate reductions, Tesla share 30%, margin 25%, P/E 12x, decline 2%
+            // Scale g and r down by ~40%
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('others_m0').value = 77.52;
+
+            document.getElementById('china_g').value = 0.12;
+            document.getElementById('us_g').value = 0.09;
+            document.getElementById('india_g').value = 0.12;
+            document.getElementById('japan_g').value = 0.06;
+            document.getElementById('others_g').value = 0.06;
+
+            document.getElementById('china_r').value = 0.06;
+            document.getElementById('us_r').value = 0.048;
+            document.getElementById('india_r').value = 0.03;
+            document.getElementById('japan_r').value = 0.024;
+            document.getElementById('others_r').value = 0.024;
+
+            document.getElementById('growth_decline').value = 0.02;
+            document.getElementById('tesla_share').value = 30;
+            document.getElementById('margin_percent').value = 25;
+            document.getElementById('val_multiple').value = 12;
+            document.getElementById('years').value = 10;
+            updateChart();
+        }
+
+        function setBearish() {
+            // Bearish: Significant reductions, Tesla share 20%, margin 20%, P/E 10x, decline 5%
+            // Scale g and r down by ~60%
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('others_m0').value = 77.52;
+
+            document.getElementById('china_g').value = 0.08;
+            document.getElementById('us_g').value = 0.06;
+            document.getElementById('india_g').value = 0.08;
+            document.getElementById('japan_g').value = 0.04;
+            document.getElementById('others_g').value = 0.04;
+
+            document.getElementById('china_r').value = 0.04;
+            document.getElementById('us_r').value = 0.032;
+            document.getElementById('india_r').value = 0.02;
+            document.getElementById('japan_r').value = 0.016;
+            document.getElementById('others_r').value = 0.016;
+
+            document.getElementById('growth_decline').value = 0.05;
+            document.getElementById('tesla_share').value = 20;
+            document.getElementById('margin_percent').value = 20;
+            document.getElementById('val_multiple').value = 10;
+            document.getElementById('years').value = 10;
+            updateChart();
+        }
+
+        function setSuperBearish() {
+            // Super Bearish: Drastic reductions, Tesla share 10%, margin 15%, P/E 8x, decline 10%
+            // Scale g and r down by ~80%, minimal growth
+            document.getElementById('china_m0').value = 116.1;
+            document.getElementById('us_m0').value = 62.3;
+            document.getElementById('india_m0').value = 30.6;
+            document.getElementById('japan_m0').value = 15.0;
+            document.getElementById('others_m0').value = 77.52;
+
+            document.getElementById('china_g').value = 0.04;
+            document.getElementById('us_g').value = 0.03;
+            document.getElementById('india_g').value = 0.04;
+            document.getElementById('japan_g').value = 0.02;
+            document.getElementById('others_g').value = 0.02;
+
+            document.getElementById('china_r').value = 0.02;
+            document.getElementById('us_r').value = 0.016;
+            document.getElementById('india_r').value = 0.01;
+            document.getElementById('japan_r').value = 0.008;
+            document.getElementById('others_r').value = 0.008;
+
+            document.getElementById('growth_decline').value = 0.1;
+            document.getElementById('tesla_share').value = 10;
+            document.getElementById('margin_percent').value = 15;
+            document.getElementById('val_multiple').value = 8;
+            document.getElementById('years').value = 10;
+            updateChart();
+        }
+
+        // Attach event listeners to sliders
+        document.querySelectorAll('input[type="range"]').forEach(slider => {
+            slider.addEventListener('input', updateChart);
+        });
+
+        // Initial chart render
+        updateChart();
     </script>
 </body>
 </html>
