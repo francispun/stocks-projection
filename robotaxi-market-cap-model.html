@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Robotaxi Market Projection Model (Per-Country Rates & Grouped Sliders)</title>
+    <title>Robotaxi Market Projection Model</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body {
@@ -23,6 +23,11 @@
         .slider-container {
             margin-bottom: 10px;
             max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        .country-section, .global-section, .description-container, .sources-section, .chart-container, #tesla-cap {
+            max-width: 900px;
             margin-left: auto;
             margin-right: auto;
         }
@@ -50,27 +55,16 @@
         input[type="range"] {
             width: 100%;
         }
-        #reset-btn {
-            display: block;
-            margin: 20px auto;
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        #reset-btn:hover {
-            background-color: #0056b3;
-        }
         .scenario-buttons {
-            text-align: center;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
             margin: 20px auto;
             max-width: 900px;
         }
         .scenario-btn {
-            margin: 5px;
+            min-width: 145px;
             padding: 10px 15px;
             background-color: #6c757d;
             color: white;
@@ -78,10 +72,18 @@
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
+            flex: 1;
+            max-width: 160px;
         }
-        .scenario-btn:hover {
-            background-color: #5a6268;
+        .scenario-btn.active {
+            color: white;
         }
+        #btn-extreme-bullish.active { background-color: #28a745; } /* Bright Green */
+        #btn-bullish.active { background-color: #90ee90; } /* Pale Green */
+        #btn-normal.active { background-color: #d0f0d0; } /* Very Pale Green */
+        #btn-bearish.active { background-color: #f08080; } /* Pale Red */
+        #btn-super-bearish.active { background-color: #dc3545; } /* Dark Red */
+
         canvas {
             max-width: 900px;
             height: 500px !important;
@@ -98,8 +100,6 @@
             height: 500px;
         }
         #tesla-cap {
-            max-width: 900px;
-            margin: 20px auto;
             padding: 15px;
             background-color: #f7e9e9;
             border-radius: 8px;
@@ -110,8 +110,6 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
         .sources-section {
-            max-width: 900px;
-            margin: 20px auto;
             padding: 15px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -132,8 +130,6 @@
             margin-bottom: 8px;
         }
         .description-container {
-            max-width: 900px;
-            margin: 20px auto;
             padding: 15px;
             background-color: #f9f9f9;
             border-radius: 8px;
@@ -260,14 +256,12 @@
         </div>
     </div>
     
-    <button id="reset-btn" onclick="resetSliders()">Reset to Defaults</button>
-    
     <div class="scenario-buttons">
-        <button class="scenario-btn" onclick="setExtremelyBullish()">Extremely Bullish</button>
-        <button class="scenario-btn" onclick="setBullish()">Bullish</button>
-        <button class="scenario-btn" onclick="setNormal()">Normal</button>
-        <button class="scenario-btn" onclick="setBearish()">Bearish</button>
-        <button class="scenario-btn" onclick="setSuperBearish()">Super Bearish</button>
+        <button id="btn-extreme-bullish" class="scenario-btn active" onclick="setScenario('extreme-bullish')">Extremely Bullish</button>
+        <button id="btn-bullish" class="scenario-btn" onclick="setScenario('bullish')">Bullish</button>
+        <button id="btn-normal" class="scenario-btn" onclick="setScenario('normal')">Normal</button>
+        <button id="btn-bearish" class="scenario-btn" onclick="setScenario('bearish')">Bearish</button>
+        <button id="btn-super-bearish" class="scenario-btn" onclick="setScenario('super-bearish')">Super Bearish</button>
     </div>
     
     <div class="chart-container">
@@ -393,7 +387,6 @@
 
         // Update chart based on inputs
         function updateChart() {
-            // Get M0, g, and r values (Germany combined into Others)
             const china_m0 = parseFloat(document.getElementById('china_m0').value);
             const us_m0 = parseFloat(document.getElementById('us_m0').value);
             const india_m0 = parseFloat(document.getElementById('india_m0').value);
@@ -500,13 +493,31 @@
             document.getElementById('tesla-cap').textContent = `Projected Tesla Robotaxi Market Cap in ${lastYear}: ${marketCap} USD Billion (based on ${val_multiple}x P/E on final-year earnings: Revenue * ${margin_percent}% Margin)`;
         }
 
-        function resetSliders() {
-            setExtremelyBullish(); // Reset to defaults, which is Extremely Bullish
+        // Scenario activation
+        function setScenario(scenario) {
+            // Remove active class from all buttons
+            document.querySelectorAll('.scenario-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            // Add active class to selected
+            document.getElementById(`btn-${scenario}`).classList.add('active');
+
+            // Apply scenario values
+            if (scenario === 'extreme-bullish') {
+                setExtremelyBullish();
+            } else if (scenario === 'bullish') {
+                setBullish();
+            } else if (scenario === 'normal') {
+                setNormal();
+            } else if (scenario === 'bearish') {
+                setBearish();
+            } else if (scenario === 'super-bearish') {
+                setSuperBearish();
+            }
         }
 
         // Scenario functions
         function setExtremelyBullish() {
-            // Original defaults (Extremely Bullish)
             document.getElementById('china_m0').value = 116.1;
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
@@ -534,8 +545,6 @@
         }
 
         function setBullish() {
-            // Bullish: Slightly reduced growth/replacement, Tesla share 40%, margin 30%, P/E 15x, decline 1%
-            // Keep m0 the same, scale g and r down by ~20%
             document.getElementById('china_m0').value = 116.1;
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
@@ -563,8 +572,6 @@
         }
 
         function setNormal() {
-            // Normal: Moderate reductions, Tesla share 30%, margin 25%, P/E 12x, decline 2%
-            // Scale g and r down by ~40%
             document.getElementById('china_m0').value = 116.1;
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
@@ -592,8 +599,6 @@
         }
 
         function setBearish() {
-            // Bearish: Significant reductions, Tesla share 20%, margin 20%, P/E 10x, decline 5%
-            // Scale g and r down by ~60%
             document.getElementById('china_m0').value = 116.1;
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
@@ -621,8 +626,6 @@
         }
 
         function setSuperBearish() {
-            // Super Bearish: Drastic reductions, Tesla share 10%, margin 15%, P/E 8x, decline 10%
-            // Scale g and r down by ~80%, minimal growth
             document.getElementById('china_m0').value = 116.1;
             document.getElementById('us_m0').value = 62.3;
             document.getElementById('india_m0').value = 30.6;
@@ -654,8 +657,8 @@
             slider.addEventListener('input', updateChart);
         });
 
-        // Initial chart render
-        updateChart();
+        // Initial load: Extremely Bullish
+        setScenario('extreme-bullish');
     </script>
 </body>
 </html>
