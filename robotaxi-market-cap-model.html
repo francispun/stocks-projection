@@ -34,15 +34,9 @@
             background-color: #ffffff;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 900px;
         }
         .global-section {
             margin-top: 20px;
-            margin-left: auto;
-            margin-right: auto;
-            max-width: 900px;
             padding: 10px;
             background-color: #ffffff;
             border-radius: 8px;
@@ -161,7 +155,7 @@
 <body>
     <h1>Interactive Robotaxi Market Projection Model</h1>
     <div class="description-container">
-        <p class="description">This model projects the robotaxi market by breaking down the initial ride-hailing market size (M₀, 2025) into top 4 countries + others (Germany in Others). Adjust sliders to update total M₀. Includes Tesla's market share, Profit Margin % (default 32%, per ARK Invest's 2029 EBITDA projection), P/E Valuation Multiple (default 18x, aligned with ARK), Adoption Speed and Peak Adoption Year (for robotaxi penetration via Gompertz curve, where acceleration increases initially, peaks, then decelerates), Autonomy Price Discount (default 30%, reflecting lower fares), and Price Elasticity Boost (default 1.0, modeling market expansion from affordability, e.g., bus users switching). Adoption Readiness (r) scales adoption speed, not penetration cap, allowing full replacement. The chart shows Total Market Size, Robotaxi Market Size, Tesla Robotaxi Size, and Penetration %. Below: Tesla's projected market cap (final-year revenue * margin % * P/E).</p>
+        <p class="description">This model projects the robotaxi market by breaking down the initial ride-hailing market size (M₀, 2025) into top 4 countries + others (Germany in Others). Adjust sliders to update total M₀. Includes Tesla's market share, Profit Margin % (default 32%, per ARK Invest's 2029 EBITDA projection), P/E Valuation Multiple (default 18x, aligned with ARK), Adoption Speed and Peak Adoption Year (for robotaxi penetration via Gompertz curve, where acceleration increases initially, peaks, then decelerates), Autonomy Price Discount (default 30%, reflecting lower fares), and Price Elasticity Magnitude (default 0.5, modeling market expansion from affordability, e.g., bus users switching). Adoption Readiness (r) scales adoption speed, not penetration cap, allowing full replacement. The chart shows Total Market Size, Robotaxi Market Size, Tesla Robotaxi Size, and Penetration % (quantity-based). Below: Tesla's projected market cap (final-year revenue * margin % * P/E). Updated with iterative growth compounding, proper elasticity, ceilings, and supply constraints.</p>
     </div>
     
     <h2>Country-Specific Parameters</h2>
@@ -301,13 +295,33 @@
         </div>
         <div class="slider-container">
             <label class="slider-label" for="price_discount">Autonomy Price Discount (%): <span id="price_discount-value">30</span></label>
-            <span class="description">Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, cuts revenue.</span>
+            <span class="description">Fare reduction from autonomy (30%, $0.50/mile vs. Uber’s $2). Speeds adoption, affects revenue.</span>
             <input type="range" id="price_discount" min="0" max="80" step="1" value="30">
         </div>
         <div class="slider-container">
-            <label class="slider-label" for="elasticity_boost">Price Elasticity Boost: <span id="elasticity_boost-value">1.0</span></label>
-            <span class="description">Demand increase from lower fares (0.5–2.0). Models new users (e.g., bus riders). Source: Uber elasticity</span>
-            <input type="range" id="elasticity_boost" min="0.5" max="2.0" step="0.1" value="1.0">
+            <label class="slider-label" for="price_elasticity">Price Elasticity Magnitude: <span id="price_elasticity-value">0.5</span></label>
+            <span class="description">Demand sensitivity to price changes (0.1–2.0). Higher values mean larger demand boost from lower fares. Source: Uber studies (~0.5-1.0).</span>
+            <input type="range" id="price_elasticity" min="0.1" max="2.0" step="0.1" value="0.5">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="ceiling">Max Adoption Ceiling (%): <span id="ceiling-value">100</span></label>
+            <span class="description">Maximum possible robotaxi penetration (e.g., 90% due to rural areas or preferences).</span>
+            <input type="range" id="ceiling" min="50" max="100" step="1" value="100">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="base_fare">Base Fare per Mile (USD): <span id="base_fare-value">2.0</span></label>
+            <span class="description">Average ride-hailing fare per mile without autonomy. Used for quantity estimates.</span>
+            <input type="range" id="base_fare" min="1" max="3" step="0.1" value="2.0">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="annual_production">Annual Robotaxi Vehicle Production (thousands): <span id="annual_production-value">200</span></label>
+            <span class="description">Global annual addition to robotaxi fleet. Limits supply-side growth.</span>
+            <input type="range" id="annual_production" min="0" max="1000" step="10" value="200">
+        </div>
+        <div class="slider-container">
+            <label class="slider-label" for="avg_miles_vehicle">Avg Annual Miles per Vehicle: <span id="avg_miles_vehicle-value">60000</span></label>
+            <span class="description">Projected miles driven per robotaxi per year (accounts for uptime, charging).</span>
+            <input type="range" id="avg_miles_vehicle" min="20000" max="100000" step="5000" value="60000">
         </div>
     </div>
     
@@ -483,7 +497,11 @@
                     const adoption_speed = parseFloat(document.getElementById('adoption_speed')?.value || 0.5);
                     const peak_adoption_year = parseInt(document.getElementById('peak_adoption_year')?.value || 5);
                     const price_discount = parseFloat(document.getElementById('price_discount')?.value || 30);
-                    const elasticity_boost = parseFloat(document.getElementById('elasticity_boost')?.value || 1.0);
+                    const price_elasticity = parseFloat(document.getElementById('price_elasticity')?.value || 0.5);
+                    const ceiling = parseFloat(document.getElementById('ceiling')?.value || 100);
+                    const base_fare = parseFloat(document.getElementById('base_fare')?.value || 2.0);
+                    const annual_production = parseFloat(document.getElementById('annual_production')?.value || 200) * 1000;
+                    const avg_miles_vehicle = parseFloat(document.getElementById('avg_miles_vehicle')?.value || 60000);
 
                     document.getElementById('china_m0-value').textContent = china_m0.toFixed(1);
                     document.getElementById('us_m0-value').textContent = us_m0.toFixed(1);
@@ -512,64 +530,75 @@
                     document.getElementById('adoption_speed-value').textContent = adoption_speed.toFixed(1);
                     document.getElementById('peak_adoption_year-value').textContent = peak_adoption_year;
                     document.getElementById('price_discount-value').textContent = price_discount;
-                    document.getElementById('elasticity_boost-value').textContent = elasticity_boost.toFixed(1);
+                    document.getElementById('price_elasticity-value').textContent = price_elasticity.toFixed(1);
+                    document.getElementById('ceiling-value').textContent = ceiling;
+                    document.getElementById('base_fare-value').textContent = base_fare.toFixed(1);
+                    document.getElementById('annual_production-value').textContent = parseFloat(document.getElementById('annual_production').value);
+                    document.getElementById('avg_miles_vehicle-value').textContent = avg_miles_vehicle;
 
                     const labels = Array.from({length: years + 1}, (_, i) => 2025 + i);
-                    const totalMarket = [];
-                    const robotaxiMarket = [];
-                    const teslaRobotaxi = [];
-                    const penetration = [];
+                    const totalMarket = new Array(years + 1).fill(0);
+                    const robotaxiMarket = new Array(years + 1).fill(0);
+                    const teslaRobotaxi = new Array(years + 1).fill(0);
+                    const penetration = new Array(years + 1).fill(0);
 
-                    console.log('Starting calculations for', years, 'years');
+                    const countries = [
+                        {name: 'china', m0: china_m0, g: china_g, r: china_r},
+                        {name: 'us', m0: us_m0, g: us_g, r: us_r},
+                        {name: 'india', m0: india_m0, g: india_g, r: india_r},
+                        {name: 'japan', m0: japan_m0, g: japan_g, r: japan_r},
+                        {name: 'others', m0: others_m0, g: others_g, r: others_r}
+                    ];
+
+                    const mt_countries = countries.map(country => {
+                        const mt = new Array(years + 1).fill(0);
+                        mt[0] = country.m0;
+                        for (let t = 1; t <= years; t++) {
+                            const g_t = country.g * Math.pow(1 - growth_decline, t - 1);
+                            mt[t] = mt[t - 1] * (1 + g_t);
+                        }
+                        return mt;
+                    });
+
+                    let cum_fleet = 0; // initial_fleet = 0
 
                     for (let t = 0; t <= years; t++) {
-                        const countries = [
-                            {m0: china_m0, g: china_g, r: china_r},
-                            {m0: us_m0, g: us_g, r: us_r},
-                            {m0: india_m0, g: india_g, r: india_r},
-                            {m0: japan_m0, g: japan_g, r: japan_r},
-                            {m0: others_m0, g: others_g, r: others_r}
-                        ];
-
                         let mt_total = 0;
-                        let robotaxi_total = 0;
-                        let pt_avg = 0;
+                        let robotaxi_demand_total = 0;
 
                         countries.forEach((country, index) => {
-                            try {
-                                let g_t = country.g * Math.pow(1 - growth_decline, t);
-                                g_t += (price_discount / 100) * elasticity_boost;
-                                if (isNaN(g_t) || !isFinite(g_t)) {
-                                    console.error(`Invalid g_t for country ${index}, year ${t}:`, g_t);
-                                    return;
-                                }
-                                const mt_country = country.m0 * Math.pow(1 + g_t, t);
-                                const effective_r = Math.max(0.01, country.r + (price_discount / 100));
-                                let pt_country = 100 * Math.exp(-Math.exp(-adoption_speed * effective_r * (t - peak_adoption_year)));
-                                pt_country = Math.min(Math.max(pt_country, 0), 100);
-                                const robotaxi_country = mt_country * (pt_country / 100) * (1 - price_discount / 100);
+                            mt_total += mt_countries[index][t];
 
-                                if (isNaN(mt_country) || isNaN(pt_country) || isNaN(robotaxi_country)) {
-                                    console.error(`Invalid values for country ${index}, year ${t}: mt_country=${mt_country}, pt_country=${pt_country}, robotaxi_country=${robotaxi_country}`);
-                                    return;
-                                }
+                            if (t === 0) return;
 
-                                console.log(`Year ${t}, Country ${index}: mt_country=${mt_country.toFixed(2)}, pt_country=${pt_country.toFixed(2)}, robotaxi_country=${robotaxi_country.toFixed(2)}`);
+                            const effective_r = Math.max(0.01, country.r + (price_discount / 100));
+                            let pt_country = (ceiling / 100) * Math.exp(-Math.exp(-adoption_speed * effective_r * (t - peak_adoption_year)));
+                            pt_country = Math.min(Math.max(pt_country, 0), 1);
 
-                                mt_total += mt_country;
-                                robotaxi_total += robotaxi_country;
-                                pt_avg += (pt_country * country.m0 / m0);
-                            } catch (e) {
-                                console.error(`Error in country ${index}, year ${t}:`, e);
-                            }
+                            const D = price_discount / 100;
+                            const revenue_multiplier = Math.pow(1 - D, 1 - price_elasticity);
+                            const robotaxi_country_demand = mt_countries[index][t] * pt_country * revenue_multiplier;
+
+                            robotaxi_demand_total += robotaxi_country_demand;
                         });
 
-                        const tesla_rt = robotaxi_total * (tesla_share / 100);
+                        totalMarket[t] = mt_total.toFixed(2);
 
-                        totalMarket.push(parseFloat(mt_total.toFixed(2)));
-                        robotaxiMarket.push(parseFloat(robotaxi_total.toFixed(2)));
-                        teslaRobotaxi.push(parseFloat(tesla_rt.toFixed(2)));
-                        penetration.push(parseFloat(pt_avg.toFixed(2)));
+                        if (t > 0) {
+                            cum_fleet += annual_production;
+                            const robotaxi_fare = base_fare * (1 - price_discount / 100);
+                            const max_supply_miles = cum_fleet * avg_miles_vehicle;
+                            const max_supply_revenue = max_supply_miles * robotaxi_fare;
+
+                            const robotaxi_total = Math.min(robotaxi_demand_total, max_supply_revenue);
+                            robotaxiMarket[t] = robotaxi_total.toFixed(2);
+
+                            const tesla_rt = robotaxi_total * (tesla_share / 100);
+                            teslaRobotaxi[t] = tesla_rt.toFixed(2);
+
+                            const quantity_penetration = ((robotaxi_total / robotaxi_fare) / (mt_total / base_fare)) * 100;
+                            penetration[t] = quantity_penetration.toFixed(2);
+                        }
                     }
 
                     console.log('Data for chart:', { totalMarket, robotaxiMarket, teslaRobotaxi, penetration });
@@ -632,7 +661,11 @@
                     document.getElementById('adoption_speed').value = 0.5;
                     document.getElementById('peak_adoption_year').value = 5;
                     document.getElementById('price_discount').value = 30;
-                    document.getElementById('elasticity_boost').value = 1.0;
+                    document.getElementById('price_elasticity').value = 0.5;
+                    document.getElementById('ceiling').value = 100;
+                    document.getElementById('base_fare').value = 2.0;
+                    document.getElementById('annual_production').value = 200;
+                    document.getElementById('avg_miles_vehicle').value = 60000;
                     updateChart();
                 } catch (e) {
                     console.error('Error in resetSliders:', e);
