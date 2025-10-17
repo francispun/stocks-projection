@@ -3,59 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WBTC Liquidation & Health Factor Modeler (Aave)</title>
+    <title>WBTC Aave Position Modeler</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        h1 { text-align: center; }
-        .section { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; }
-        input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
-        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
-        button:hover { background: #0056b3; }
-        #results { margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; }
-        .chain-result { margin-bottom: 15px; }
-        .safety-note { font-style: italic; color: #666; }
+        .fade-in { animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        input:focus { outline: none; ring: 2px solid #3b82f6; }
+        button { transition: all 0.3s ease; }
+        button:hover { transform: translateY(-1px); }
+        .metric-label { @apply text-gray-600 font-medium; }
+        .metric-value { @apply text-gray-800; }
+        .hf-safe { @apply text-green-600; }
+        .hf-warning { @apply text-orange-600; }
     </style>
 </head>
-<body>
-    <h1>WBTC Liquidation & Health Factor Modeler (Aave)</h1>
-    
-    <div class="section">
-        <h2>Ethereum Chain</h2>
-        <label for="eth-supply">WBTC Supplied on ETH:</label>
-        <input type="number" id="eth-supply" value="0" step="0.0001">
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div class="max-w-2xl w-full bg-white rounded-lg shadow-lg p-6 fade-in">
+        <h1 class="text-2xl font-bold text-gray-800 text-center mb-6">Aave WBTC/USDT Position Modeler</h1>
         
-        <label for="eth-borrow">USDT Borrowed on ETH:</label>
-        <input type="number" id="eth-borrow" value="0" step="0.01">
-        
-        <label for="eth-lt">Liquidation Threshold (LT) for ETH (default 0.825):</label>
-        <input type="number" id="eth-lt" value="0.825" step="0.001" min="0" max="1">
+        <div class="space-y-6">
+            <!-- Ethereum Section -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Ethereum Chain</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label for="eth-supply" class="block text-sm font-medium text-gray-600">WBTC Supplied</label>
+                        <input type="number" id="eth-supply" value="0" step="0.0001" min="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="eth-borrow" class="block text-sm font-medium text-gray-600">USDT Borrowed</label>
+                        <input type="number" id="eth-borrow" value="0" step="0.01" min="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="eth-lt" class="block text-sm font-medium text-gray-600">Liquidation Threshold (default 0.825)</label>
+                        <input type="number" id="eth-lt" value="0.825" step="0.001" min="0" max="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Optimism Section -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Optimism Chain</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label for="op-supply" class="block text-sm font-medium text-gray-600">WBTC Supplied</label>
+                        <input type="number" id="op-supply" value="0" step="0.0001" min="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="op-borrow" class="block text-sm font-medium text-gray-600">USDT Borrowed</label>
+                        <input type="number" id="op-borrow" value="0" step="0.01" min="0" onfocus="if(this.value==='0')this.value=''" onblur="if(this.value==='')this.value='0'" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <div>
+                        <label for="op-lt" class="block text-sm font-medium text-gray-600">Liquidation Threshold (default 0.80)</label>
+                        <input type="number" id="op-lt" value="0.80" step="0.001" min="0" max="1" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings Section -->
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Settings</h2>
+                <div class="space-y-3">
+                    <div>
+                        <label for="safety-margin" class="block text-sm font-medium text-gray-600">Safety Margin % (e.g., 8 for HF > 1.08)</label>
+                        <input type="number" id="safety-margin" value="8" step="0.1" min="0" max="50" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                        <p class="text-xs text-gray-500 mt-1">Adjusts LT for conservative estimates (ignores interest).</p>
+                    </div>
+                    <div>
+                        <label for="current-price" class="block text-sm font-medium text-gray-600">Current WBTC Price in USD (optional, auto-fetched if blank)</label>
+                        <input type="number" id="current-price" placeholder="Fetch automatically" step="0.01" min="0" class="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500">
+                    </div>
+                    <button onclick="calculate()" class="w-full bg-blue-500 text-white p-2 rounded-md hover:bg-blue-600">Calculate Position Metrics</button>
+                </div>
+            </div>
+            
+            <!-- Results Section -->
+            <div id="results" class="border border-gray-200 rounded-lg p-4 hidden">
+                <h2 class="text-lg font-semibold text-gray-700 mb-4">Results</h2>
+            </div>
+        </div>
     </div>
-    
-    <div class="section">
-        <h2>Optimism Chain</h2>
-        <label for="op-supply">WBTC Supplied on OP:</label>
-        <input type="number" id="op-supply" value="0" step="0.0001">
-        
-        <label for="op-borrow">USDT Borrowed on OP:</label>
-        <input type="number" id="op-borrow" value="0" step="0.01">
-        
-        <label for="op-lt">Liquidation Threshold (LT) for OP (default 0.80):</label>
-        <input type="number" id="op-lt" value="0.80" step="0.001" min="0" max="1">
-    </div>
-    
-    <div class="section">
-        <label for="safety-margin">Safety Margin % (e.g., 5 for HF > 1.05 buffer):</label>
-        <input type="number" id="safety-margin" value="5" step="0.1" min="0" max="50">
-        <p class="safety-note">Adjusts LT for a conservative liquidation price and target HF (ignores interest accrual).</p>
-        
-        <label for="current-price">Current WBTC Price in USD (optional, will fetch if blank):</label>
-        <input type="number" id="current-price" placeholder="Fetch automatically" step="0.01">
-        
-        <button onclick="calculate()">Calculate Liquidation & Health Factor</button>
-    </div>
-    
-    <div id="results"></div>
 
     <script>
         async function fetchWbtcPrice() {
@@ -78,6 +105,11 @@
             return (collateralValue * lt) / borrowValue;
         }
 
+        function calculateLeverage(borrowValue, collateralValue) {
+            if (collateralValue === 0) return 0;
+            return (borrowValue / collateralValue) * 100;
+        }
+
         async function calculate() {
             const ethSupply = parseFloat(document.getElementById('eth-supply').value) || 0;
             const ethBorrow = parseFloat(document.getElementById('eth-borrow').value) || 0;
@@ -87,7 +119,7 @@
             const opBorrow = parseFloat(document.getElementById('op-borrow').value) || 0;
             const opLt = parseFloat(document.getElementById('op-lt').value) || 0.80;
             
-            const safetyMargin = parseFloat(document.getElementById('safety-margin').value) || 0;
+            const safetyMargin = parseFloat(document.getElementById('safety-margin').value) || 8;
             const saferLtMultiplier = 1 - safetyMargin / 100;
             
             let currentPrice = parseFloat(document.getElementById('current-price').value);
@@ -99,7 +131,7 @@
                 }
             }
 
-            let resultsHtml = `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`;
+            let resultsHtml = `<h3 class="text-lg font-semibold text-gray-700 mb-4">Results (Safety Margin: ${safetyMargin}%)</h3>`;
             
             // Ethereum Position
             if (ethSupply > 0 && ethBorrow > 0) {
@@ -109,17 +141,24 @@
                 const ethSaferLiqPrice = ethBorrow / (ethSupply * ethSaferLt);
                 const ethHf = calculateHealthFactor(ethCollateralValue, ethLt, ethBorrow);
                 const ethSaferHf = calculateHealthFactor(ethCollateralValue, ethSaferLt, ethBorrow);
+                const ethLeverage = calculateLeverage(ethBorrow, ethCollateralValue);
                 const ethDistance = ((currentPrice - ethLiqPrice) / currentPrice) * 100;
                 const ethSaferDistance = ((currentPrice - ethSaferLiqPrice) / currentPrice) * 100;
-                resultsHtml += '<div class="chain-result"><strong>Ethereum:</strong><br>';
-                resultsHtml += `Supplied WBTC: ${ethSupply}<br>`;
-                resultsHtml += `Borrowed USDT: ${ethBorrow}<br>`;
-                resultsHtml += `Base LT: ${(ethLt * 100).toFixed(1)}% | Safer LT: ${(ethSaferLt * 100).toFixed(1)}%<br>`;
-                resultsHtml += `Base Liquidation Price: $${ethLiqPrice.toFixed(2)}<br>`;
-                resultsHtml += `Safer Liquidation Price: $${ethSaferLiqPrice.toFixed(2)}<br>`;
-                resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
-                resultsHtml += `Base Health Factor: ${ethHf.toFixed(2)} | Safer HF: ${ethSaferHf.toFixed(2)}<br>`;
-                resultsHtml += `Base Distance to Liq: ${ethDistance.toFixed(2)}% | Safer Distance: ${ethSaferDistance.toFixed(2)}%<br></div>`;
+                const ethHfClass = ethHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                const ethSaferHfClass = ethSaferHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                resultsHtml += `
+                    <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-md">
+                        <strong class="text-gray-800 col-span-full">Ethereum</strong>
+                        <div><span class="metric-label">Supplied WBTC:</span> <span class="metric-value">${ethSupply.toFixed(4)}</span></div>
+                        <div><span class="metric-label">Borrowed USDT:</span> <span class="metric-value">${ethBorrow.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base LT | Safer LT:</span> <span class="metric-value">${(ethLt * 100).toFixed(1)}% | ${(ethSaferLt * 100).toFixed(1)}%</span></div>
+                        <div><span class="metric-label">Leverage:</span> <span class="metric-value">${ethLeverage.toFixed(2)}%</span></div>
+                        <div><span class="metric-label">Base Liq. Price:</span> <span class="metric-value">$${ethLiqPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Safer Liq. Price:</span> <span class="metric-value">$${ethSaferLiqPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Current Price:</span> <span class="metric-value">$${currentPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base HF | Safer HF:</span> <span class="metric-value ${ethHfClass}">${ethHf.toFixed(2)}</span> | <span class="metric-value ${ethSaferHfClass}">${ethSaferHf.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base Distance | Safer:</span> <span class="metric-value">${ethDistance.toFixed(2)}% | ${ethSaferDistance.toFixed(2)}%</span></div>
+                    </div>`;
             }
             
             // Optimism Position
@@ -130,20 +169,27 @@
                 const opSaferLiqPrice = opBorrow / (opSupply * opSaferLt);
                 const opHf = calculateHealthFactor(opCollateralValue, opLt, opBorrow);
                 const opSaferHf = calculateHealthFactor(opCollateralValue, opSaferLt, opBorrow);
+                const opLeverage = calculateLeverage(opBorrow, opCollateralValue);
                 const opDistance = ((currentPrice - opLiqPrice) / currentPrice) * 100;
                 const opSaferDistance = ((currentPrice - opSaferLiqPrice) / currentPrice) * 100;
-                resultsHtml += '<div class="chain-result"><strong>Optimism:</strong><br>';
-                resultsHtml += `Supplied WBTC: ${opSupply}<br>`;
-                resultsHtml += `Borrowed USDT: ${opBorrow}<br>`;
-                resultsHtml += `Base LT: ${(opLt * 100).toFixed(1)}% | Safer LT: ${(opSaferLt * 100).toFixed(1)}%<br>`;
-                resultsHtml += `Base Liquidation Price: $${opLiqPrice.toFixed(2)}<br>`;
-                resultsHtml += `Safer Liquidation Price: $${opSaferLiqPrice.toFixed(2)}<br>`;
-                resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
-                resultsHtml += `Base Health Factor: ${opHf.toFixed(2)} | Safer HF: ${opSaferHf.toFixed(2)}<br>`;
-                resultsHtml += `Base Distance to Liq: ${opDistance.toFixed(2)}% | Safer Distance: ${opSaferDistance.toFixed(2)}%<br></div>`;
+                const opHfClass = opHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                const opSaferHfClass = opSaferHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                resultsHtml += `
+                    <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-md">
+                        <strong class="text-gray-800 col-span-full">Optimism</strong>
+                        <div><span class="metric-label">Supplied WBTC:</span> <span class="metric-value">${opSupply.toFixed(4)}</span></div>
+                        <div><span class="metric-label">Borrowed USDT:</span> <span class="metric-value">${opBorrow.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base LT | Safer LT:</span> <span class="metric-value">${(opLt * 100).toFixed(1)}% | ${(opSaferLt * 100).toFixed(1)}%</span></div>
+                        <div><span class="metric-label">Leverage:</span> <span class="metric-value">${opLeverage.toFixed(2)}%</span></div>
+                        <div><span class="metric-label">Base Liq. Price:</span> <span class="metric-value">$${opLiqPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Safer Liq. Price:</span> <span class="metric-value">$${opSaferLiqPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Current Price:</span> <span class="metric-value">$${currentPrice.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base HF | Safer HF:</span> <span class="metric-value ${opHfClass}">${opHf.toFixed(2)}</span> | <span class="metric-value ${opSaferHfClass}">${opSaferHf.toFixed(2)}</span></div>
+                        <div><span class="metric-label">Base Distance | Safer:</span> <span class="metric-value">${opDistance.toFixed(2)}% | ${opSaferDistance.toFixed(2)}%</span></div>
+                    </div>`;
             }
             
-            // Combined Health Factor (if both chains have positions)
+            // Combined Position
             if (ethSupply > 0 && ethBorrow > 0 && opSupply > 0 && opBorrow > 0) {
                 const totalCollateralValue = (ethSupply + opSupply) * currentPrice;
                 const weightedLt = ((ethSupply * currentPrice * ethLt) + (opSupply * currentPrice * opLt)) / totalCollateralValue;
@@ -151,18 +197,27 @@
                 const combinedHf = calculateHealthFactor(totalCollateralValue, weightedLt, totalBorrowValue);
                 const saferWeightedLt = weightedLt * saferLtMultiplier;
                 const combinedSaferHf = calculateHealthFactor(totalCollateralValue, saferWeightedLt, totalBorrowValue);
-                resultsHtml += '<div class="chain-result"><strong>Combined (ETH + OP):</strong><br>';
-                resultsHtml += `Total Supplied WBTC: ${(ethSupply + opSupply).toFixed(4)}<br>`;
-                resultsHtml += `Total Borrowed USDT: ${(ethBorrow + opBorrow).toFixed(2)}<br>`;
-                resultsHtml += `Weighted LT: ${(weightedLt * 100).toFixed(1)}% | Safer Weighted LT: ${(saferWeightedLt * 100).toFixed(1)}%<br>`;
-                resultsHtml += `Combined Health Factor: ${combinedHf.toFixed(2)} | Safer HF: ${combinedSaferHf.toFixed(2)}<br></div>`;
+                const combinedLeverage = calculateLeverage(totalBorrowValue, totalCollateralValue);
+                const combinedHfClass = combinedHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                const combinedSaferHfClass = combinedSaferHf >= 1.3 ? 'hf-safe' : 'hf-warning';
+                resultsHtml += `
+                    <div class="mb-4 grid grid-cols-1 sm:grid-cols-2 gap-4 bg-gray-50 p-3 rounded-md">
+                        <strong class="text-gray-800 col-span-full">Combined (ETH + OP)</strong>
+                        <div><span class="metric-label">Total Supplied WBTC:</span> <span class="metric-value">${(ethSupply + opSupply).toFixed(4)}</span></div>
+                        <div><span class="metric-label">Total Borrowed USDT:</span> <span class="metric-value">${(ethBorrow + opBorrow).toFixed(2)}</span></div>
+                        <div><span class="metric-label">Weighted LT | Safer:</span> <span class="metric-value">${(weightedLt * 100).toFixed(1)}% | ${(saferWeightedLt * 100).toFixed(1)}%</span></div>
+                        <div><span class="metric-label">Combined Leverage:</span> <span class="metric-value">${combinedLeverage.toFixed(2)}%</span></div>
+                        <div><span class="metric-label">Combined HF | Safer HF:</span> <span class="metric-value ${combinedHfClass}">${combinedHf.toFixed(2)}</span> | <span class="metric-value ${combinedSaferHfClass}">${combinedSaferHf.toFixed(2)}</span></div>
+                    </div>`;
             }
             
-            if (resultsHtml === `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`) {
-                resultsHtml += '<p>Please enter values for at least one chain.</p>';
+            if (resultsHtml === `<h3 class="text-lg font-semibold text-gray-700 mb-4">Results (Safety Margin: ${safetyMargin}%)</h3>`) {
+                resultsHtml += '<p class="text-gray-600">Please enter values for at least one chain.</p>';
             }
             
-            document.getElementById('results').innerHTML = resultsHtml;
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = resultsHtml;
+            resultsDiv.classList.remove('hidden');
         }
     </script>
 </body>
