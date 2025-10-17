@@ -17,62 +17,64 @@
         .metric { display: inline-block; margin: 5px 10px; font-size: 0.9em; }
         .metric label { font-weight: normal; display: inline; }
         .pe { color: #dc3545; font-weight: bold; font-size: 1.1em; }
+        .current-pe { color: #666; font-size: 0.9em; margin-top: 10px; }
         footer { text-align: center; margin-top: 15px; font-size: 0.7em; color: #666; }
     </style>
 </head>
 <body>
     <h1>Nvidia (NVDA) Forward P/E Sensitivity Model</h1>
-    <p class="subtitle">Adjust sliders to explore impacts on Nvidia's earnings and P/E ratio. Based on Q2 FY2026 data (price ~$182, P/E ~50x).</p>
+    <p class="subtitle">Adjust sliders to explore impacts on Nvidia's FY2027 earnings and forward P/E ratio, based on today's stock price (~$182, October 2025). Compare to current P/E (~63x).</p>
 
     <div class="slider-container">
         <label for="growth">Revenue Growth Rate (%): <span id="growth-val">35</span>%</label>
-        <input type="range" id="growth" min="10" max="120" value="35" step="1">
-        <div class="desc">Base 35% (analyst est.) Last 2 years were 126%, 114% respectively.</div>
+        <input type="range" id="growth" min="10" max="50" value="35" step="1">
+        <div class="desc">Higher FY2027 revenue growth boosts EPS, lowering P/E. Base 35%, Q2 FY2026 56% YoY, analyst est. 30-50%.</div>
     </div>
 
     <div class="slider-container">
         <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
         <input type="range" id="margin" min="40" max="75" value="55" step="1">
-        <div class="desc">Base 55% (from recent 55.26% net margin); accounts for gross margin outlook of mid-70s, minus opex ~15-20%.</div>
+        <div class="desc">Higher FY2027 net margin increases EPS, lowering P/E. Base 55%, Q2 FY2026 55.26%.</div>
     </div>
 
     <div class="slider-container">
         <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
         <input type="range" id="share" min="50" max="95" value="85" step="1">
-        <div class="desc">Base 85% (current AI GPU dominance %).</div>
+        <div class="desc">Lower AI GPU share reduces FY2027 revenue, raising P/E. Base 85%, Bernstein Q3 2025.</div>
     </div>
 
     <div class="slider-container">
         <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
         <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
-        <div class="desc">Possible risks.</div>
+        <div class="desc">Higher rate reduces EPS value, raising P/E. Base 10%, tech WACC per Damodaran 2025.</div>
     </div>
 
     <div class="slider-container">
         <label for="price">Stock Price ($): <span id="price-val">182</span></label>
         <input type="range" id="price" min="150" max="250" value="182" step="1">
-        <div class="desc">Adjust to play with P/E ratio result.</div>
+        <div class="desc">Higher price (today) increases forward P/E. Base $182, October 15, 2025 close.</div>
     </div>
 
     <div class="output">
         <div class="metric">
-            <label>Projected Revenue:</label> $<span id="revenue">0</span>B
+            <label>Projected FY2027 Revenue:</label> $<span id="revenue">0</span>B
         </div>
         <div class="metric">
-            <label>Projected Net Income:</label> $<span id="net-income">0</span>B
+            <label>Projected FY2027 Net Income:</label> $<span id="net-income">0</span>B
         </div>
         <div class="metric">
-            <label>Projected EPS:</label> $<span id="eps">0</span>
+            <label>Projected FY2027 EPS:</label> $<span id="eps">0</span>
         </div>
         <div class="metric pe">
-            <label>Forward P/E:</label> <span id="pe">0</span>x
+            <label>Forward P/E (Today):</label> <span id="pe">0</span>x
         </div>
+        <div class="current-pe">Current P/E: ~63x (TTM EPS $2.90). Lower forward P/E suggests growth priced in; equal or higher suggests stagnation.</div>
     </div>
 
-    <footer>Data from Nvidia Q2 FY2026 (revenue $46.7B, TTM $130B, FY2025 est. $154B, net margin 55%, shares 24.5B, price $182). Not financial advice—consult a professional.</footer>
+    <footer>Data from Nvidia Q2 FY2026 (revenue $46.7B, TTM $130B, FY2025 est. $154B, net margin 55.26%, shares 24.5B, price $182, TTM EPS $2.90), LSEG, Morgan Stanley, Bernstein. Not financial advice—consult a professional.</footer>
 
     <script>
-        // Real Data Constants (as of Oct 17, 2025)
+        // Real Data Constants (as of Oct 18, 2025)
         const CURRENT_REVENUE = 154; // FY2025 est. in $B
         const SHARES_OUTSTANDING = 24.5; // in B
 
