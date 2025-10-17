@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nvidia P/E Sensitivity Model - Oct 2025</title>
+    <title>Nvidia (NVDA) Forward P/E Sensitivity Model</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
         h1 { text-align: center; color: #007bff; }
+        .subtitle { text-align: center; font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 20px; }
         .slider-container { margin: 15px 0; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
         label { display: block; font-weight: bold; margin-bottom: 5px; }
         input[type="range"] { width: 100%; margin: 10px 0; }
@@ -15,29 +16,40 @@
         .metric label { font-weight: normal; display: inline; }
         .pe { color: #dc3545; font-weight: bold; font-size: 1.3em; }
         footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #666; }
+        .tooltip { position: relative; display: inline-block; cursor: pointer; }
+        .tooltip .tooltiptext { visibility: hidden; width: 200px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -100px; opacity: 0; transition: opacity 0.3s; }
+        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
     </style>
 </head>
 <body>
     <h1>Nvidia (NVDA) Forward P/E Sensitivity Model</h1>
-    <p style="text-align: center;">Based on Q2 FY2026 Data: Revenue $46.7B (TTM ~$130B, FY2025 est. $154B), Net Margin 55%, Shares 24.5B, Price $182. Adjust sliders to see impacts.</p>
+    <p class="subtitle">Adjust sliders to explore how revenue growth, profit margin, market share, and discount rate impact Nvidia's projected earnings and P/E ratio. Based on Q2 FY2026 data.</p>
 
     <div class="slider-container">
-        <label for="growth">Revenue Growth Rate (%): <span id="growth-val">30</span>%</label>
+        <label class="tooltip" for="growth">Revenue Growth Rate (%): <span id="growth-val">30</span>%
+            <span class="tooltiptext">Annual revenue growth (base 30%, analyst est.). Higher growth boosts EPS, lowering P/E.</span>
+        </label>
         <input type="range" id="growth" min="10" max="50" value="30" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
+        <label class="tooltip" for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%
+            <span class="tooltiptext">Net income as % of revenue (base 55%). Higher margins increase EPS, lowering P/E.</span>
+        </label>
         <input type="range" id="margin" min="40" max="75" value="55" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
+        <label class="tooltip" for="share">Market Share (%): <span id="share-val">85</span>%
+            <span class="tooltiptext">AI GPU market share (base 85%). Lower share reduces revenue, raising P/E.</span>
+        </label>
         <input type="range" id="share" min="50" max="95" value="85" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
+        <label class="tooltip" for="discount">Discount Rate (%): <span id="discount-val">10</span>%
+            <span class="tooltiptext">Risk rate for future earnings (base 10%). Higher rates reduce EPS value, raising P/E.</span>
+        </label>
         <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
     </div>
 
@@ -56,7 +68,7 @@
         </div>
     </div>
 
-    <footer>Data sourced from Nvidia Q2 FY2026 earnings & analyst consensus (e.g., Bernstein, LSEG). Model simplifies for interactivity—real P/E also factors full DCF. Not financial advice.</footer>
+    <footer>Data from Nvidia Q2 FY2026 (revenue $46.7B, TTM $130B, FY2025 est. $154B, net margin 55%, shares 24.5B, price $182). Not financial advice—consult a professional.</footer>
 
     <script>
         // Real Data Constants (as of Oct 17, 2025)
@@ -89,14 +101,13 @@
             const growth = parseFloat(sliders.growth.value) / 100;
             const margin = parseFloat(sliders.margin.value) / 100;
             const mShare = parseFloat(sliders.share.value) / 100;
-            const discRate = parseFloat(sliders.discount.value) / 100; // Used to adjust effective P/E (simplified multiplier for risk)
+            const discRate = parseFloat(sliders.discount.value) / 100;
 
             // Calculations
             const projRevenue = CURRENT_REVENUE * (1 + growth) * mShare;
             const projNetIncome = projRevenue * margin;
             const projEps = projNetIncome / SHARES_OUTSTANDING;
-            // Forward P/E with discount adjustment (higher disc rate increases effective P/E by reducing PV of earnings)
-            const peMultiplier = 1 + (discRate - 0.10); // Simple sensitivity: +1% disc -> +10% P/E
+            const peMultiplier = 1 + (discRate - 0.10); // +1% disc -> +10% P/E
             const forwardPe = (STOCK_PRICE / projEps) * (1 + peMultiplier);
 
             // Update displays
