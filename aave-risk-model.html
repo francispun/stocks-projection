@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WBTC Liquidation Modeler with Safety Margin</title>
+    <title>WBTC Liquidation & Health Factor Modeler (Aave)</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
         h1 { text-align: center; }
@@ -18,7 +18,7 @@
     </style>
 </head>
 <body>
-    <h1>WBTC Liquidation Modeler (Aave-Style)</h1>
+    <h1>WBTC Liquidation & Health Factor Modeler (Aave)</h1>
     
     <div class="section">
         <h2>Ethereum Chain</h2>
@@ -45,14 +45,14 @@
     </div>
     
     <div class="section">
-        <label for="safety-margin">Safety Margin % (e.g., 5 for HF >1.05 buffer):</label>
+        <label for="safety-margin">Safety Margin % (e.g., 5 for HF > 1.05 buffer):</label>
         <input type="number" id="safety-margin" value="5" step="0.1" min="0" max="50">
-        <p class="safety-note">This adjusts LT downward for a conservative liquidation price (ignores interest accrual).</p>
+        <p class="safety-note">Adjusts LT for a conservative liquidation price and target HF (ignores interest accrual).</p>
         
         <label for="current-price">Current WBTC Price in USD (optional, will fetch if blank):</label>
         <input type="number" id="current-price" placeholder="Fetch automatically" step="0.01">
         
-        <button onclick="calculate()">Calculate Liquidation Prices</button>
+        <button onclick="calculate()">Calculate Liquidation & Health Factor</button>
     </div>
     
     <div id="results"></div>
@@ -71,6 +71,11 @@
 
         function calculateSaferLt(originalLt, safetyMargin) {
             return originalLt * (1 - safetyMargin / 100);
+        }
+
+        function calculateHealthFactor(collateralValue, lt, borrowValue) {
+            if (borrowValue === 0) return Infinity;
+            return (collateralValue * lt) / borrowValue;
         }
 
         async function calculate() {
@@ -96,10 +101,14 @@
 
             let resultsHtml = `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`;
             
+            // Ethereum Position
             if (ethSupply > 0 && ethBorrow > 0) {
+                const ethCollateralValue = ethSupply * currentPrice;
                 const ethLiqPrice = ethBorrow / (ethSupply * ethLt);
                 const ethSaferLt = ethLt * saferLtMultiplier;
                 const ethSaferLiqPrice = ethBorrow / (ethSupply * ethSaferLt);
+                const ethHf = calculateHealthFactor(ethCollateralValue, ethLt, ethBorrow);
+                const ethSaferHf = calculateHealthFactor(ethCollateralValue, ethSaferLt, ethBorrow);
                 const ethDistance = ((currentPrice - ethLiqPrice) / currentPrice) * 100;
                 const ethSaferDistance = ((currentPrice - ethSaferLiqPrice) / currentPrice) * 100;
                 resultsHtml += '<div class="chain-result"><strong>Ethereum:</strong><br>';
@@ -109,13 +118,18 @@
                 resultsHtml += `Base Liquidation Price: $${ethLiqPrice.toFixed(2)}<br>`;
                 resultsHtml += `Safer Liquidation Price: $${ethSaferLiqPrice.toFixed(2)}<br>`;
                 resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
+                resultsHtml += `Base Health Factor: ${ethHf.toFixed(2)} | Safer HF: ${ethSaferHf.toFixed(2)}<br>`;
                 resultsHtml += `Base Distance to Liq: ${ethDistance.toFixed(2)}% | Safer Distance: ${ethSaferDistance.toFixed(2)}%<br></div>`;
             }
             
+            // Optimism Position
             if (opSupply > 0 && opBorrow > 0) {
+                const opCollateralValue = opSupply * currentPrice;
                 const opLiqPrice = opBorrow / (opSupply * opLt);
                 const opSaferLt = opLt * saferLtMultiplier;
                 const opSaferLiqPrice = opBorrow / (opSupply * opSaferLt);
+                const opHf = calculateHealthFactor(opCollateralValue, opLt, opBorrow);
+                const opSaferHf = calculateHealthFactor(opCollateralValue, opSaferLt, opBorrow);
                 const opDistance = ((currentPrice - opLiqPrice) / currentPrice) * 100;
                 const opSaferDistance = ((currentPrice - opSaferLiqPrice) / currentPrice) * 100;
                 resultsHtml += '<div class="chain-result"><strong>Optimism:</strong><br>';
@@ -125,7 +139,23 @@
                 resultsHtml += `Base Liquidation Price: $${opLiqPrice.toFixed(2)}<br>`;
                 resultsHtml += `Safer Liquidation Price: $${opSaferLiqPrice.toFixed(2)}<br>`;
                 resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
+                resultsHtml += `Base Health Factor: ${opHf.toFixed(2)} | Safer HF: ${opSaferHf.toFixed(2)}<br>`;
                 resultsHtml += `Base Distance to Liq: ${opDistance.toFixed(2)}% | Safer Distance: ${opSaferDistance.toFixed(2)}%<br></div>`;
+            }
+            
+            // Combined Health Factor (if both chains have positions)
+            if (ethSupply > 0 && ethBorrow > 0 && opSupply > 0 && opBorrow > 0) {
+                const totalCollateralValue = (ethSupply + opSupply) * currentPrice;
+                const weightedLt = ((ethSupply * currentPrice * ethLt) + (opSupply * currentPrice * opLt)) / totalCollateralValue;
+                const totalBorrowValue = ethBorrow + opBorrow;
+                const combinedHf = calculateHealthFactor(totalCollateralValue, weightedLt, totalBorrowValue);
+                const saferWeightedLt = weightedLt * saferLtMultiplier;
+                const combinedSaferHf = calculateHealthFactor(totalCollateralValue, saferWeightedLt, totalBorrowValue);
+                resultsHtml += '<div class="chain-result"><strong>Combined (ETH + OP):</strong><br>';
+                resultsHtml += `Total Supplied WBTC: ${(ethSupply + opSupply).toFixed(4)}<br>`;
+                resultsHtml += `Total Borrowed USDT: ${(ethBorrow + opBorrow).toFixed(2)}<br>`;
+                resultsHtml += `Weighted LT: ${(weightedLt * 100).toFixed(1)}% | Safer Weighted LT: ${(saferWeightedLt * 100).toFixed(1)}%<br>`;
+                resultsHtml += `Combined Health Factor: ${combinedHf.toFixed(2)} | Safer HF: ${combinedSaferHf.toFixed(2)}<br></div>`;
             }
             
             if (resultsHtml === `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`) {
