@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nvidia P/E Sensitivity Model - Oct 2025</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
+        h1 { text-align: center; color: #007bff; }
+        .slider-container { margin: 15px 0; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { display: block; font-weight: bold; margin-bottom: 5px; }
+        input[type="range"] { width: 100%; margin: 10px 0; }
+        .output { background: #e9ecef; padding: 15px; border-radius: 8px; margin: 20px 0; }
+        .metric { display: inline-block; margin: 0 20px; font-size: 1.1em; }
+        .metric label { font-weight: normal; display: inline; }
+        .pe { color: #dc3545; font-weight: bold; font-size: 1.3em; }
+        footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>Nvidia (NVDA) Forward P/E Sensitivity Model</h1>
+    <p style="text-align: center;">Based on Q2 FY2026 Data: Revenue $46.7B (TTM ~$130B, FY2025 est. $154B), Net Margin 55%, Shares 24.5B, Price $182. Adjust sliders to see impacts.</p>
+
+    <div class="slider-container">
+        <label for="growth">Revenue Growth Rate (%): <span id="growth-val">30</span>%</label>
+        <input type="range" id="growth" min="10" max="50" value="30" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
+        <input type="range" id="margin" min="40" max="75" value="55" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
+        <input type="range" id="share" min="50" max="95" value="85" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
+        <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
+    </div>
+
+    <div class="output">
+        <div class="metric">
+            <label>Projected Revenue:</label> $<span id="revenue">0</span>B
+        </div>
+        <div class="metric">
+            <label>Projected Net Income:</label> $<span id="net-income">0</span>B
+        </div>
+        <div class="metric">
+            <label>Projected EPS:</label> $<span id="eps">0</span>
+        </div>
+        <div class="metric pe">
+            <label>Forward P/E:</label> <span id="pe">0</span>x
+        </div>
+    </div>
+
+    <footer>Data sourced from Nvidia Q2 FY2026 earnings & analyst consensus (e.g., Bernstein, LSEG). Model simplifies for interactivity—real P/E also factors full DCF. Not financial advice.</footer>
+
+    <script>
+        // Real Data Constants (as of Oct 17, 2025)
+        const CURRENT_REVENUE = 154; // FY2025 est. in $B
+        const SHARES_OUTSTANDING = 24.5; // in B
+        const STOCK_PRICE = 182; // Current price
+
+        // Elements
+        const sliders = {
+            growth: document.getElementById('growth'),
+            margin: document.getElementById('margin'),
+            share: document.getElementById('share'),
+            discount: document.getElementById('discount')
+        };
+        const vals = {
+            growth: document.getElementById('growth-val'),
+            margin: document.getElementById('margin-val'),
+            share: document.getElementById('share-val'),
+            discount: document.getElementById('discount-val')
+        };
+        const outputs = {
+            revenue: document.getElementById('revenue'),
+            netIncome: document.getElementById('net-income'),
+            eps: document.getElementById('eps'),
+            pe: document.getElementById('pe')
+        };
+
+        // Update function
+        function update() {
+            const growth = parseFloat(sliders.growth.value) / 100;
+            const margin = parseFloat(sliders.margin.value) / 100;
+            const mShare = parseFloat(sliders.share.value) / 100;
+            const discRate = parseFloat(sliders.discount.value) / 100; // Used to adjust effective P/E (simplified multiplier for risk)
+
+            // Calculations
+            const projRevenue = CURRENT_REVENUE * (1 + growth) * mShare;
+            const projNetIncome = projRevenue * margin;
+            const projEps = projNetIncome / SHARES_OUTSTANDING;
+            // Forward P/E with discount adjustment (higher disc rate increases effective P/E by reducing PV of earnings)
+            const peMultiplier = 1 + (discRate - 0.10); // Simple sensitivity: +1% disc -> +10% P/E
+            const forwardPe = (STOCK_PRICE / projEps) * (1 + peMultiplier);
+
+            // Update displays
+            vals.growth.textContent = sliders.growth.value;
+            vals.margin.textContent = sliders.margin.value;
+            vals.share.textContent = sliders.share.value;
+            vals.discount.textContent = sliders.discount.value;
+
+            outputs.revenue.textContent = projRevenue.toFixed(1);
+            outputs.netIncome.textContent = projNetIncome.toFixed(1);
+            outputs.eps.textContent = projEps.toFixed(2);
+            outputs.pe.textContent = forwardPe.toFixed(1);
+
+            // Color-code P/E
+            const peEl = outputs.pe;
+            if (forwardPe < 40) peEl.style.color = '#28a745';
+            else if (forwardPe > 60) peEl.style.color = '#dc3545';
+            else peEl.style.color = '#007bff';
+        }
+
+        // Event listeners
+        Object.values(sliders).forEach(slider => slider.addEventListener('input', update));
+        update(); // Initial load
+    </script>
+</body>
+</html>
