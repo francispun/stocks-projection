@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WBTC Liquidation Modeler with Safety Margin</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
+        h1 { text-align: center; }
+        .section { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; margin-bottom: 10px; box-sizing: border-box; }
+        button { padding: 10px 20px; background: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        #results { margin-top: 20px; padding: 15px; background: #f8f9fa; border: 1px solid #dee2e6; }
+        .chain-result { margin-bottom: 15px; }
+        .safety-note { font-style: italic; color: #666; }
+    </style>
+</head>
+<body>
+    <h1>WBTC Liquidation Modeler (Aave-Style)</h1>
+    
+    <div class="section">
+        <h2>Ethereum Chain</h2>
+        <label for="eth-supply">WBTC Supplied on ETH:</label>
+        <input type="number" id="eth-supply" value="0" step="0.0001">
+        
+        <label for="eth-borrow">USDT Borrowed on ETH:</label>
+        <input type="number" id="eth-borrow" value="0" step="0.01">
+        
+        <label for="eth-lt">Liquidation Threshold (LT) for ETH (default 0.825):</label>
+        <input type="number" id="eth-lt" value="0.825" step="0.001" min="0" max="1">
+    </div>
+    
+    <div class="section">
+        <h2>Optimism Chain</h2>
+        <label for="op-supply">WBTC Supplied on OP:</label>
+        <input type="number" id="op-supply" value="0" step="0.0001">
+        
+        <label for="op-borrow">USDT Borrowed on OP:</label>
+        <input type="number" id="op-borrow" value="0" step="0.01">
+        
+        <label for="op-lt">Liquidation Threshold (LT) for OP (default 0.80):</label>
+        <input type="number" id="op-lt" value="0.80" step="0.001" min="0" max="1">
+    </div>
+    
+    <div class="section">
+        <label for="safety-margin">Safety Margin % (e.g., 5 for HF >1.05 buffer):</label>
+        <input type="number" id="safety-margin" value="5" step="0.1" min="0" max="50">
+        <p class="safety-note">This adjusts LT downward for a conservative liquidation price (ignores interest accrual).</p>
+        
+        <label for="current-price">Current WBTC Price in USD (optional, will fetch if blank):</label>
+        <input type="number" id="current-price" placeholder="Fetch automatically" step="0.01">
+        
+        <button onclick="calculate()">Calculate Liquidation Prices</button>
+    </div>
+    
+    <div id="results"></div>
+
+    <script>
+        async function fetchWbtcPrice() {
+            try {
+                const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=wrapped-bitcoin&vs_currencies=usd');
+                const data = await response.json();
+                return data['wrapped-bitcoin'].usd;
+            } catch (error) {
+                console.error('Error fetching price:', error);
+                return null;
+            }
+        }
+
+        function calculateSaferLt(originalLt, safetyMargin) {
+            return originalLt * (1 - safetyMargin / 100);
+        }
+
+        async function calculate() {
+            const ethSupply = parseFloat(document.getElementById('eth-supply').value) || 0;
+            const ethBorrow = parseFloat(document.getElementById('eth-borrow').value) || 0;
+            const ethLt = parseFloat(document.getElementById('eth-lt').value) || 0.825;
+            
+            const opSupply = parseFloat(document.getElementById('op-supply').value) || 0;
+            const opBorrow = parseFloat(document.getElementById('op-borrow').value) || 0;
+            const opLt = parseFloat(document.getElementById('op-lt').value) || 0.80;
+            
+            const safetyMargin = parseFloat(document.getElementById('safety-margin').value) || 0;
+            const saferLtMultiplier = 1 - safetyMargin / 100;
+            
+            let currentPrice = parseFloat(document.getElementById('current-price').value);
+            if (!currentPrice) {
+                currentPrice = await fetchWbtcPrice();
+                if (!currentPrice) {
+                    alert('Failed to fetch current WBTC price. Please enter manually.');
+                    return;
+                }
+            }
+
+            let resultsHtml = `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`;
+            
+            if (ethSupply > 0 && ethBorrow > 0) {
+                const ethLiqPrice = ethBorrow / (ethSupply * ethLt);
+                const ethSaferLt = ethLt * saferLtMultiplier;
+                const ethSaferLiqPrice = ethBorrow / (ethSupply * ethSaferLt);
+                const ethDistance = ((currentPrice - ethLiqPrice) / currentPrice) * 100;
+                const ethSaferDistance = ((currentPrice - ethSaferLiqPrice) / currentPrice) * 100;
+                resultsHtml += '<div class="chain-result"><strong>Ethereum:</strong><br>';
+                resultsHtml += `Supplied WBTC: ${ethSupply}<br>`;
+                resultsHtml += `Borrowed USDT: ${ethBorrow}<br>`;
+                resultsHtml += `Base LT: ${(ethLt * 100).toFixed(1)}% | Safer LT: ${(ethSaferLt * 100).toFixed(1)}%<br>`;
+                resultsHtml += `Base Liquidation Price: $${ethLiqPrice.toFixed(2)}<br>`;
+                resultsHtml += `Safer Liquidation Price: $${ethSaferLiqPrice.toFixed(2)}<br>`;
+                resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
+                resultsHtml += `Base Distance to Liq: ${ethDistance.toFixed(2)}% | Safer Distance: ${ethSaferDistance.toFixed(2)}%<br></div>`;
+            }
+            
+            if (opSupply > 0 && opBorrow > 0) {
+                const opLiqPrice = opBorrow / (opSupply * opLt);
+                const opSaferLt = opLt * saferLtMultiplier;
+                const opSaferLiqPrice = opBorrow / (opSupply * opSaferLt);
+                const opDistance = ((currentPrice - opLiqPrice) / currentPrice) * 100;
+                const opSaferDistance = ((currentPrice - opSaferLiqPrice) / currentPrice) * 100;
+                resultsHtml += '<div class="chain-result"><strong>Optimism:</strong><br>';
+                resultsHtml += `Supplied WBTC: ${opSupply}<br>`;
+                resultsHtml += `Borrowed USDT: ${opBorrow}<br>`;
+                resultsHtml += `Base LT: ${(opLt * 100).toFixed(1)}% | Safer LT: ${(opSaferLt * 100).toFixed(1)}%<br>`;
+                resultsHtml += `Base Liquidation Price: $${opLiqPrice.toFixed(2)}<br>`;
+                resultsHtml += `Safer Liquidation Price: $${opSaferLiqPrice.toFixed(2)}<br>`;
+                resultsHtml += `Current Price: $${currentPrice.toFixed(2)}<br>`;
+                resultsHtml += `Base Distance to Liq: ${opDistance.toFixed(2)}% | Safer Distance: ${opSaferDistance.toFixed(2)}%<br></div>`;
+            }
+            
+            if (resultsHtml === `<h3>Results (Safety Margin: ${safetyMargin}%)</h3>`) {
+                resultsHtml += '<p>Please enter values for at least one chain.</p>';
+            }
+            
+            document.getElementById('results').innerHTML = resultsHtml;
+        }
+    </script>
+</body>
+</html>
