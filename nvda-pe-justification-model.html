@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nvidia (NVDA) Forward P/E Sensitivity Model</title>
+    <title>Nvidia (NVDA) 2Y Forward P/E Sensitivity Model</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 100%; margin: 0 auto; padding: 15px; background: #f4f4f4; box-sizing: border-box; }
         h1 { text-align: center; color: #007bff; font-size: 1.5em; margin-bottom: 5px; }
@@ -22,37 +22,49 @@
     </style>
 </head>
 <body>
-    <h1>Nvidia (NVDA) Forward P/E Sensitivity Model</h1>
-    <p class="subtitle">Adjust sliders to explore impacts on Nvidia's FY2027 earnings and forward P/E ratio, based on today's stock price (~$182, October 2025). Compare to current P/E (~63x).</p>
+    <h1>Nvidia (NVDA) 2Y Forward P/E Sensitivity Model</h1>
+    <p class="subtitle">Adjust sliders to explore FY2027 earnings and 2Y forward P/E, based on FY2025 revenue ($154B) and today’s price (~$182, Oct 2025). Compare to current P/E (~63x).</p>
 
     <div class="slider-container">
-        <label for="growth">Revenue Growth Rate (%): <span id="growth-val">35</span>%</label>
+        <label for="growth">Annual Revenue Growth Rate (%): <span id="growth-val">35</span>%</label>
         <input type="range" id="growth" min="10" max="50" value="35" step="1">
-        <div class="desc">Higher FY2027 revenue growth boosts EPS, lowering P/E. Base 35%, Q2 FY2026 56% YoY, analyst est. 30-50%.</div>
+        <div class="desc">Compounds total FY2027 revenue. Base 35%, Q2 FY2026 56% YoY, analyst est. 30-50%.</div>
     </div>
 
     <div class="slider-container">
         <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
         <input type="range" id="margin" min="40" max="75" value="55" step="1">
-        <div class="desc">Higher FY2027 net margin increases EPS, lowering P/E. Base 55%, Q2 FY2026 55.26%.</div>
+        <div class="desc">FY2027 net margin. Base 55%, Q2 FY2026 55.26%. 75% is optimistic vs. historical 30-55%.</div>
     </div>
 
     <div class="slider-container">
-        <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
+        <label for="mix">AI Data Center Mix (%): <span id="mix-val">80</span>%</label>
+        <input type="range" id="mix" min="70" max="90" value="80" step="1">
+        <div class="desc">AI data center share of FY2027 revenue. Base 80%, Q2 FY2026 88%.</div>
+    </div>
+
+    <div class="slider-container">
+        <label for="share">AI GPU Market Share (%): <span id="share-val">85</span>%</label>
         <input type="range" id="share" min="50" max="95" value="85" step="1">
-        <div class="desc">Lower AI GPU share reduces FY2027 revenue, raising P/E. Base 85%, Bernstein Q3 2025.</div>
+        <div class="desc">Applies to AI data center revenue only (baseline 85%, Bernstein Q3 2025).</div>
     </div>
 
     <div class="slider-container">
         <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
         <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
-        <div class="desc">Higher rate reduces EPS value, raising P/E. Base 10%, tech WACC per Damodaran 2025.</div>
+        <div class="desc">Discounts FY2027 EPS to today. Base 10%, tech WACC per Damodaran 2025.</div>
     </div>
 
     <div class="slider-container">
         <label for="price">Stock Price ($): <span id="price-val">182</span></label>
         <input type="range" id="price" min="150" max="250" value="182" step="1">
-        <div class="desc">Higher price (today) increases forward P/E. Base $182, October 15, 2025 close.</div>
+        <div class="desc">Today’s price increases P/E. Base $182, Oct 15, 2025 close.</div>
+    </div>
+
+    <div class="slider-container">
+        <label for="buyback">Annual Share Buyback/Dilution (%): <span id="buyback-val">0</span>%</label>
+        <input type="range" id="buyback" min="-2" max="1" value="0" step="0.1">
+        <div class="desc">Adjusts FY2027 shares (base 24.5B). Negative = buybacks. Q2 FY2026 ~1% annual reduction.</div>
     </div>
 
     <div class="output">
@@ -66,72 +78,93 @@
             <label>Projected FY2027 EPS:</label> $<span id="eps">0</span>
         </div>
         <div class="metric pe">
-            <label>Forward P/E (Today):</label> <span id="pe">0</span>x
+            <label>2Y Forward P/E (Undiscounted):</label> <span id="pe-undisc">0</span>x
         </div>
-        <div class="current-pe">Current P/E: ~63x (TTM EPS $2.90). Lower forward P/E suggests growth priced in; equal or higher suggests stagnation.</div>
+        <div class="metric pe">
+            <label>2Y Forward P/E (Discounted):</label> <span id="pe-disc">0</span>x
+        </div>
+        <div class="current-pe">Current P/E: ~63x (TTM EPS $2.90). Lower 2Y P/E reflects growth; equal or higher suggests stagnation.</div>
     </div>
 
-    <footer>Data from Nvidia Q2 FY2026 (revenue $46.7B, TTM $130B, FY2025 est. $154B, net margin 55.26%, shares 24.5B, price $182, TTM EPS $2.90), LSEG, Morgan Stanley, Bernstein. Not financial advice—consult a professional.</footer>
+    <footer>Data from Nvidia Q2 FY2026 (revenue $46.7B, TTM $130B, FY2025 est. $154B, net margin 55.26%, shares 24.5B, TTM EPS $2.90, price $182), LSEG, Morgan Stanley, Bernstein. P/E most sensitive to growth, margin, price. Historical forward P/E: 30-80x. Not financial advice—consult a professional.</footer>
 
     <script>
         // Real Data Constants (as of Oct 18, 2025)
-        const CURRENT_REVENUE = 154; // FY2025 est. in $B
-        const SHARES_OUTSTANDING = 24.5; // in B
+        const BASE_REVENUE = 154; // FY2025 est. in $B
+        const BASE_SHARES = 24.5; // in B, diluted
+        const BASE_SHARE = 0.85; // Baseline AI GPU share
+        const N_YEARS = 2; // FY2025 to FY2027
 
         // Elements
         const sliders = {
             growth: document.getElementById('growth'),
             margin: document.getElementById('margin'),
+            mix: document.getElementById('mix'),
             share: document.getElementById('share'),
             discount: document.getElementById('discount'),
-            price: document.getElementById('price')
+            price: document.getElementById('price'),
+            buyback: document.getElementById('buyback')
         };
         const vals = {
             growth: document.getElementById('growth-val'),
             margin: document.getElementById('margin-val'),
+            mix: document.getElementById('mix-val'),
             share: document.getElementById('share-val'),
             discount: document.getElementById('discount-val'),
-            price: document.getElementById('price-val')
+            price: document.getElementById('price-val'),
+            buyback: document.getElementById('buyback-val')
         };
         const outputs = {
             revenue: document.getElementById('revenue'),
             netIncome: document.getElementById('net-income'),
             eps: document.getElementById('eps'),
-            pe: document.getElementById('pe')
+            peUndisc: document.getElementById('pe-undisc'),
+            peDisc: document.getElementById('pe-disc')
         };
 
         // Update function
         function update() {
             const growth = parseFloat(sliders.growth.value) / 100;
             const margin = parseFloat(sliders.margin.value) / 100;
-            const mShare = parseFloat(sliders.share.value) / 100;
+            const mix = parseFloat(sliders.mix.value) / 100;
+            const share = parseFloat(sliders.share.value) / 100;
             const discRate = parseFloat(sliders.discount.value) / 100;
-            const stockPrice = parseFloat(sliders.price.value);
+            const price = parseFloat(sliders.price.value);
+            const buyback = parseFloat(sliders.buyback.value) / 100;
 
             // Calculations
-            const projRevenue = CURRENT_REVENUE * (1 + growth) * mShare;
+            const projRevenue = BASE_REVENUE * Math.pow(1 + growth, N_YEARS) * (mix * (share / BASE_SHARE) + (1 - mix));
             const projNetIncome = projRevenue * margin;
-            const projEps = projNetIncome / SHARES_OUTSTANDING;
-            const peMultiplier = 1 + 0.5 * (discRate - 0.10); // Adjusted for ~50x base
-            const forwardPe = (stockPrice / projEps) * peMultiplier;
+            const projShares = BASE_SHARES * Math.pow(1 + buyback, N_YEARS);
+            const projEps = projNetIncome / projShares;
+            const epsDisc = projEps / Math.pow(1 + discRate, N_YEARS);
+            const peUndisc = price / projEps;
+            const peDisc = price / epsDisc;
 
             // Update displays
             vals.growth.textContent = sliders.growth.value;
             vals.margin.textContent = sliders.margin.value;
+            vals.mix.textContent = sliders.mix.value;
             vals.share.textContent = sliders.share.value;
             vals.discount.textContent = sliders.discount.value;
             vals.price.textContent = sliders.price.value;
+            vals.buyback.textContent = sliders.buyback.value;
 
             outputs.revenue.textContent = projRevenue.toFixed(1);
             outputs.netIncome.textContent = projNetIncome.toFixed(1);
             outputs.eps.textContent = projEps.toFixed(2);
-            outputs.pe.textContent = forwardPe.toFixed(1);
+            outputs.peUndisc.textContent = peUndisc.toFixed(1);
+            outputs.peDisc.textContent = peDisc.toFixed(1);
 
             // Color-code P/E
-            const peEl = outputs.pe;
-            if (forwardPe < 40) peEl.style.color = '#28a745';
-            else if (forwardPe > 60) peEl.style.color = '#dc3545';
-            else peEl.style.color = '#007bff';
+            const peElUndisc = outputs.peUndisc;
+            const peElDisc = outputs.peDisc;
+            [peElUndisc, peElDisc].forEach(el => {
+                const peVal = parseFloat(el.textContent);
+                if (peVal < 35) el.style.color = '#28a745';
+                else if (peVal > 65) el.style.color = '#dc3545';
+                else el.style.color = '#007bff';
+            });
         }
 
         // Event listeners
