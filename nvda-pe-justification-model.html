@@ -26,32 +26,32 @@
 
     <div class="slider-container">
         <label for="growth">Revenue Growth Rate (%): <span id="growth-val">35</span>%</label>
-        <input type="range" id="growth" min="10" max="50" value="35" step="1">
-        <div class="desc">Higher growth boosts EPS, lowering P/E.</div>
+        <input type="range" id="growth" min="10" max="120" value="35" step="1">
+        <div class="desc">Base 35% (analyst est.); range 10-50% (reflects AI demand risks)</div>
     </div>
 
     <div class="slider-container">
         <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
         <input type="range" id="margin" min="40" max="75" value="55" step="1">
-        <div class="desc">Higher margins increase EPS, lowering P/E.</div>
+        <div class="desc">Base 55% (from recent 55.26% net margin); accounts for gross margin outlook of mid-70s, minus opex ~15-20%.</div>
     </div>
 
     <div class="slider-container">
         <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
         <input type="range" id="share" min="50" max="95" value="85" step="1">
-        <div class="desc">Lower share reduces revenue, raising P/E.</div>
+        <div class="desc">Base 85% (current AI GPU dominance.</div>
     </div>
 
     <div class="slider-container">
         <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
         <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
-        <div class="desc">Higher rates reduce EPS value, raising P/E.</div>
+        <div class="desc">Possible risks.</div>
     </div>
 
     <div class="slider-container">
         <label for="price">Stock Price ($): <span id="price-val">182</span></label>
         <input type="range" id="price" min="150" max="250" value="182" step="1">
-        <div class="desc">Higher price increases P/E directly.</div>
+        <div class="desc">Adjust to play with P/E ratio result.</div>
     </div>
 
     <div class="output">
