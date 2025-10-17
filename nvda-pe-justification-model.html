@@ -5,52 +5,53 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Nvidia (NVDA) Forward P/E Sensitivity Model</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f4f4f4; }
-        h1 { text-align: center; color: #007bff; }
-        .subtitle { text-align: center; font-size: 0.9em; color: #666; margin-top: -10px; margin-bottom: 20px; }
-        .slider-container { margin: 15px 0; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
-        label { display: block; font-weight: bold; margin-bottom: 5px; }
-        input[type="range"] { width: 100%; margin: 10px 0; }
-        .output { background: #e9ecef; padding: 15px; border-radius: 8px; margin: 20px 0; }
-        .metric { display: inline-block; margin: 0 20px; font-size: 1.1em; }
+        body { font-family: Arial, sans-serif; max-width: 100%; margin: 0 auto; padding: 15px; background: #f4f4f4; box-sizing: border-box; }
+        h1 { text-align: center; color: #007bff; font-size: 1.5em; margin-bottom: 5px; }
+        .subtitle { text-align: center; font-size: 0.8em; color: #666; margin-bottom: 15px; }
+        .slider-container { margin: 10px 0; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        label { display: block; font-weight: bold; font-size: 0.9em; margin-bottom: 5px; }
+        .desc { font-size: 0.75em; color: #555; margin-top: 5px; }
+        input[type="range"] { width: 100%; margin: 8px 0; height: 10px; -webkit-appearance: none; background: #ddd; border-radius: 5px; }
+        input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; background: #007bff; border-radius: 50%; cursor: pointer; }
+        .output { background: #e9ecef; padding: 10px; border-radius: 8px; margin: 15px 0; text-align: center; }
+        .metric { display: inline-block; margin: 5px 10px; font-size: 0.9em; }
         .metric label { font-weight: normal; display: inline; }
-        .pe { color: #dc3545; font-weight: bold; font-size: 1.3em; }
-        footer { text-align: center; margin-top: 20px; font-size: 0.9em; color: #666; }
-        .tooltip { position: relative; display: inline-block; cursor: pointer; }
-        .tooltip .tooltiptext { visibility: hidden; width: 200px; background-color: #555; color: #fff; text-align: center; border-radius: 6px; padding: 5px; position: absolute; z-index: 1; bottom: 125%; left: 50%; margin-left: -100px; opacity: 0; transition: opacity 0.3s; }
-        .tooltip:hover .tooltiptext { visibility: visible; opacity: 1; }
+        .pe { color: #dc3545; font-weight: bold; font-size: 1.1em; }
+        footer { text-align: center; margin-top: 15px; font-size: 0.7em; color: #666; }
     </style>
 </head>
 <body>
     <h1>Nvidia (NVDA) Forward P/E Sensitivity Model</h1>
-    <p class="subtitle">Adjust sliders to explore how revenue growth, profit margin, market share, and discount rate impact Nvidia's projected earnings and P/E ratio. Based on Q2 FY2026 data.</p>
+    <p class="subtitle">Adjust sliders to explore impacts on Nvidia's earnings and P/E ratio. Based on Q2 FY2026 data (price ~$182, P/E ~50x).</p>
 
     <div class="slider-container">
-        <label class="tooltip" for="growth">Revenue Growth Rate (%): <span id="growth-val">30</span>%
-            <span class="tooltiptext">Annual revenue growth (base 30%, analyst est.). Higher growth boosts EPS, lowering P/E.</span>
-        </label>
-        <input type="range" id="growth" min="10" max="50" value="30" step="1">
+        <label for="growth">Revenue Growth Rate (%): <span id="growth-val">35</span>%</label>
+        <input type="range" id="growth" min="10" max="50" value="35" step="1">
+        <div class="desc">Higher growth boosts EPS, lowering P/E.</div>
     </div>
 
     <div class="slider-container">
-        <label class="tooltip" for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%
-            <span class="tooltiptext">Net income as % of revenue (base 55%). Higher margins increase EPS, lowering P/E.</span>
-        </label>
+        <label for="margin">Net Profit Margin (%): <span id="margin-val">55</span>%</label>
         <input type="range" id="margin" min="40" max="75" value="55" step="1">
+        <div class="desc">Higher margins increase EPS, lowering P/E.</div>
     </div>
 
     <div class="slider-container">
-        <label class="tooltip" for="share">Market Share (%): <span id="share-val">85</span>%
-            <span class="tooltiptext">AI GPU market share (base 85%). Lower share reduces revenue, raising P/E.</span>
-        </label>
+        <label for="share">Market Share (%): <span id="share-val">85</span>%</label>
         <input type="range" id="share" min="50" max="95" value="85" step="1">
+        <div class="desc">Lower share reduces revenue, raising P/E.</div>
     </div>
 
     <div class="slider-container">
-        <label class="tooltip" for="discount">Discount Rate (%): <span id="discount-val">10</span>%
-            <span class="tooltiptext">Risk rate for future earnings (base 10%). Higher rates reduce EPS value, raising P/E.</span>
-        </label>
+        <label for="discount">Discount Rate (%): <span id="discount-val">10</span>%</label>
         <input type="range" id="discount" min="8" max="12" value="10" step="0.5">
+        <div class="desc">Higher rates reduce EPS value, raising P/E.</div>
+    </div>
+
+    <div class="slider-container">
+        <label for="price">Stock Price ($): <span id="price-val">182</span></label>
+        <input type="range" id="price" min="150" max="250" value="182" step="1">
+        <div class="desc">Higher price increases P/E directly.</div>
     </div>
 
     <div class="output">
@@ -74,20 +75,21 @@
         // Real Data Constants (as of Oct 17, 2025)
         const CURRENT_REVENUE = 154; // FY2025 est. in $B
         const SHARES_OUTSTANDING = 24.5; // in B
-        const STOCK_PRICE = 182; // Current price
 
         // Elements
         const sliders = {
             growth: document.getElementById('growth'),
             margin: document.getElementById('margin'),
             share: document.getElementById('share'),
-            discount: document.getElementById('discount')
+            discount: document.getElementById('discount'),
+            price: document.getElementById('price')
         };
         const vals = {
             growth: document.getElementById('growth-val'),
             margin: document.getElementById('margin-val'),
             share: document.getElementById('share-val'),
-            discount: document.getElementById('discount-val')
+            discount: document.getElementById('discount-val'),
+            price: document.getElementById('price-val')
         };
         const outputs = {
             revenue: document.getElementById('revenue'),
@@ -102,19 +104,21 @@
             const margin = parseFloat(sliders.margin.value) / 100;
             const mShare = parseFloat(sliders.share.value) / 100;
             const discRate = parseFloat(sliders.discount.value) / 100;
+            const stockPrice = parseFloat(sliders.price.value);
 
             // Calculations
             const projRevenue = CURRENT_REVENUE * (1 + growth) * mShare;
             const projNetIncome = projRevenue * margin;
             const projEps = projNetIncome / SHARES_OUTSTANDING;
-            const peMultiplier = 1 + (discRate - 0.10); // +1% disc -> +10% P/E
-            const forwardPe = (STOCK_PRICE / projEps) * (1 + peMultiplier);
+            const peMultiplier = 1 + 0.5 * (discRate - 0.10); // Adjusted for ~50x base
+            const forwardPe = (stockPrice / projEps) * peMultiplier;
 
             // Update displays
             vals.growth.textContent = sliders.growth.value;
             vals.margin.textContent = sliders.margin.value;
             vals.share.textContent = sliders.share.value;
             vals.discount.textContent = sliders.discount.value;
+            vals.price.textContent = sliders.price.value;
 
             outputs.revenue.textContent = projRevenue.toFixed(1);
             outputs.netIncome.textContent = projNetIncome.toFixed(1);
