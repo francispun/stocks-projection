@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Michael Saylor Bitcoin 訪談完整廣東話重寫版，所有內容展開，卡片式分段"/>
+  <title>米高·西勒 Bitcoin 訪談｜廣東話完整重寫（全部展開）</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fa; --text: #212529; --accent: #007bff;
+      --card: #ffffff; --border: #dee2e6; --shadow: 0 4px 12px rgba(0,0,0,0.05);
+      --title-bg: #e7f3ff; --title-color: #0056b3;
+    }
+    .dark-mode {
+      --bg: #121212; --text: #e9ecef; --accent: #0d6efd;
+      --card: #1e1e1e; --border: #333; --shadow: 0 4px 12px rgba(0,0,0,0.3);
+      --title-bg: #1a3a6e; --title-color: #4da3ff;
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Noto Sans HK', sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.8; padding: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .container { max-width: 900px; margin: auto; }
+    header {
+      text-align: center; padding: 2rem 1rem;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white; border-radius: 12px; margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    header p { opacity: 0.9; font-size: 1rem; }
+    .meta { text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem; color: #6c757d; }
+    .toggle-btn {
+      position: fixed; top: 1rem; right: 1rem;
+      background: var(--accent); color: white; border: none;
+      padding: 0.6rem 1rem; border-radius: 50px; cursor: pointer;
+      font-weight: 500; z-index: 100; box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+      transition: all 0.3s;
+    }
+    .loading, .error {
+      text-align: center; padding: 3rem 1rem; font-size: 1.1rem;
+    }
+    .loading { color: #6c757d; }
+    .error { color: #dc3545; background: #ffe6e6; border-radius: 8px; margin: 1rem 0; }
+    .section {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden;
+      box-shadow: var(--shadow); transition: all 0.3s;
+    }
+    .section:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .section-title {
+      padding: 1rem 1.3rem; font-weight: 700; font-size: 1.15rem;
+      background: var(--title-bg); color: var(--title-color);
+      border-bottom: 1px solid var(--border);
+    }
+    .section-content {
+      padding: 1.3rem; background: var(--card);
+      font-size: 1rem; line-height: 1.9;
+    }
+    .section-content p { margin-bottom: 0.9rem; }
+    .section-content p:last-child { margin-bottom: 0; }
+    footer { text-align: center; padding: 2rem 1rem; color: #6c757d; font-size: 0.9rem; margin-top: 3rem; }
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.5rem; }
+      .section-title { font-size: 1.05rem; padding: 0.9rem; }
+      .section-content { padding: 1.1rem; font-size: 0.95rem; }
+    }
+    @media print {
+      .toggle-btn, header { display: none; }
+      .section { page-break-inside: avoid; margin-bottom: 1rem; }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="document.body.classList.toggle('dark-mode')">
+    切換夜間模式
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>米高·西勒（Michael Saylor）<br>Bitcoin 企業寶庫訪談</h1>
+      <p>完整廣東話重寫版｜Schwab Network Market Overtime（2025）</p>
+    </header>
+
+    <div class="meta">
+      來源：<a href="https://www.youtube.com/watch?v=FyW2JLQvAa4" target="_blank">YouTube 原片</a>｜
+      重寫：Grok 4｜日期：2025-11-06
+    </div>
+
+    <div id="content">
+      <div class="loading">載入中… 請稍候</div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 | 僅供教育用途 | 內容動態載入
+  </footer>
+
+  <script>
+    // === 改呢度：你上傳 .txt 檔案嘅完整 URL ===
+    const TXT_URL = 'https://raw.githubusercontent.com/francispun/stocks-projection/refs/heads/main/Michael%20Saylor%20%E8%A8%AA%E8%AB%87%E5%AE%8C%E6%95%B4%E5%BB%A3%E6%9D%B1%E8%A9%B1%E9%87%8D%E5%AF%AB%E7%89%88%EF%BC%88%E9%81%A9%E5%90%88%E7%84%A1%E8%83%8C%E6%99%AF%E8%AE%80%E8%80%85%EF%BC%89.txt';
+    // ========================================
+
+    const contentDiv = document.getElementById('content');
+
+    fetch(TXT_URL)
+      .then(r => {
+        if (!r.ok) {
+          throw new Error(`載入失敗 (HTTP ${r.status})`);
+        }
+        return r.text();
+      })
+      .then(text => {
+        contentDiv.innerHTML = ''; // 清空 loading
+        const lines = text.split('\n');
+        let currentSection = null;
+
+        lines.forEach(line => {
+          line = line.trim();
+          if (!line) return;
+
+          // 標題：以 # 開頭
+          if (line.startsWith('#')) {
+            if (currentSection) {
+              contentDiv.appendChild(currentSection);
+            }
+            const titleText = line.replace(/^#+\s*/, '').trim();
+            currentSection = document.createElement('div');
+            currentSection.className = 'section';
+            currentSection.innerHTML = `
+              <div class="section-title">${titleText}</div>
+              <div class="section-content"></div>
+            `;
+          }
+          // 內容行
+          else if (currentSection) {
+            const p = document.createElement('p');
+            p.textContent = line;
+            currentSection.querySelector('.section-content').appendChild(p);
+          }
+        });
+
+        // 最後一段
+        if (currentSection) {
+          contentDiv.appendChild(currentSection);
+        }
+
+        if (!currentSection && contentDiv.innerHTML === '') {
+          throw new Error('檔案內容為空或格式不符');
+        }
+      })
+      .catch(err => {
+        contentDiv.innerHTML = `
+          <div class="error">
+            <strong>載入失敗：</strong><br>
+            ${err.message}<br><br>
+            <small>請確認：<br>
+            1. TXT_URL 正確<br>
+            2. 伺服器已啟用 CORS<br>
+            3. 檔案為 UTF-8 編碼</small>
+          </div>
+        `;
+        console.error('Fetch error:', err);
+      });
+  </script>
+</body>
+</html>
