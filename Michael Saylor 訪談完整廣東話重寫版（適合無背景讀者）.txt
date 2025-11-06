@@ -1,8 +1,6 @@
 <DOCUMENT filename="Michael Saylor 訪談完整廣東話重寫版（適合無背景讀者）.txt">
 # Michael Saylor 訪談完整廣東話
 來源：Market Overtime @ Schwab Network (YouTube: FyW2JLQvAa4)
-重寫：Grok 4（2025-11-06）
-目的：將原本口語化、斷句嘅訪談記錄，改寫成完整句子、易讀嘅書面語，適合完全冇背景嘅讀者（唔知 Bitcoin、MicroStrategy、S&P 係乜嘢都睇得明）。保留 Michael Saylor 嘅原意同激情，但用清晰解釋補充背景。
 
 【開場介紹】
 主持人 Sam Bardis：哈囉，歡迎嚟到《Market Overtime》節目。我係主持人 Sam Bardis。我哋今日請到一位好特別嘅嘉賓——佢係麻省理工學院（MIT）畢業生、空軍預備役成員，仲係發明家，手上擁有接近 50 個專利。呢啲頭銜已經好勁，但大家最熟佢係 Bitcoin 嘅先驅同擁護者。我好開心請到 MicroStrategy 公司嘅執行主席 Michael Saylor。Michael，歡迎你嚟到 Schwab Network 嘅《Market Overtime》節目，感謝你接受訪問。
