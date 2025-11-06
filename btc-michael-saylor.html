@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="Michael Saylor Bitcoin 訪談完整廣東話翻譯，按主題分段，支援夜間模式"/>
+  <title>米高·西勒 Bitcoin 訪談｜廣東話完整翻譯</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f8f9fa; --text: #212529; --accent: #007bff;
+      --card: #ffffff; --border: #dee2e6; --shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+    .dark-mode {
+      --bg: #121212; --text: #e9ecef; --accent: #0d6efd;
+      --card: #1e1e1e; --border: #333; --shadow: 0 4px 12px rgba(0,0,0,0.3);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      font-family: 'Noto Sans HK', sans-serif;
+      background: var(--bg); color: var(--text);
+      line-height: 1.7; padding: 1rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .container { max-width: 900px; margin: auto; }
+    header {
+      text-align: center; padding: 2rem 1rem;
+      background: linear-gradient(135deg, #007bff, #0056b3);
+      color: white; border-radius: 12px; margin-bottom: 2rem;
+      box-shadow: var(--shadow);
+    }
+    header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
+    header p { opacity: 0.9; font-size: 1rem; }
+    .meta { text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem; color: #6c757d; }
+    .toggle-btn {
+      position: fixed; top: 1rem; right: 1rem;
+      background: var(--accent); color: white; border: none;
+      padding: 0.6rem 1rem; border-radius: 50px; cursor: pointer;
+      font-weight: 500; z-index: 100; box-shadow: 0 2px 8px rgba(0,123,255,0.3);
+    }
+    .loading, .error { text-align: center; padding: 2rem; color: #dc3545; }
+    details {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 10px; margin-bottom: 1rem; overflow: hidden;
+      box-shadow: var(--shadow); transition: all 0.3s;
+    }
+    details:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
+    summary {
+      padding: 1rem 1.2rem; font-weight: 700; background: var(--accent);
+      color: white; cursor: pointer; user-select: none; font-size: 1.1rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    summary::after { content: "▼"; font-size: 0.8rem; transition: transform 0.2s; }
+    details[open] summary::after { transform: rotate(180deg); }
+    .content {
+      padding: 1.2rem; border-top: 1px solid var(--border);
+      background: var(--card); font-size: 1rem; line-height: 1.8;
+    }
+    .content p { margin-bottom: 0.8rem; }
+    .content p:last-child { margin-bottom: 0; }
+    footer { text-align: center; padding: 2rem 1rem; color: #6c757d; font-size: 0.9rem; margin-top: 3rem; }
+
+    @media (max-width: 600px) {
+      header h1 { font-size: 1.5rem; }
+      summary { font-size: 1rem; padding: 0.9rem; }
+      .content { padding: 1rem; font-size: 0.95rem; }
+    }
+  </style>
+</head>
+<body>
+  <button class="toggle-btn" onclick="document.body.classList.toggle('dark-mode')">
+    切換夜間模式
+  </button>
+
+  <div class="container">
+    <header>
+      <h1>米高·西勒（Michael Saylor）<br>Bitcoin 企業寶庫訪談</h1>
+      <p>完整廣東話翻譯｜Schwab Network Market Overtime（2025）</p>
+    </header>
+
+    <div class="meta">
+      來源：<a href="https://www.youtube.com/watch?v=FyW2JLQvAa4" target="_blank">YouTube 原片</a>｜
+      翻譯：Grok 4｜更新：2025-11-06
+    </div>
+
+    <div id="content">
+      <div class="loading">載入中…</div>
+    </div>
+  </div>
+
+  <footer>
+    © 2025 Bitcoin HK Community | 僅供教育用途
+  </footer>
+
+  <script>
+    // === 改呢度：放你嘅 .txt 公開 URL ===
+    const TXT_URL = 'https://raw.githubusercontent.com/francispun/stocks-projection/refs/heads/main/Michael%20Saylor%20%E8%A8%AA%E8%AB%87%E5%AE%8C%E6%95%B4%E5%BB%A3%E6%9D%B1%E8%A9%B1%E7%BF%BB%E8%AD%AF.txt';
+    // ========================================
+
+    const contentDiv = document.getElementById('content');
+
+    fetch(TXT_URL)
+      .then(r => {
+        if (!r.ok) throw new Error('無法載入檔案');
+        return r.text();
+      })
+      .then(text => {
+        contentDiv.innerHTML = ''; // 清空 loading
+
+        const lines = text.split('\n');
+        let currentSection = null;
+
+        lines.forEach(line => {
+          line = line.trim();
+          if (!line) return;
+
+          // 標題行：以 # 開頭
+          if (line.startsWith('#')) {
+            if (currentSection) {
+              contentDiv.appendChild(currentSection);
+            }
+            const summaryText = line.replace(/^#+\s*/, '').trim();
+            currentSection = document.createElement('details');
+            currentSection.innerHTML = `<summary>${summaryText}</summary><div class="content"></div>`;
+          }
+          // 內容行
+          else if (currentSection) {
+            const p = document.createElement('p');
+            p.textContent = line;
+            currentSection.querySelector('.content').appendChild(p);
+          }
+        });
+
+        if (currentSection) {
+          contentDiv.appendChild(currentSection);
+        }
+      })
+      .catch(err => {
+        contentDiv.innerHTML = `<div class="error">錯誤：${err.message}<br>請檢查 TXT_URL 是否正確及支援 CORS</div>`;
+      });
+  </script>
+</body>
+</html>
