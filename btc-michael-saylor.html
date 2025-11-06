@@ -3,23 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Michael Saylor Bitcoin 訪談完整廣東話翻譯，按主題分段，支援夜間模式"/>
-  <title>米高·西勒 Bitcoin 訪談｜廣東話完整翻譯</title>
+  <meta name="description" content="Michael Saylor Bitcoin 訪談完整廣東話翻譯，所有內容展開，卡片式分段"/>
+  <title>米高·西勒 Bitcoin 訪談｜廣東話完整翻譯（全部展開）</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f8f9fa; --text: #212529; --accent: #007bff;
       --card: #ffffff; --border: #dee2e6; --shadow: 0 4px 12px rgba(0,0,0,0.05);
+      --title-bg: #e7f3ff; --title-color: #0056b3;
     }
     .dark-mode {
       --bg: #121212; --text: #e9ecef; --accent: #0d6efd;
       --card: #1e1e1e; --border: #333; --shadow: 0 4px 12px rgba(0,0,0,0.3);
+      --title-bg: #1a3a6e; --title-color: #4da3ff;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Noto Sans HK', sans-serif;
       background: var(--bg); color: var(--text);
-      line-height: 1.7; padding: 1rem;
+      line-height: 1.8; padding: 1rem;
       transition: background 0.3s, color 0.3s;
     }
     .container { max-width: 900px; margin: auto; }
@@ -38,32 +40,37 @@
       padding: 0.6rem 1rem; border-radius: 50px; cursor: pointer;
       font-weight: 500; z-index: 100; box-shadow: 0 2px 8px rgba(0,123,255,0.3);
     }
-    .loading, .error { text-align: center; padding: 2rem; color: #dc3545; }
-    details {
+    .loading, .error { text-align: center; padding: 2rem; color: #dc3545; font-size: 1.1rem; }
+
+    /* 卡片式主題盒子 */
+    .section {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: 10px; margin-bottom: 1rem; overflow: hidden;
+      border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden;
       box-shadow: var(--shadow); transition: all 0.3s;
     }
-    details:hover { box-shadow: 0 6px 16px rgba(0,0,0,0.1); }
-    summary {
-      padding: 1rem 1.2rem; font-weight: 700; background: var(--accent);
-      color: white; cursor: pointer; user-select: none; font-size: 1.1rem;
-      display: flex; justify-content: space-between; align-items: center;
+    .section:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+    .section-title {
+      padding: 1rem 1.3rem; font-weight: 700; font-size: 1.15rem;
+      background: var(--title-bg); color: var(--title-color);
+      border-bottom: 1px solid var(--border);
     }
-    summary::after { content: "▼"; font-size: 0.8rem; transition: transform 0.2s; }
-    details[open] summary::after { transform: rotate(180deg); }
-    .content {
-      padding: 1.2rem; border-top: 1px solid var(--border);
-      background: var(--card); font-size: 1rem; line-height: 1.8;
+    .section-content {
+      padding: 1.3rem; background: var(--card);
+      font-size: 1rem; line-height: 1.9;
     }
-    .content p { margin-bottom: 0.8rem; }
-    .content p:last-child { margin-bottom: 0; }
+    .section-content p { margin-bottom: 0.9rem; }
+    .section-content p:last-child { margin-bottom: 0; }
+
     footer { text-align: center; padding: 2rem 1rem; color: #6c757d; font-size: 0.9rem; margin-top: 3rem; }
 
     @media (max-width: 600px) {
       header h1 { font-size: 1.5rem; }
-      summary { font-size: 1rem; padding: 0.9rem; }
-      .content { padding: 1rem; font-size: 0.95rem; }
+      .section-title { font-size: 1.05rem; padding: 0.9rem; }
+      .section-content { padding: 1.1rem; font-size: 0.95rem; }
+    }
+    @media print {
+      .toggle-btn, header { display: none; }
+      .section { page-break-inside: avoid; margin-bottom: 1rem; }
     }
   </style>
 </head>
@@ -89,7 +96,7 @@
   </div>
 
   <footer>
-    © 2025 Bitcoin HK Community | 僅供教育用途
+    © 2025 | 僅供教育用途
   </footer>
 
   <script>
@@ -101,7 +108,7 @@
 
     fetch(TXT_URL)
       .then(r => {
-        if (!r.ok) throw new Error('無法載入檔案');
+        if (!r.ok) throw new Error('無法載入檔案，請檢查 URL');
         return r.text();
       })
       .then(text => {
@@ -116,27 +123,34 @@
 
           // 標題行：以 # 開頭
           if (line.startsWith('#')) {
+            // 先儲存上一段
             if (currentSection) {
               contentDiv.appendChild(currentSection);
             }
-            const summaryText = line.replace(/^#+\s*/, '').trim();
-            currentSection = document.createElement('details');
-            currentSection.innerHTML = `<summary>${summaryText}</summary><div class="content"></div>`;
+
+            const titleText = line.replace(/^#+\s*/, '').trim();
+            currentSection = document.createElement('div');
+            currentSection.className = 'section';
+            currentSection.innerHTML = `
+              <div class="section-title">${titleText}</div>
+              <div class="section-content"></div>
+            `;
           }
           // 內容行
           else if (currentSection) {
             const p = document.createElement('p');
             p.textContent = line;
-            currentSection.querySelector('.content').appendChild(p);
+            currentSection.querySelector('.section-content').appendChild(p);
           }
         });
 
+        // 最後一段
         if (currentSection) {
           contentDiv.appendChild(currentSection);
         }
       })
       .catch(err => {
-        contentDiv.innerHTML = `<div class="error">錯誤：${err.message}<br>請檢查 TXT_URL 是否正確及支援 CORS</div>`;
+        contentDiv.innerHTML = `<div class="error">錯誤：${err.message}<br>請確認 TXT_URL 正確並支援 CORS</div>`;
       });
   </script>
 </body>
