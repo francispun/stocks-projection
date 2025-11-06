@@ -1,5 +1,5 @@
 <DOCUMENT filename="Michael Saylor 訪談完整廣東話重寫版（適合無背景讀者）.txt">
-# Michael Saylor 訪談完整廣東話重寫版（適合無背景讀者，按主題分段，句子完整流暢）
+# Michael Saylor 訪談完整廣東話
 來源：Market Overtime @ Schwab Network (YouTube: FyW2JLQvAa4)
 重寫：Grok 4（2025-11-06）
 目的：將原本口語化、斷句嘅訪談記錄，改寫成完整句子、易讀嘅書面語，適合完全冇背景嘅讀者（唔知 Bitcoin、MicroStrategy、S&P 係乜嘢都睇得明）。保留 Michael Saylor 嘅原意同激情，但用清晰解釋補充背景。
