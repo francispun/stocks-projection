@@ -3,82 +3,85 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="Michael Saylor Bitcoin 訪談完整廣東話重寫版，所有內容展開，卡片式分段"/>
-  <title>米高·西勒 Bitcoin 訪談｜廣東話完整重寫（全部展開）</title>
+  <meta name="description" content="米高·西勒（Michael Saylor）Bitcoin 訪談｜廣東話完整重寫｜自動載入"/>
+  <title>米高·西勒（Michael Saylor）Bitcoin 訪談｜廣東話完整版</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+HK:wght@400;500;700&display=swap" rel="stylesheet">
   <style>
     :root {
       --bg: #f8f9fa; --text: #212529; --accent: #007bff;
-      --card: #ffffff; --border: #dee2e6; --shadow: 0 4px 12px rgba(0,0,0,0.05);
-      --title-bg: #e7f3ff; --title-color: #0056b3;
+      --title-color: #0056b3; --border: #dee2e6;
     }
     .dark-mode {
       --bg: #121212; --text: #e9ecef; --accent: #0d6efd;
-      --card: #1e1e1e; --border: #333; --shadow: 0 4px 12px rgba(0,0,0,0.3);
-      --title-bg: #1a3a6e; --title-color: #4da3ff;
+      --title-color: #4da3ff; --border: #333;
     }
     * { margin:0; padding:0; box-sizing:border-box; }
     body {
       font-family: 'Noto Sans HK', sans-serif;
       background: var(--bg); color: var(--text);
-      line-height: 1.8; padding: 1rem;
-      transition: background 0.3s, color 0.3s;
+      line-height: 1.9; padding: 1.5rem;
+      transition: all 0.3s;
     }
     .container { max-width: 900px; margin: auto; }
     header {
-      text-align: center; padding: 2rem 1rem;
+      text-align: center; padding: 2.5rem 1rem;
       background: linear-gradient(135deg, #007bff, #0056b3);
-      color: white; border-radius: 12px; margin-bottom: 2rem;
-      box-shadow: var(--shadow);
+      color: white; border-radius: 16px; margin-bottom: 2rem;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.1);
     }
-    header h1 { font-size: 1.8rem; margin-bottom: 0.5rem; }
-    header p { opacity: 0.9; font-size: 1rem; }
-    .meta { text-align: center; margin-bottom: 1.5rem; font-size: 0.9rem; color: #6c757d; }
+    header h1 { font-size: 2rem; margin-bottom: 0.5rem; }
+    header p { opacity: 0.9; font-size: 1.1rem; }
+    .meta {
+      text-align: center; margin-bottom: 2rem; font-size: 0.95rem; color: #6c757d;
+    }
+    .meta a { color: var(--accent); text-decoration: none; }
+    .meta a:hover { text-decoration: underline; }
     .toggle-btn {
       position: fixed; top: 1rem; right: 1rem;
       background: var(--accent); color: white; border: none;
-      padding: 0.6rem 1rem; border-radius: 50px; cursor: pointer;
-      font-weight: 500; z-index: 100; box-shadow: 0 2px 8px rgba(0,123,255,0.3);
-      transition: all 0.3s;
+      padding: 0.7rem 1.2rem; border-radius: 50px; cursor: pointer;
+      font-weight: 500; z-index: 100; box-shadow: 0 3px 10px rgba(0,123,255,0.3);
+      font-size: 0.9rem;
     }
+    .content {
+      background: white; padding: 2rem; border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05); border: 1px solid var(--border);
+      min-height: 60vh;
+    }
+    .dark-mode .content { background: #1e1e1e; border-color: #333; }
+    h2 {
+      font-size: 1.4rem; font-weight: 700; color: var(--title-color);
+      padding: 0.9rem 1.2rem; margin: 2rem 0 1rem;
+      border-left: 5px solid var(--accent); border-radius: 0 8px 8px 0;
+      background: linear-gradient(to right, rgba(0,123,255,0.1), transparent);
+    }
+    p {
+      margin-bottom: 1rem; text-align: justify;
+    }
+    .speaker { font-weight: 600; color: #d63384; }
     .loading, .error {
       text-align: center; padding: 3rem 1rem; font-size: 1.1rem;
     }
     .loading { color: #6c757d; }
     .error { color: #dc3545; background: #ffe6e6; border-radius: 8px; margin: 1rem 0; }
-    .section {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: 12px; margin-bottom: 1.5rem; overflow: hidden;
-      box-shadow: var(--shadow); transition: all 0.3s;
+    footer {
+      text-align: center; padding: 2.5rem 1rem; color: #6c757d;
+      font-size: 0.9rem; margin-top: 3rem; border-top: 1px solid var(--border);
     }
-    .section:hover { box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
-    .section-title {
-      padding: 1rem 1.3rem; font-weight: 700; font-size: 1.15rem;
-      background: var(--title-bg); color: var(--title-color);
-      border-bottom: 1px solid var(--border);
-    }
-    .section-content {
-      padding: 1.3rem; background: var(--card);
-      font-size: 1rem; line-height: 1.9;
-    }
-    .section-content p { margin-bottom: 0.9rem; }
-    .section-content p:last-child { margin-bottom: 0; }
-    footer { text-align: center; padding: 2rem 1rem; color: #6c757d; font-size: 0.9rem; margin-top: 3rem; }
     @media (max-width: 600px) {
-      header h1 { font-size: 1.5rem; }
-      .section-title { font-size: 1.05rem; padding: 0.9rem; }
-      .section-content { padding: 1.1rem; font-size: 0.95rem; }
+      header h1 { font-size: 1.6rem; }
+      .content { padding: 1.5rem; }
+      h2 { font-size: 1.25rem; padding: 0.8rem; }
     }
     @media print {
       .toggle-btn, header { display: none; }
-      .section { page-break-inside: avoid; margin-bottom: 1rem; }
+      body { padding: 0.5rem; }
+      .content { box-shadow: none; border: none; }
     }
   </style>
 </head>
 <body>
-  <button class="toggle-btn" onclick="document.body.classList.toggle('dark-mode')">
-    切換夜間模式
-  </button>
+  <button class="toggle-btn" onclick="toggleDark()">夜間模式</button>
 
   <div class="container">
     <header>
@@ -91,31 +94,40 @@
       重寫：Grok 4｜日期：2025-11-06
     </div>
 
-    <div id="content">
+    <div class="content" id="content">
       <div class="loading">載入中… 請稍候</div>
     </div>
   </div>
 
   <footer>
-    © 2025 | 僅供教育用途 | 內容動態載入
+    © 2025 | 僅供教育用途 | 內容由 .txt 動態載入
   </footer>
 
   <script>
-    // === 改呢度：你上傳 .txt 檔案嘅完整 URL ===
-    const TXT_URL = 'https://raw.githubusercontent.com/francispun/stocks-projection/refs/heads/main/Michael%20Saylor%20%E8%A8%AA%E8%AB%87%E5%AE%8C%E6%95%B4%E5%BB%A3%E6%9D%B1%E8%A9%B1%E9%87%8D%E5%AF%AB%E7%89%88%EF%BC%88%E9%81%A9%E5%90%88%E7%84%A1%E8%83%8C%E6%99%AF%E8%AE%80%E8%80%85%EF%BC%89.txt';
+    // === 改呢一行：你上傳嘅 .txt 檔案 URL ===
+    const TXT_URL = 'https://yourdomain.com/docs/michael-saylor-interview.txt';
     // ========================================
 
     const contentDiv = document.getElementById('content');
 
+    // 夜間模式
+    function toggleDark() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark ? 'enabled' : 'disabled');
+    }
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark-mode');
+    }
+
+    // 載入 .txt 內容
     fetch(TXT_URL)
       .then(r => {
-        if (!r.ok) {
-          throw new Error(`載入失敗 (HTTP ${r.status})`);
-        }
+        if (!r.ok) throw new Error(`無法載入（${r.status}）`);
         return r.text();
       })
       .then(text => {
-        contentDiv.innerHTML = ''; // 清空 loading
+        contentDiv.innerHTML = '';
         const lines = text.split('\n');
         let currentSection = null;
 
@@ -123,35 +135,29 @@
           line = line.trim();
           if (!line) return;
 
-          // 標題：以 # 開頭
+          // 標題：# 開頭
           if (line.startsWith('#')) {
-            if (currentSection) {
-              contentDiv.appendChild(currentSection);
-            }
-            const titleText = line.replace(/^#+\s*/, '').trim();
+            if (currentSection) contentDiv.appendChild(currentSection);
+            const title = line.replace(/^#+\s*/, '').trim();
+            const h2 = document.createElement('h2');
+            h2.textContent = title;
             currentSection = document.createElement('div');
-            currentSection.className = 'section';
-            currentSection.innerHTML = `
-              <div class="section-title">${titleText}</div>
-              <div class="section-content"></div>
-            `;
+            currentSection.appendChild(h2);
           }
           // 內容行
           else if (currentSection) {
             const p = document.createElement('p');
-            p.textContent = line;
-            currentSection.querySelector('.section-content').appendChild(p);
+            // 自動偵測講者
+            if (line.includes('：') && (line.includes('主持人') || line.includes('Michael Saylor'))) {
+              const parts = line.split('：');
+              p.innerHTML = `<span class="speaker">${parts[0]}：</span>${parts.slice(1).join('：')}`;
+            } else {
+              p.textContent = line;
+            }
+            currentSection.appendChild(p);
           }
         });
-
-        // 最後一段
-        if (currentSection) {
-          contentDiv.appendChild(currentSection);
-        }
-
-        if (!currentSection && contentDiv.innerHTML === '') {
-          throw new Error('檔案內容為空或格式不符');
-        }
+        if (currentSection) contentDiv.appendChild(currentSection);
       })
       .catch(err => {
         contentDiv.innerHTML = `
@@ -164,7 +170,7 @@
             3. 檔案為 UTF-8 編碼</small>
           </div>
         `;
-        console.error('Fetch error:', err);
+        console.error(err);
       });
   </script>
 </body>
