@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mNAV Calculator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
+        .slider-container { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 5px; }
+        input[type="range"] { width: 100%; }
+        .value { font-weight: bold; }
+        #result { margin-top: 30px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
+        #range { margin-top: 20px; }
+    </style>
+</head>
+<body>
+    <h1>mNAV Interactive Model</h1>
+    <p>Adjust the sliders to play with the variables in the model: <br>
+    Fair mNAV = 1 + ((g - c) / k) × (D/A)</p>
+    <p>Values are in percentages (e.g., 25 for 25%). Negative premiums will show as discounts.</p>
+
+    <div class="slider-container">
+        <label for="g">Expected BTC Return (g): <span id="g-value" class="value">25%</span></label>
+        <input type="range" id="g" min="0" max="50" value="25" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">10%</span></label>
+        <input type="range" id="c" min="0" max="20" value="10" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="k">Discount Rate (k): <span id="k-value" class="value">15%</span></label>
+        <input type="range" id="k" min="5" max="30" value="15" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="da">Amplification Ratio (D/A): <span id="da-value" class="value">23%</span></label>
+        <input type="range" id="da" min="0" max="50" value="23" step="1">
+    </div>
+
+    <div id="result">
+        <h2>Calculated Fair mNAV: <span id="mnav">1.23</span></h2>
+        <p>Premium/Discount: <span id="premium">23%</span></p>
+    </div>
+
+    <div id="range">
+        <h3>Example Ranges</h3>
+        <p>Conservative (g=20%, c=10%, k=18%, D/A=23%): mNAV ≈ 1.13 (13% premium)</p>
+        <p>Base Case (g=25%, c=10%, k=15%, D/A=23%): mNAV ≈ 1.23 (23% premium)</p>
+        <p>Optimistic (g=30%, c=8%, k=12%, D/A=23%): mNAV ≈ 1.42 (42% premium)</p>
+    </div>
+
+    <script>
+        const sliders = {
+            g: document.getElementById('g'),
+            c: document.getElementById('c'),
+            k: document.getElementById('k'),
+            da: document.getElementById('da')
+        };
+
+        const values = {
+            g: document.getElementById('g-value'),
+            c: document.getElementById('c-value'),
+            k: document.getElementById('k-value'),
+            da: document.getElementById('da-value')
+        };
+
+        const mnavDisplay = document.getElementById('mnav');
+        const premiumDisplay = document.getElementById('premium');
+
+        function updateValues() {
+            Object.keys(sliders).forEach(key => {
+                values[key].textContent = `${sliders[key].value}%`;
+            });
+            calculate();
+        }
+
+        function calculate() {
+            const g = sliders.g.value / 100;
+            const c = sliders.c.value / 100;
+            const k = sliders.k.value / 100;
+            const da = sliders.da.value / 100;
+
+            if (k === 0) {
+                mnavDisplay.textContent = 'Invalid (k=0)';
+                premiumDisplay.textContent = 'N/A';
+                return;
+            }
+
+            const excess = g - c;
+            const multiplier = excess / k;
+            const mnav = 1 + (multiplier * da);
+            const premium = ((mnav - 1) * 100).toFixed(0);
+
+            mnavDisplay.textContent = mnav.toFixed(2);
+            premiumDisplay.textContent = premium >= 0 ? `${premium}% premium` : `${Math.abs(premium)}% discount`;
+        }
+
+        Object.values(sliders).forEach(slider => {
+            slider.addEventListener('input', updateValues);
+        });
+
+        updateValues(); // Initial update
+    </script>
+
+    <p>To use: Save this as an .html file and open in your browser. Sliders update in real-time.</p>
+</body>
+</html>
