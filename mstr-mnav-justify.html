@@ -3,177 +3,221 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simplified MSTR Amplification Simulator</title>
+    <title>MSTR mNAV Multiple Model</title>
     <style>
-        body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
-        .slider-container { margin-bottom: 20px; }
-        label { display: block; margin-bottom: 5px; }
-        input[type="range"] { width: 100%; }
-        .value { font-weight: bold; }
-        #result { margin-top: 30px; padding: 15px; background: #f0f0f0; border-radius: 5px; }
-        #range { margin-top: 20px; }
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        h1, h2 { color: #333; }
+        .container { max-width: 800px; margin: auto; }
+        .sliders { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .output { margin-top: 20px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        canvas { width: 100%; height: 300px; margin-top: 20px; }
+        .equations { margin-top: 20px; }
     </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
-    <h1>Simplified MSTR Amplification Simulator</h1>
-    <p>This model simulates MSTR's leverage flywheel over time: BTC grows at g, they pay borrowing costs (c on D), then issue new preferred stock to maintain target amplification (D/A), using proceeds to buy more BTC. This compounds unrealized gains for equity holders faster than pure BTC.</p>
-    <p>We calculate:</p>
-    <ul>
-        <li>Projected BTC NAV (A) after n years.</li>
-        <li>Projected Borrowings (D) to keep D/A constant.</li>
-        <li>Levered Equity Growth Rate: Effective annual return to shareholders from amplification.</li>
-        <li>Fair Current mNAV: PV of future levered equity value discounted at r (your "hurdle rate" for risk), normalized to initial A. Formula: mNAV = [Equity_n / (1+r)^n + PV of interim "benefits"] / initial A, but simplified to focus on terminal equity premium.</li>
-    </ul>
-    <p>Defaults from your screenshot/discussion. Adjust to see how ongoing issuances amplify gains.</p>
+    <div class="container">
+        <h1>MSTR mNAV Multiple Model</h1>
+        <p>This interactive tool models the justified mNAV multiple for MicroStrategy (MSTR, now Strategy) stock relative to its BTC holdings. It accounts for leverage amplification through preferred stock issuance, future BTC purchases, and risk factors. Adjust the sliders to see how assumptions affect the multiple.</p>
 
-    <div class="slider-container">
-        <label for="g">Expected Annual BTC Growth (g): <span id="g-value" class="value">25%</span></label>
-        <input type="range" id="g" min="0" max="50" value="25" step="1">
-    </div>
+        <div class="sliders">
+            <div>
+                <label for="L">Target D/A Ratio (Leverage): <span id="L_value">0.13</span></label>
+                <input type="range" id="L" min="0" max="0.5" step="0.01" value="0.13" oninput="updateValue('L_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="c">Preferred Stock Cost (Annual %): <span id="c_value">0.10</span></label>
+                <input type="range" id="c" min="0.05" max="0.20" step="0.01" value="0.10" oninput="updateValue('c_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="g">Projected BTC Annual Growth Rate (%): <span id="g_value">30</span></label>
+                <input type="range" id="g" min="10" max="60" step="1" value="30" oninput="updateValue('g_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="k">Discount Rate (%): <span id="k_value">15</span></label>
+                <input type="range" id="k" min="5" max="25" step="1" value="15" oninput="updateValue('k_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="T">Time Horizon (Years): <span id="T_value">10</span></label>
+                <input type="range" id="T" min="5" max="15" step="1" value="10" oninput="updateValue('T_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="sigma">BTC Annual Volatility (%): <span id="sigma_value">74</span></label>
+                <input type="range" id="sigma" min="30" max="100" step="1" value="74" oninput="updateValue('sigma_value', this.value); calculate();">
+            </div>
+            <div>
+                <label for="num_sim">Number of Monte Carlo Simulations: <span id="num_sim_value">1000</span></label>
+                <input type="range" id="num_sim" min="100" max="5000" step="100" value="1000" oninput="updateValue('num_sim_value', this.value); calculate();">
+            </div>
+        </div>
 
-    <div class="slider-container">
-        <label for="c">Annual Borrowing Cost (c): <span id="c-value" class="value">10%</span></label>
-        <input type="range" id="c" min="0" max="20" value="10" step="1">
-    </div>
+        <div class="output">
+            <h2>Justified mNAV Multiple</h2>
+            <p>Analytical (Deterministic): <strong id="anal_multiple">0.00</strong></p>
+            <p>Monte Carlo (with Volatility): <strong id="mc_multiple">0.00</strong></p>
+        </div>
 
-    <div class="slider-container">
-        <label for="da">Target Amplification (D/A): <span id="da-value" class="value">23%</span></label>
-        <input type="range" id="da" min="0" max="50" value="23" step="1">
-    </div>
+        <h2>Scenario Analysis</h2>
+        <table id="sensitivity_table">
+            <thead>
+                <tr>
+                    <th>Scenario</th>
+                    <th>BTC Growth Rate</th>
+                    <th>Analytical Multiple</th>
+                    <th>Monte Carlo Multiple</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        </table>
 
-    <div class="slider-container">
-        <label for="r">Your Hurdle Rate (r, for discounting risk): <span id="r-value" class="value">15%</span></label>
-        <input type="range" id="r" min="5" max="30" value="15" step="1">
-    </div>
+        <h2>Projected Amplified NAV Over Time (Normalized)</h2>
+        <canvas id="chart"></canvas>
 
-    <div class="slider-container">
-        <label for="n">Simulation Years (n): <span id="n-value" class="value">10</span></label>
-        <input type="range" id="n" min="1" max="20" value="10" step="1">
-    </div>
+        <div class="equations">
+            <h2>Model Equations</h2>
+            <p>- Effective Equity Growth Rate (ge): ge = (g - c * L) / (1 - L)</p>
+            <p>- Justified Multiple (Analytical): (1 - L) * ((1 + ge) / (1 + k))^T</p>
+            <p>- The Monte Carlo simulates paths with Geometric Brownian Motion for BTC price, annual dividend payments, and conditional rebalancing.</p>
 
-    <div id="result">
-        <h2>Projected After <span id="years">10</span> Years:</h2>
-        <p>BTC NAV (A): $<span id="a_final">0</span>B (x<span id="a_mult">0</span> initial)</p>
-        <p>Borrowings (D): $<span id="d_final">0</span>B</p>
-        <p>Equity Value: $<span id="eq_final">0</span>B (levered growth <span id="lev_g">0</span>%/yr)</p>
-        <p>Fair Current mNAV: <span id="mnav">1.00</span> (<span id="premium">0</span>% premium)</p>
-    </div>
-
-    <div id="range">
-        <h3>Example Scenarios</h3>
-        <p>Base (g=25%, c=10%, D/A=23%, r=15%, n=10): mNAV ≈1.23 (23% premium)</p>
-        <p>Bull (g=30%, c=8%, D/A=30%, r=12%, n=10): mNAV ≈1.42 (42% premium)</p>
-        <p>Optimistic Long-Term (g=30%, c=10%, D/A=30%, r=5%, n=20): mNAV ≈2.80 (180% premium)</p>
+            <h2>Step-by-Step Math Justification</h2>
+            <ol>
+                <li>Current leverage amplifies exposure: Exposure multiplier = 1 / (1 - L).</li>
+                <li>Forward amplification: By maintaining L through new preferred stock issuances funded BTC buys when price rises.</li>
+                <li>Net growth accounts for financing cost: g adjusted down by c * L.</li>
+                <li>Justified multiple is the PV of terminal amplified equity value divided by current BTC holdings value.</li>
+                <li>Volatility is handled in Monte Carlo by simulating paths and averaging PVs, accounting for bankruptcy risk.</li>
+            </ol>
+        </div>
     </div>
 
     <script>
-        const sliders = {
-            g: document.getElementById('g'),
-            c: document.getElementById('c'),
-            da: document.getElementById('da'),
-            r: document.getElementById('r'),
-            n: document.getElementById('n')
-        };
+        let chart;
 
-        const values = {
-            g: document.getElementById('g-value'),
-            c: document.getElementById('c-value'),
-            da: document.getElementById('da-value'),
-            r: document.getElementById('r-value'),
-            n: document.getElementById('n-value')
-        };
+        function updateValue(id, value) {
+            document.getElementById(id).textContent = parseFloat(value).toFixed(2);
+        }
 
-        const outputs = {
-            years: document.getElementById('years'),
-            a_final: document.getElementById('a_final'),
-            a_mult: document.getElementById('a_mult'),
-            d_final: document.getElementById('d_final'),
-            eq_final: document.getElementById('eq_final'),
-            lev_g: document.getElementById('lev_g'),
-            mnav: document.getElementById('mnav'),
-            premium: document.getElementById('premium')
-        };
+        function calculateAnalyticalMultiple(L, c, g, k, T) {
+            if (g < c * L) return 0.0;
+            const ge = (g - c * L) / (1 - L);
+            const growthFactor = Math.pow((1 + ge) / (1 + k), T);
+            return (1 - L) * growthFactor;
+        }
 
-        function updateValues() {
-            Object.keys(sliders).forEach(key => {
-                if (key === 'n') {
-                    values[key].textContent = sliders[key].value;
-                } else {
-                    values[key].textContent = `${sliders[key].value}%`;
+        function calculateMonteCarloMultiple(A0, L, c, g, sigma, k, T, numSim) {
+            let pvSum = 0.0;
+            for (let sim = 0; sim < numSim; sim++) {
+                let A = A0;
+                let D = L * A0;
+                let bankrupt = false;
+                for (let t = 0; t < T; t++) {
+                    const r = normalRandom(g, sigma);
+                    A = A * Math.exp(r);
+                    const div = c * D;
+                    if (A < div) {
+                        bankrupt = true;
+                        break;
+                    }
+                    A -= div;
+                    let currentL = (A > 0) ? D / A : 0;
+                    if (currentL < L) {
+                        const delta = (L * A - D) / (1 - L);
+                        if (delta > 0) {
+                            A += delta;
+                            D += delta;
+                        }
+                    }
                 }
+                const E_T = bankrupt ? 0 : Math.max(A - D, 0);
+                const pv = E_T / Math.pow(1 + k, T);
+                pvSum += pv;
+            }
+            return pvSum / numSim / A0;
+        }
+
+        function normalRandom(mean, std) {
+            let u = 0, v = 0;
+            while (u === 0) u = Math.random();
+            while (v === 0) v = Math.random();
+            return mean + std * Math.sqrt(-2.0 * Math.log(u)) * Math.cos(2.0 * Math.PI * v);
+        }
+
+        function generateSensitivityTable(L, c, k, T, sigma, numSim) {
+            const scenarios = [
+                { name: 'Pessimistic', g: 0.20 },
+                { name: 'Base', g: 0.30 },
+                { name: 'Optimistic', g: 0.50 }
+            ];
+            const tableBody = document.querySelector('#sensitivity_table tbody');
+            tableBody.innerHTML = '';
+            scenarios.forEach(sc => {
+                const anal = calculateAnalyticalMultiple(L, c, sc.g, k, T);
+                const mc = calculateMonteCarloMultiple(1.0, L, c, sc.g, sigma, k, T, numSim);
+                const row = `<tr>
+                    <td>${sc.name}</td>
+                    <td>${(sc.g * 100).toFixed(0)}%</td>
+                    <td>${anal.toFixed(2)}</td>
+                    <td>${mc.toFixed(2)}</td>
+                </tr>`;
+                tableBody.innerHTML += row;
             });
-            simulate();
         }
 
-        function simulate() {
-            const g = sliders.g.value / 100;
-            const c = sliders.c.value / 100;
-            const target_da = sliders.da.value / 100;
-            const r = sliders.r.value / 100;
-            const n = parseInt(sliders.n.value);
-
-            if (r === 0 || g < c) {
-                outputs.mnav.textContent = '1.00';
-                outputs.premium.textContent = '0';
-                return;
-            }
-
-            // Initial assumptions: Normalize to $100 initial A
-            let A = 100;
-            let D = target_da * A;
-            let Equity = A - D;
-
-            for (let year = 1; year <= n; year++) {
-                // BTC growth
-                A *= (1 + g);
-
-                // Pay borrowing cost (assumed covered by issuances or gains, but subtract from equity effectively)
-                const interest = c * D;
-                Equity -= interest;
-
-                // Issue new borrowing to maintain D/A
-                const target_D = target_da * A;
-                const new_issue = target_D - D;
-                if (new_issue > 0) {
-                    // New issue buys more BTC
-                    A += new_issue;
-                    D += new_issue;
-                    Equity -= new_issue; // Dilution from pref issuance (treated as quasi-equity cost)
-                } else if (new_issue < 0) {
-                    // Rare: Reduce D, but simplify by ignoring
-                }
-            }
-
-            // Projected finals (scale to billions for realism, assume initial A=65B)
-            const scale = 0.65; // Initial A ~65B, for display
-            outputs.a_final.textContent = (A * scale).toFixed(1);
-            outputs.a_mult.textContent = (A / 100).toFixed(1);
-            outputs.d_final.textContent = (D * scale).toFixed(1);
-            outputs.eq_final.textContent = (Equity * scale).toFixed(1);
-
-            // Levered growth rate: CAGR of equity
-            const lev_g = Math.pow(Equity / (100 - D/ target_da * 100), 1/n) - 1; // Initial equity normalized
-            outputs.lev_g.textContent = (lev_g * 100).toFixed(1);
-
-            // Fair current mNAV: PV of final equity premium over pure BTC, simplified
-            const pure_btc_eq = (100 * Math.pow(1 + g, n) - D) * (1 - target_da); // Unlevered equiv
-            const premium_eq = Equity - pure_btc_eq;
-            const pv_premium = premium_eq / Math.pow(1 + r, n);
-            const mnav = 1 + pv_premium / 100;
-            const prem_pct = ((mnav - 1) * 100).toFixed(0);
-
-            outputs.years.textContent = n;
-            outputs.mnav.textContent = mnav.toFixed(2);
-            outputs.premium.textContent = prem_pct;
+        function simulateProjectedHoldings(L, c, g, k, T) {
+            const ge = (g >= c * L) ? (g - c * L) / (1 - L) : 0;
+            const years = Array.from({length: T+1}, (_, i) => i);
+            const holdings = years.map(y => Math.pow(1 + ge, y));
+            return { years, holdings };
         }
 
-        Object.values(sliders).forEach(slider => {
-            slider.addEventListener('input', updateValues);
-        });
+        function updateChart(L, c, g, k, T) {
+            const { years, holdings } = simulateProjectedHoldings(L, c, g, k, T);
+            if (chart) chart.destroy();
+            const ctx = document.getElementById('chart').getContext('2d');
+            chart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{ label: 'Amplified NAV', data: holdings, borderColor: 'blue', fill: false }]
+                },
+                options: { scales: { y: { beginAtZero: true } } }
+            });
+        }
 
-        updateValues(); // Initial update
+        function calculate() {
+            const L = parseFloat(document.getElementById('L').value);
+            const c = parseFloat(document.getElementById('c').value);
+            const g = parseFloat(document.getElementById('g').value) / 100;
+            const k = parseFloat(document.getElementById('k').value) / 100;
+            const T = parseInt(document.getElementById('T').value);
+            const sigma = parseFloat(document.getElementById('sigma').value) / 100;
+            const numSim = parseInt(document.getElementById('num_sim').value);
+
+            // Update values
+            updateValue('L_value', L);
+            updateValue('c_value', c);
+            updateValue('g_value', g * 100);
+            updateValue('k_value', k * 100);
+            updateValue('T_value', T);
+            updateValue('sigma_value', sigma * 100);
+            updateValue('num_sim_value', numSim);
+
+            const analMultiple = calculateAnalyticalMultiple(L, c, g, k, T);
+            const mcMultiple = calculateMonteCarloMultiple(1.0, L, c, g, sigma, k, T, numSim);
+
+            document.getElementById('anal_multiple').textContent = analMultiple.toFixed(2);
+            document.getElementById('mc_multiple').textContent = mcMultiple.toFixed(2);
+
+            generateSensitivityTable(L, c, k, T, sigma, numSim / 5);  // Reduce sims for sensitivity to speed up
+
+            updateChart(L, c, g, k, T);
+        }
+
+        // Initial calculation
+        calculate();
     </script>
-
-    <p>To use: Save as .html and open in browser. Sliders update real-time. Note: Simplifications - assumes no vol, perfect issuances, costs covered; real mNAV fluctuates with market sentiment.</p>
 </body>
 </html>
