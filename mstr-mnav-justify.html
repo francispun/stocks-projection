@@ -18,16 +18,16 @@
     <h1>mNAV Interactive Model (Finite Duration)</h1>
     <p>Adjust the sliders to play with the variables. Now includes finite duration (n years): <br>
     Fair mNAV = 1 + ((g - c) / k) × (1 - (1 + k)^(-n)) × (D/A)</p>
-    <p>Values are in percentages (e.g., 25 for 25%). For perpetual, set n high (e.g., 50+). Negative premiums show as discounts. Defaults updated to Nov 2025 approximates.</p>
+    <p>Values are in percentages (e.g., 25 for 25%). For perpetual (pref-heavy), set n high (e.g., 50+). Negative premiums show as discounts. Defaults from screenshot.</p>
 
     <div class="slider-container">
-        <label for="g">Expected BTC Return (g): <span id="g-value" class="value">29%</span></label>
-        <input type="range" id="g" min="0" max="50" value="29" step="1">
+        <label for="g">Expected BTC Return (g): <span id="g-value" class="value">25%</span></label>
+        <input type="range" id="g" min="0" max="50" value="25" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">9%</span></label>
-        <input type="range" id="c" min="0" max="20" value="9" step="1">
+        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">10%</span></label>
+        <input type="range" id="c" min="0" max="20" value="10" step="1">
     </div>
 
     <div class="slider-container">
@@ -36,25 +36,25 @@
     </div>
 
     <div class="slider-container">
-        <label for="da">Amplification Ratio (D/A): <span id="da-value" class="value">22%</span></label>
-        <input type="range" id="da" min="0" max="50" value="22" step="1">
+        <label for="da">Amplification Ratio (D/A): <span id="da-value" class="value">23%</span></label>
+        <input type="range" id="da" min="0" max="50" value="23" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="n">Remaining Duration (n) in Years: <span id="n-value" class="value">4</span></label>
-        <input type="range" id="n" min="1" max="50" value="4" step="1">
+        <label for="n">Remaining Duration (n) in Years: <span id="n-value" class="value">50</span></label>
+        <input type="range" id="n" min="1" max="50" value="50" step="1">
     </div>
 
     <div id="result">
-        <h2>Calculated Fair mNAV: <span id="mnav">1.27</span></h2>
-        <p>Premium/Discount: <span id="premium">27%</span></p>
+        <h2>Calculated Fair mNAV: <span id="mnav">1.23</span></h2>
+        <p>Premium/Discount: <span id="premium">23%</span></p>
     </div>
 
     <div id="range">
-        <h3>Example Ranges (with n=4)</h3>
-        <p>Conservative (g=20%, c=10%, k=18%): mNAV ≈ 1.09 (9% premium)</p>
-        <p>Base Case (g=29%, c=9%, k=15%): mNAV ≈ 1.27 (27% premium)</p>
-        <p>Optimistic (g=35%, c=8%, k=12%): mNAV ≈ 1.42 (42% premium)</p>
+        <h3>Example Ranges (with n=50 for perpetual)</h3>
+        <p>Conservative (g=20%, c=10%, k=18%): mNAV ≈ 1.13 (13% premium)</p>
+        <p>Base Case (g=25%, c=10%, k=15%): mNAV ≈ 1.23 (23% premium)</p>
+        <p>Optimistic (g=30%, c=8%, k=12%): mNAV ≈ 1.42 (42% premium)</p>
     </div>
 
     <script>
