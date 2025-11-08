@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mNAV Calculator</title>
+    <title>mNAV Calculator (with Duration)</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
         .slider-container { margin-bottom: 20px; }
@@ -15,10 +15,10 @@
     </style>
 </head>
 <body>
-    <h1>mNAV Interactive Model</h1>
-    <p>Adjust the sliders to play with the variables in the model: <br>
-    Fair mNAV = 1 + ((g - c) / k) × (D/A)</p>
-    <p>Values are in percentages (e.g., 25 for 25%). Negative premiums will show as discounts.</p>
+    <h1>mNAV Interactive Model (Finite Duration)</h1>
+    <p>Adjust the sliders to play with the variables. Now includes finite duration (n years): <br>
+    Fair mNAV = 1 + ((g - c) / k) × (1 - (1 + k)^(-n)) × (D/A)</p>
+    <p>Values are in percentages (e.g., 25 for 25%). For perpetual, set n high (e.g., 50+). Negative premiums show as discounts.</p>
 
     <div class="slider-container">
         <label for="g">Expected BTC Return (g): <span id="g-value" class="value">25%</span></label>
@@ -40,16 +40,21 @@
         <input type="range" id="da" min="0" max="50" value="23" step="1">
     </div>
 
+    <div class="slider-container">
+        <label for="n">Duration (n) in Years: <span id="n-value" class="value">4</span></label>
+        <input type="range" id="n" min="1" max="50" value="4" step="1">
+    </div>
+
     <div id="result">
-        <h2>Calculated Fair mNAV: <span id="mnav">1.23</span></h2>
-        <p>Premium/Discount: <span id="premium">23%</span></p>
+        <h2>Calculated Fair mNAV: <span id="mnav">1.19</span></h2>
+        <p>Premium/Discount: <span id="premium">19%</span></p>
     </div>
 
     <div id="range">
-        <h3>Example Ranges</h3>
-        <p>Conservative (g=20%, c=10%, k=18%, D/A=23%): mNAV ≈ 1.13 (13% premium)</p>
-        <p>Base Case (g=25%, c=10%, k=15%, D/A=23%): mNAV ≈ 1.23 (23% premium)</p>
-        <p>Optimistic (g=30%, c=8%, k=12%, D/A=23%): mNAV ≈ 1.42 (42% premium)</p>
+        <h3>Example Ranges (with n=4)</h3>
+        <p>Conservative (g=20%, c=10%, k=18%): mNAV ≈ 1.10 (10% premium)</p>
+        <p>Base Case (g=25%, c=10%, k=15%): mNAV ≈ 1.19 (19% premium)</p>
+        <p>Optimistic (g=30%, c=8%, k=12%): mNAV ≈ 1.32 (32% premium)</p>
     </div>
 
     <script>
@@ -57,22 +62,25 @@
             g: document.getElementById('g'),
             c: document.getElementById('c'),
             k: document.getElementById('k'),
-            da: document.getElementById('da')
+            da: document.getElementById('da'),
+            n: document.getElementById('n')
         };
 
         const values = {
             g: document.getElementById('g-value'),
             c: document.getElementById('c-value'),
             k: document.getElementById('k-value'),
-            da: document.getElementById('da-value')
+            da: document.getElementById('da-value'),
+            n: document.getElementById('n-value')
         };
-
-        const mnavDisplay = document.getElementById('mnav');
-        const premiumDisplay = document.getElementById('premium');
 
         function updateValues() {
             Object.keys(sliders).forEach(key => {
-                values[key].textContent = `${sliders[key].value}%`;
+                if (key === 'n') {
+                    values[key].textContent = sliders[key].value;
+                } else {
+                    values[key].textContent = `${sliders[key].value}%`;
+                }
             });
             calculate();
         }
@@ -82,6 +90,7 @@
             const c = sliders.c.value / 100;
             const k = sliders.k.value / 100;
             const da = sliders.da.value / 100;
+            const n = parseInt(sliders.n.value);
 
             if (k === 0) {
                 mnavDisplay.textContent = 'Invalid (k=0)';
@@ -90,13 +99,17 @@
             }
 
             const excess = g - c;
-            const multiplier = excess / k;
+            const annuityFactor = (1 - Math.pow(1 + k, -n)) / k;
+            const multiplier = excess * annuityFactor;
             const mnav = 1 + (multiplier * da);
             const premium = ((mnav - 1) * 100).toFixed(0);
 
             mnavDisplay.textContent = mnav.toFixed(2);
             premiumDisplay.textContent = premium >= 0 ? `${premium}% premium` : `${Math.abs(premium)}% discount`;
         }
+
+        const mnavDisplay = document.getElementById('mnav');
+        const premiumDisplay = document.getElementById('premium');
 
         Object.values(sliders).forEach(slider => {
             slider.addEventListener('input', updateValues);
