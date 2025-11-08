@@ -125,7 +125,7 @@
                 multiple = term_multiple.toFixed(1) + 'x';
                 const term_value = excess_11 * term_multiple;
                 const pv_term = term_value / Math.pow(1 + k, n);
-                premium += pv_term / growth_factor; // Normalize back to per initial A
+                premium += pv_term; // Corrected normalization: pv_term is already / A_0 scale
             }
 
             const mnav = (1 + premium).toFixed(2);
