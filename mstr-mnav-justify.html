@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>mNAV Calculator (with Duration)</title>
+    <title>Two-Stage mNAV Model</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
         .slider-container { margin-bottom: 20px; }
@@ -15,19 +15,20 @@
     </style>
 </head>
 <body>
-    <h1>mNAV Interactive Model (Finite Duration)</h1>
-    <p>Adjust the sliders to play with the variables. Now includes finite duration (n years): <br>
-    Fair mNAV = 1 + ((g - c) / k) × (1 - (1 + k)^(-n)) × (D/A)</p>
-    <p>Values are in percentages (e.g., 30 for 30%). For perpetual (pref-heavy), set n high (e.g., 50+). Negative premiums show as discounts. Defaults match ~2.8x case (c=0, k=5%).</p>
+    <h1>Two-Stage mNAV Interactive Model</h1>
+    <p>Adjust sliders for high-growth phase (n years at g) and terminal phase (perpetual at g_terminal). <br>
+    Fair mNAV = 1 + [PV(Stage 1 excesses) + PV(Terminal Value)] / A_0<br>
+    Terminal multiple = (1 + g_terminal) / (k - g_terminal) applied to excess_11 if k > g_terminal and g_terminal > c.</p>
+    <p>Percentages (e.g., 30 for 30%). If k <= g_terminal or g_terminal <= c, terminal = 0 (invalid).</p>
 
     <div class="slider-container">
-        <label for="g">Expected BTC Return (g): <span id="g-value" class="value">30%</span></label>
+        <label for="g">High-Growth BTC Return (g): <span id="g-value" class="value">30%</span></label>
         <input type="range" id="g" min="0" max="50" value="30" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">0%</span></label>
-        <input type="range" id="c" min="0" max="20" value="0" step="1">
+        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">10%</span></label>
+        <input type="range" id="c" min="0" max="20" value="10" step="1">
     </div>
 
     <div class="slider-container">
@@ -36,25 +37,31 @@
     </div>
 
     <div class="slider-container">
-        <label for="da">Amplification Ratio (D/A): <span id="da-value" class="value">30%</span></label>
+        <label for="da">Amplification (D/A): <span id="da-value" class="value">30%</span></label>
         <input type="range" id="da" min="0" max="50" value="30" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="n">Remaining Duration (n) in Years: <span id="n-value" class="value">50</span></label>
-        <input type="range" id="n" min="1" max="50" value="50" step="1">
+        <label for="n">High-Growth Years (n): <span id="n-value" class="value">10</span></label>
+        <input type="range" id="n" min="1" max="50" value="10" step="1">
+    </div>
+
+    <div class="slider-container">
+        <label for="g_term">Terminal Growth (g_terminal): <span id="g_term-value" class="value">12%</span></label>
+        <input type="range" id="g_term" min="0" max="29" value="12" step="1"> <!-- Max < min k to avoid diverge -->
     </div>
 
     <div id="result">
-        <h2>Calculated Fair mNAV: <span id="mnav">2.80</span></h2>
-        <p>Premium/Discount: <span id="premium">180%</span></p>
+        <h2>Calculated Fair mNAV: <span id="mnav">1.46</span></h2>
+        <p>Premium/Discount: <span id="premium">46%</span></p>
+        <p>Implied Terminal Multiple: <span id="multiple">N/A</span></p>
     </div>
 
     <div id="range">
-        <h3>Example Ranges (with n=50 for perpetual)</h3>
-        <p>Conservative (g=20%, c=10%, k=18%): mNAV ≈ 1.13 (13% premium)</p>
-        <p>Base Case (g=30%, c=0%, k=5%): mNAV ≈ 2.80 (180% premium)</p>
-        <p>Finite 10Y (g=30%, c=0%, k=5%): mNAV ≈ 1.69 (69% premium)</p>
+        <h3>Example Ranges</h3>
+        <p>No Terminal (g_term <= c): mNAV ≈1.46 (46% premium)</p>
+        <p>With g_term=15%, k=20%: mNAV ≈1.55 (55% premium, multiple~5x)</p>
+        <p>Optimistic (g_term=4%, k=5%, c=0): mNAV ≈2.13 (113% premium, multiple~100x)</p>
     </div>
 
     <script>
@@ -63,7 +70,8 @@
             c: document.getElementById('c'),
             k: document.getElementById('k'),
             da: document.getElementById('da'),
-            n: document.getElementById('n')
+            n: document.getElementById('n'),
+            g_term: document.getElementById('g_term')
         };
 
         const values = {
@@ -71,7 +79,8 @@
             c: document.getElementById('c-value'),
             k: document.getElementById('k-value'),
             da: document.getElementById('da-value'),
-            n: document.getElementById('n-value')
+            n: document.getElementById('n-value'),
+            g_term: document.getElementById('g_term-value')
         };
 
         function updateValues() {
@@ -91,25 +100,45 @@
             const k = sliders.k.value / 100;
             const da = sliders.da.value / 100;
             const n = parseInt(sliders.n.value);
+            const g_term = sliders.g_term.value / 100;
 
             if (k === 0) {
                 mnavDisplay.textContent = 'Invalid (k=0)';
                 premiumDisplay.textContent = 'N/A';
+                multipleDisplay.textContent = 'N/A';
                 return;
             }
 
-            const excess = g - c;
+            // Stage 1: Finite annuity for high-growth
+            const excess_high = g - c;
             const annuityFactor = (1 - Math.pow(1 + k, -n)) / k;
-            const multiplier = excess * annuityFactor;
-            const mnav = 1 + (multiplier * da);
-            const premium = ((mnav - 1) * 100).toFixed(0);
+            const stage1_multiplier = excess_high * annuityFactor;
+            let premium = stage1_multiplier * da;
 
-            mnavDisplay.textContent = mnav.toFixed(2);
-            premiumDisplay.textContent = premium >= 0 ? `${premium}% premium` : `${Math.abs(premium)}% discount`;
+            // Stage 2: Terminal at end of n
+            let multiple = 'N/A';
+            if (g_term > c && k > g_term) {
+                const excess_term = g_term - c;
+                const growth_factor = Math.pow(1 + g, n); // A_n / A_0
+                const excess_11 = excess_term * da * growth_factor * (1 + g_term);
+                const term_multiple = 1 / (k - g_term);
+                multiple = term_multiple.toFixed(1) + 'x';
+                const term_value = excess_11 * term_multiple;
+                const pv_term = term_value / Math.pow(1 + k, n);
+                premium += pv_term / growth_factor; // Normalize back to per initial A
+            }
+
+            const mnav = (1 + premium).toFixed(2);
+            const prem_pct = (premium * 100).toFixed(0);
+
+            mnavDisplay.textContent = mnav;
+            premiumDisplay.textContent = prem_pct >= 0 ? `${prem_pct}% premium` : `${Math.abs(prem_pct)}% discount`;
+            multipleDisplay.textContent = multiple;
         }
 
         const mnavDisplay = document.getElementById('mnav');
         const premiumDisplay = document.getElementById('premium');
+        const multipleDisplay = document.getElementById('multiple');
 
         Object.values(sliders).forEach(slider => {
             slider.addEventListener('input', updateValues);
@@ -118,6 +147,6 @@
         updateValues(); // Initial update
     </script>
 
-    <p>To use: Save this as an .html file and open in your browser. Sliders update in real-time.</p>
+    <p>To use: Save as .html and open in browser. Set g_term > c for terminal to activate.</p>
 </body>
 </html>
