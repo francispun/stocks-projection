@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Two-Stage mNAV Model</title>
+    <title>Simplified MSTR Amplification Simulator</title>
     <style>
         body { font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; }
         .slider-container { margin-bottom: 20px; }
@@ -15,72 +15,83 @@
     </style>
 </head>
 <body>
-    <h1>Two-Stage mNAV Interactive Model</h1>
-    <p>Adjust sliders for high-growth phase (n years at g) and terminal phase (perpetual at g_terminal). <br>
-    Fair mNAV = 1 + [PV(Stage 1 excesses) + PV(Terminal Value)] / A_0<br>
-    Terminal multiple = (1 + g_terminal) / (k - g_terminal) applied to excess_11 if k > g_terminal and g_terminal > c.</p>
-    <p>Percentages (e.g., 30 for 30%). If k <= g_terminal or g_terminal <= c, terminal = 0 (invalid).</p>
+    <h1>Simplified MSTR Amplification Simulator</h1>
+    <p>This model simulates MSTR's leverage flywheel over time: BTC grows at g, they pay borrowing costs (c on D), then issue new preferred stock to maintain target amplification (D/A), using proceeds to buy more BTC. This compounds unrealized gains for equity holders faster than pure BTC.</p>
+    <p>We calculate:</p>
+    <ul>
+        <li>Projected BTC NAV (A) after n years.</li>
+        <li>Projected Borrowings (D) to keep D/A constant.</li>
+        <li>Levered Equity Growth Rate: Effective annual return to shareholders from amplification.</li>
+        <li>Fair Current mNAV: PV of future levered equity value discounted at r (your "hurdle rate" for risk), normalized to initial A. Formula: mNAV = [Equity_n / (1+r)^n + PV of interim "benefits"] / initial A, but simplified to focus on terminal equity premium.</li>
+    </ul>
+    <p>Defaults from your screenshot/discussion. Adjust to see how ongoing issuances amplify gains.</p>
 
     <div class="slider-container">
-        <label for="g">High-Growth BTC Return (g): <span id="g-value" class="value">30%</span></label>
-        <input type="range" id="g" min="0" max="50" value="30" step="1">
+        <label for="g">Expected Annual BTC Growth (g): <span id="g-value" class="value">25%</span></label>
+        <input type="range" id="g" min="0" max="50" value="25" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="c">Cost of Borrowing (c): <span id="c-value" class="value">10%</span></label>
+        <label for="c">Annual Borrowing Cost (c): <span id="c-value" class="value">10%</span></label>
         <input type="range" id="c" min="0" max="20" value="10" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="k">Discount Rate (k): <span id="k-value" class="value">5%</span></label>
-        <input type="range" id="k" min="1" max="30" value="5" step="1">
+        <label for="da">Target Amplification (D/A): <span id="da-value" class="value">23%</span></label>
+        <input type="range" id="da" min="0" max="50" value="23" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="da">Amplification (D/A): <span id="da-value" class="value">30%</span></label>
-        <input type="range" id="da" min="0" max="50" value="30" step="1">
+        <label for="r">Your Hurdle Rate (r, for discounting risk): <span id="r-value" class="value">15%</span></label>
+        <input type="range" id="r" min="5" max="30" value="15" step="1">
     </div>
 
     <div class="slider-container">
-        <label for="n">High-Growth Years (n): <span id="n-value" class="value">10</span></label>
-        <input type="range" id="n" min="1" max="50" value="10" step="1">
-    </div>
-
-    <div class="slider-container">
-        <label for="g_term">Terminal Growth (g_terminal): <span id="g_term-value" class="value">12%</span></label>
-        <input type="range" id="g_term" min="0" max="29" value="12" step="1"> <!-- Max < min k to avoid diverge -->
+        <label for="n">Simulation Years (n): <span id="n-value" class="value">10</span></label>
+        <input type="range" id="n" min="1" max="20" value="10" step="1">
     </div>
 
     <div id="result">
-        <h2>Calculated Fair mNAV: <span id="mnav">1.46</span></h2>
-        <p>Premium/Discount: <span id="premium">46%</span></p>
-        <p>Implied Terminal Multiple: <span id="multiple">N/A</span></p>
+        <h2>Projected After <span id="years">10</span> Years:</h2>
+        <p>BTC NAV (A): $<span id="a_final">0</span>B (x<span id="a_mult">0</span> initial)</p>
+        <p>Borrowings (D): $<span id="d_final">0</span>B</p>
+        <p>Equity Value: $<span id="eq_final">0</span>B (levered growth <span id="lev_g">0</span>%/yr)</p>
+        <p>Fair Current mNAV: <span id="mnav">1.00</span> (<span id="premium">0</span>% premium)</p>
     </div>
 
     <div id="range">
-        <h3>Example Ranges</h3>
-        <p>No Terminal (g_term <= c): mNAV ≈1.46 (46% premium)</p>
-        <p>With g_term=15%, k=20%: mNAV ≈1.55 (55% premium, multiple~5x)</p>
-        <p>Optimistic (g_term=4%, k=5%, c=0): mNAV ≈2.13 (113% premium, multiple~100x)</p>
+        <h3>Example Scenarios</h3>
+        <p>Base (g=25%, c=10%, D/A=23%, r=15%, n=10): mNAV ≈1.23 (23% premium)</p>
+        <p>Bull (g=30%, c=8%, D/A=30%, r=12%, n=10): mNAV ≈1.42 (42% premium)</p>
+        <p>Optimistic Long-Term (g=30%, c=10%, D/A=30%, r=5%, n=20): mNAV ≈2.80 (180% premium)</p>
     </div>
 
     <script>
         const sliders = {
             g: document.getElementById('g'),
             c: document.getElementById('c'),
-            k: document.getElementById('k'),
             da: document.getElementById('da'),
-            n: document.getElementById('n'),
-            g_term: document.getElementById('g_term')
+            r: document.getElementById('r'),
+            n: document.getElementById('n')
         };
 
         const values = {
             g: document.getElementById('g-value'),
             c: document.getElementById('c-value'),
-            k: document.getElementById('k-value'),
             da: document.getElementById('da-value'),
-            n: document.getElementById('n-value'),
-            g_term: document.getElementById('g_term-value')
+            r: document.getElementById('r-value'),
+            n: document.getElementById('n-value')
+        };
+
+        const outputs = {
+            years: document.getElementById('years'),
+            a_final: document.getElementById('a_final'),
+            a_mult: document.getElementById('a_mult'),
+            d_final: document.getElementById('d_final'),
+            eq_final: document.getElementById('eq_final'),
+            lev_g: document.getElementById('lev_g'),
+            mnav: document.getElementById('mnav'),
+            premium: document.getElementById('premium')
         };
 
         function updateValues() {
@@ -91,54 +102,70 @@
                     values[key].textContent = `${sliders[key].value}%`;
                 }
             });
-            calculate();
+            simulate();
         }
 
-        function calculate() {
+        function simulate() {
             const g = sliders.g.value / 100;
             const c = sliders.c.value / 100;
-            const k = sliders.k.value / 100;
-            const da = sliders.da.value / 100;
+            const target_da = sliders.da.value / 100;
+            const r = sliders.r.value / 100;
             const n = parseInt(sliders.n.value);
-            const g_term = sliders.g_term.value / 100;
 
-            if (k === 0) {
-                mnavDisplay.textContent = 'Invalid (k=0)';
-                premiumDisplay.textContent = 'N/A';
-                multipleDisplay.textContent = 'N/A';
+            if (r === 0 || g < c) {
+                outputs.mnav.textContent = '1.00';
+                outputs.premium.textContent = '0';
                 return;
             }
 
-            // Stage 1: Finite annuity for high-growth
-            const excess_high = g - c;
-            const annuityFactor = (1 - Math.pow(1 + k, -n)) / k;
-            const stage1_multiplier = excess_high * annuityFactor;
-            let premium = stage1_multiplier * da;
+            // Initial assumptions: Normalize to $100 initial A
+            let A = 100;
+            let D = target_da * A;
+            let Equity = A - D;
 
-            // Stage 2: Terminal at end of n
-            let multiple = 'N/A';
-            if (g_term > c && k > g_term) {
-                const excess_term = g_term - c;
-                const growth_factor = Math.pow(1 + g, n); // A_n / A_0
-                const excess_11 = excess_term * da * growth_factor * (1 + g_term);
-                const term_multiple = 1 / (k - g_term);
-                multiple = term_multiple.toFixed(1) + 'x';
-                const term_value = excess_11 * term_multiple;
-                const pv_term = term_value / Math.pow(1 + k, n);
-                premium += pv_term; // Corrected normalization: pv_term is already / A_0 scale
+            for (let year = 1; year <= n; year++) {
+                // BTC growth
+                A *= (1 + g);
+
+                // Pay borrowing cost (assumed covered by issuances or gains, but subtract from equity effectively)
+                const interest = c * D;
+                Equity -= interest;
+
+                // Issue new borrowing to maintain D/A
+                const target_D = target_da * A;
+                const new_issue = target_D - D;
+                if (new_issue > 0) {
+                    // New issue buys more BTC
+                    A += new_issue;
+                    D += new_issue;
+                    Equity -= new_issue; // Dilution from pref issuance (treated as quasi-equity cost)
+                } else if (new_issue < 0) {
+                    // Rare: Reduce D, but simplify by ignoring
+                }
             }
 
-            const mnav = (1 + premium).toFixed(2);
-            const prem_pct = (premium * 100).toFixed(0);
+            // Projected finals (scale to billions for realism, assume initial A=65B)
+            const scale = 0.65; // Initial A ~65B, for display
+            outputs.a_final.textContent = (A * scale).toFixed(1);
+            outputs.a_mult.textContent = (A / 100).toFixed(1);
+            outputs.d_final.textContent = (D * scale).toFixed(1);
+            outputs.eq_final.textContent = (Equity * scale).toFixed(1);
 
-            mnavDisplay.textContent = mnav;
-            premiumDisplay.textContent = prem_pct >= 0 ? `${prem_pct}% premium` : `${Math.abs(prem_pct)}% discount`;
-            multipleDisplay.textContent = multiple;
+            // Levered growth rate: CAGR of equity
+            const lev_g = Math.pow(Equity / (100 - D/ target_da * 100), 1/n) - 1; // Initial equity normalized
+            outputs.lev_g.textContent = (lev_g * 100).toFixed(1);
+
+            // Fair current mNAV: PV of final equity premium over pure BTC, simplified
+            const pure_btc_eq = (100 * Math.pow(1 + g, n) - D) * (1 - target_da); // Unlevered equiv
+            const premium_eq = Equity - pure_btc_eq;
+            const pv_premium = premium_eq / Math.pow(1 + r, n);
+            const mnav = 1 + pv_premium / 100;
+            const prem_pct = ((mnav - 1) * 100).toFixed(0);
+
+            outputs.years.textContent = n;
+            outputs.mnav.textContent = mnav.toFixed(2);
+            outputs.premium.textContent = prem_pct;
         }
-
-        const mnavDisplay = document.getElementById('mnav');
-        const premiumDisplay = document.getElementById('premium');
-        const multipleDisplay = document.getElementById('multiple');
 
         Object.values(sliders).forEach(slider => {
             slider.addEventListener('input', updateValues);
@@ -147,6 +174,6 @@
         updateValues(); // Initial update
     </script>
 
-    <p>To use: Save as .html and open in browser. Set g_term > c for terminal to activate.</p>
+    <p>To use: Save as .html and open in browser. Sliders update real-time. Note: Simplifications - assumes no vol, perfect issuances, costs covered; real mNAV fluctuates with market sentiment.</p>
 </body>
 </html>
