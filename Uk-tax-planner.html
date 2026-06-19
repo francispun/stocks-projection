@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UK Sole Trader Full Tax Planner</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 1000px; margin: 20px auto; padding: 20px; background: #f9f9f9; line-height: 1.5; }
+        h1, h2, h3 { color: #1e3a8a; }
+        label { display: block; margin: 8px 0 4px; font-weight: bold; font-size: 14px; }
+        input, select { width: 100%; padding: 8px; margin-bottom: 12px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button { background: #1e40af; color: white; padding: 8px 12px; border: none; border-radius: 4px; cursor: pointer; margin: 5px 5px 5px 0; }
+        button:hover { background: #1e3a8a; }
+        .remove-btn { background: #dc2626; padding: 6px 10px; font-size: 12px; float: right; margin-top: -30px;}
+        .remove-btn:hover { background: #991b1b; }
+        .section { background: white; padding: 20px; border-radius: 8px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+        .settings-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; background: #f1f5f9; padding: 15px; border-radius: 6px; }
+        .result { background: #e0f2fe; padding: 20px; border-radius: 8px; margin-top: 20px; font-size: 17px; }
+        .note { font-size: 14px; color: #444; }
+        .item { border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 15px; position: relative; }
+        .flex-row { display: flex; gap: 10px; }
+        .flex-row > div { flex: 1; }
+    </style>
+</head>
+<body>
+    <h1>UK Sole Trader Tax Planner (Customizable)</h1>
+    
+    <!-- Tax Settings -->
+    <div class="section">
+        <h2>Tax Year Settings (Currently 2025/26 default)</h2>
+        <div class="settings-grid">
+            <div>
+                <label>Personal Allowance (£):</label>
+                <input type="number" id="personalAllowance" value="12570">
+            </div>
+            <div>
+                <label>Basic Rate Limit (£):</label>
+                <input type="number" id="basicRateLimit" value="50270">
+            </div>
+            <div>
+                <label>Basic Income Tax Rate (%):</label>
+                <input type="number" id="basicTaxRate" value="20" step="0.1">
+            </div>
+            <div>
+                <label>Higher Income Tax Rate (%):</label>
+                <input type="number" id="higherTaxRate" value="40" step="0.1">
+            </div>
+            <div>
+                <label>Class 4 NI Main Rate (%):</label>
+                <input type="number" id="niMainRate" value="6" step="0.1">
+            </div>
+            <div>
+                <label>Class 4 NI Upper Rate (%):</label>
+                <input type="number" id="niUpperRate" value="2" step="0.1">
+            </div>
+        </div>
+    </div>
+
+    <!-- Income -->
+    <div class="section">
+        <h2>1. Business Income (Turnover)</h2>
+        <label>Total expected business income this tax year (£):</label>
+        <input type="number" id="income" value="25000" step="0.01">
+    </div>
+
+    <!-- Home Office -->
+    <div class="section">
+        <h2>2. Home Office (Actual Costs)</h2>
+        <div class="flex-row">
+            <div>
+                <label>Total usable rooms in home:</label>
+                <input type="number" id="totalRooms" value="5">
+            </div>
+            <div>
+                <label>Rooms used for business:</label>
+                <input type="number" id="businessRooms" value="1" step="0.1">
+            </div>
+        </div>
+
+        <label>Room Usage Type:</label>
+        <select id="roomUsage" onchange="toggleUsageInput()">
+            <option value="exclusive">100% Exclusive Business Use (Maximum Relief)</option>
+            <option value="mixed">Mixed Use (e.g., occasional guest room)</option>
+        </select>
+
+        <div id="mixedUseDiv" style="display:none; background:#fff7ed; padding:10px; border-radius:4px; margin-bottom:12px;">
+            <label>What percentage of the time is it used for business? (e.g., 351 days out of 365 = 96%)</label>
+            <input type="number" id="businessTimePct" value="90" max="99" min="1">
+        </div>
+
+        <div class="flex-row">
+            <div>
+                <label>Annual Rent (£):</label>
+                <input type="number" id="rent" value="16740">
+            </div>
+            <div>
+                <label>Annual Council Tax (£):</label>
+                <input type="number" id="councilTax" value="0">
+            </div>
+        </div>
+        <div class="flex-row">
+            <div>
+                <label>Annual Energy (gas+electric) (£):</label>
+                <input type="number" id="energy" value="0">
+            </div>
+            <div>
+                <label>Other home costs (water, internet) (£):</label>
+                <input type="number" id="otherHome" value="0">
+            </div>
+        </div>
+    </div>
+
+    <!-- Equipment -->
+    <div class="section">
+        <h2>3. Equipment & Capital Allowances (AIA)</h2>
+        <div id="equipmentList"></div>
+        <button onclick="addEquipment()">+ Add Equipment (Laptop, 3D Printer, etc.)</button>
+    </div>
+
+    <!-- Other Expenses -->
+    <div class="section">
+        <h2>4. Other Business Expenses</h2>
+        <div id="otherExpensesList"></div>
+        <button onclick="addOtherExpense()">+ Add Other Expense</button>
+    </div>
+
+    <button onclick="calculate()" style="font-size:18px;padding:14px 24px; width: 100%;">Calculate Full Tax Position</button>
+
+    <div id="results" class="result" style="display:none;"></div>
+
+    <script>
+        let equipmentCount = 0;
+        let expenseCount = 0;
+
+        function toggleUsageInput() {
+            const type = document.getElementById('roomUsage').value;
+            document.getElementById('mixedUseDiv').style.display = type === 'mixed' ? 'block' : 'none';
+        }
+
+        function addEquipment() {
+            const list = document.getElementById('equipmentList');
+            const idx = equipmentCount++;
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <label>Item Name:</label>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                <input type="text" class="eqName" placeholder="e.g. Laptop">
+                <div class="flex-row">
+                    <div>
+                        <label>Cost (£):</label>
+                        <input type="number" class="eqCost" step="0.01">
+                    </div>
+                    <div>
+                        <label>Business use %:</label>
+                        <input type="number" class="eqPct" value="100">
+                    </div>
+                </div>
+            `;
+            list.appendChild(div);
+        }
+
+        function addOtherExpense() {
+            const list = document.getElementById('otherExpensesList');
+            const idx = expenseCount++;
+            const div = document.createElement('div');
+            div.className = 'item';
+            div.innerHTML = `
+                <label>Expense Description:</label>
+                <button class="remove-btn" onclick="this.parentElement.remove()">Remove</button>
+                <input type="text" class="expDesc" placeholder="e.g. Marketing, Phone, Mileage">
+                <label>Amount (£):</label>
+                <input type="number" class="expAmount" step="0.01">
+            `;
+            list.appendChild(div);
+        }
+
+        function calculate() {
+            // Get Tax Settings
+            const personalAllowance = parseFloat(document.getElementById('personalAllowance').value) || 0;
+            const basicRateLimit = parseFloat(document.getElementById('basicRateLimit').value) || 0;
+            const basicTaxRate = (parseFloat(document.getElementById('basicTaxRate').value) || 0) / 100;
+            const higherTaxRate = (parseFloat(document.getElementById('higherTaxRate').value) || 0) / 100;
+            const niMainRate = (parseFloat(document.getElementById('niMainRate').value) || 0) / 100;
+            const niUpperRate = (parseFloat(document.getElementById('niUpperRate').value) || 0) / 100;
+
+            // Income
+            const income = parseFloat(document.getElementById('income').value) || 0;
+
+            // Home Office
+            const totalRooms = parseFloat(document.getElementById('totalRooms').value) || 5;
+            const businessRooms = parseFloat(document.getElementById('businessRooms').value) || 1;
+            const roomProp = totalRooms > 0 ? businessRooms / totalRooms : 0;
+            
+            const rent = parseFloat(document.getElementById('rent').value) || 0;
+            const council = parseFloat(document.getElementById('councilTax').value) || 0;
+            const energy = parseFloat(document.getElementById('energy').value) || 0;
+            const otherHome = parseFloat(document.getElementById('otherHome').value) || 0;
+            
+            const totalHomeCosts = rent + council + energy + otherHome;
+            const spaceAllow = totalHomeCosts * roomProp;
+            
+            let timeProp = 1; // Default to 100% exclusive
+            if (document.getElementById('roomUsage').value === 'mixed') {
+                const pct = parseFloat(document.getElementById('businessTimePct').value) || 0;
+                timeProp = pct / 100;
+            }
+            const homeOffice = spaceAllow * timeProp;
+
+            // Equipment
+            let equipmentTotal = 0;
+            document.querySelectorAll('#equipmentList .item').forEach(item => {
+                const cost = parseFloat(item.querySelector('.eqCost').value) || 0;
+                const pct = parseFloat(item.querySelector('.eqPct').value) || 100;
+                equipmentTotal += cost * (pct / 100);
+            });
+
+            // Other expenses
+            let otherExpensesTotal = 0;
+            document.querySelectorAll('#otherExpensesList .item').forEach(item => {
+                otherExpensesTotal += parseFloat(item.querySelector('.expAmount').value) || 0;
+            });
+
+            const totalDeductions = homeOffice + equipmentTotal + otherExpensesTotal;
+            const profitAfterDeductions = Math.max(0, income - totalDeductions);
+            
+            // Tax Calculations
+            let incomeTax = 0;
+            let class4NI = 0;
+            let taxBreakdown = "";
+
+            if (profitAfterDeductions > personalAllowance) {
+                const taxableProfit = profitAfterDeductions - personalAllowance;
+                const basicRateBand = Math.min(taxableProfit, basicRateLimit - personalAllowance);
+                
+                incomeTax += basicRateBand * basicTaxRate;
+                class4NI += basicRateBand * niMainRate;
+                taxBreakdown += `<li>Basic Rate Tax (${basicTaxRate*100}%): £${(basicRateBand * basicTaxRate).toFixed(2)}</li>`;
+                taxBreakdown += `<li>Class 4 NI Main (${niMainRate*100}%): £${(basicRateBand * niMainRate).toFixed(2)}</li>`;
+
+                if (profitAfterDeductions > basicRateLimit) {
+                    const higherRateBand = profitAfterDeductions - basicRateLimit;
+                    incomeTax += higherRateBand * higherTaxRate;
+                    class4NI += higherRateBand * niUpperRate;
+                    taxBreakdown += `<li>Higher Rate Tax (${higherTaxRate*100}%): £${(higherRateBand * higherTaxRate).toFixed(2)}</li>`;
+                    taxBreakdown += `<li>Class 4 NI Upper (${niUpperRate*100}%): £${(higherRateBand * niUpperRate).toFixed(2)}</li>`;
+                }
+            } else {
+                taxBreakdown = "<li>Profits fall within Personal Allowance (No tax due)</li>";
+            }
+
+            const totalTaxNI = incomeTax + class4NI;
+
+            // Results Rendering
+            const res = document.getElementById('results');
+            res.style.display = 'block';
+            res.innerHTML = `
+                <h2>Your Estimated Tax Position</h2>
+                <p><strong>Total Income:</strong> £${income.toFixed(2)}</p>
+                <p><strong>Home Office Claim:</strong> £${homeOffice.toFixed(2)}</p>
+                <p><strong>Equipment (AIA):</strong> £${equipmentTotal.toFixed(2)}</p>
+                <p><strong>Other Expenses:</strong> £${otherExpensesTotal.toFixed(2)}</p>
+                <p><strong><u>Total Deductions:</u></strong> £${totalDeductions.toFixed(2)}</p>
+                <hr>
+                <p><strong>Profit after deductions:</strong> £${profitAfterDeductions.toFixed(2)}</p>
+                <p><strong>Taxable Profit (after £${personalAllowance} allowance):</strong> £${Math.max(0, profitAfterDeductions - personalAllowance).toFixed(2)}</p>
+                
+                <h3 style="margin-bottom: 5px;">Tax Breakdown:</h3>
+                <ul style="margin-top: 0;">${taxBreakdown}</ul>
+                
+                <p style="font-size: 20px; color: #b91c1c;"><strong><u>Total Tax + NI to Pay:</u> £${totalTaxNI.toFixed(2)}</strong></p>
+                
+                ${profitAfterDeductions < personalAllowance ? '<p style="color:green; font-weight:bold;">✅ £0 tax to pay!</p>' : ''}
+            `;
+        }
+
+        // Add starter items
+        window.onload = () => {
+            addEquipment();
+            addOtherExpense();
+        };
+    </script>
+</body>
+</html>
