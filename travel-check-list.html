@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>家庭三人詳細旅遊行李清單</title>
+<style>
+  :root {
+    --primary: #2c7be5;
+    --dad: #1e88e5;
+    --mom: #e91e63;
+    --kid: #43a047;
+    --bg: #f5f7fa;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang HK", "Microsoft JhengHei", sans-serif;
+    background: var(--bg);
+    color: #333;
+    line-height: 1.55;
+    padding: 16px;
+  }
+  h1 {
+    text-align: center;
+    margin: 16px 0 6px;
+    font-size: 1.55rem;
+  }
+  .subtitle {
+    text-align: center;
+    color: #666;
+    margin-bottom: 20px;
+    font-size: 0.92rem;
+  }
+  .tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .tab {
+    padding: 11px 18px;
+    border: none;
+    border-radius: 30px;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+    background: #e0e0e0;
+    color: #555;
+    transition: all 0.2s;
+  }
+  .tab.active { color: white; }
+  .tab.dad.active { background: var(--dad); }
+  .tab.mom.active { background: var(--mom); }
+  .tab.kid.active { background: var(--kid); }
+  .page { display: none; max-width: 760px; margin: 0 auto; }
+  .page.active { display: block; }
+  .section {
+    background: var(--card);
+    border-radius: 12px;
+    padding: 16px 18px;
+    margin-bottom: 14px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  }
+  .section h2 {
+    font-size: 1.12rem;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .section.dad h2 { color: var(--dad); }
+  .section.mom h2 { color: var(--mom); }
+  .section.kid h2 { color: var(--kid); }
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 7px 0;
+    border-bottom: 1px solid #f0f0f0;
+  }
+  .item:last-child { border-bottom: none; }
+  .item input[type="checkbox"] {
+    width: 19px;
+    height: 19px;
+    margin-top: 2px;
+    accent-color: var(--primary);
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .item label {
+    flex: 1;
+    cursor: pointer;
+    font-size: 0.95rem;
+  }
+  .tip {
+    font-size: 0.82rem;
+    color: #666;
+    margin-top: 1px;
+    display: block;
+  }
+  .progress {
+    text-align: center;
+    margin: 12px 0 16px;
+    font-size: 0.95rem;
+    color: #555;
+  }
+  .progress span { font-weight: 700; color: var(--primary); }
+  footer {
+    text-align: center;
+    margin-top: 28px;
+    font-size: 0.84rem;
+    color: #888;
+  }
+  @media (max-width: 480px) {
+    .tab { padding: 9px 13px; font-size: 0.88rem; }
+  }
+</style>
+</head>
+<body>
+
+<h1>👨‍👩‍👦 家庭三人詳細旅遊行李清單</h1>
+<p class="subtitle">爸爸 · 媽媽 · 3歲小朋友　｜　每項獨立　｜　可打勾　｜　繁體中文</p>
+
+<div class="tabs">
+  <button class="tab dad active" onclick="showPage('dad')">👨 爸爸</button>
+  <button class="tab mom" onclick="showPage('mom')">👩 媽媽</button>
+  <button class="tab kid" onclick="showPage('kid')">🧒 3歲小朋友</button>
+</div>
+
+<!-- ========== 爸爸 ========== -->
+<div id="dad" class="page active">
+  <div class="progress">已完成：<span id="dad-count">0</span> / <span id="dad-total">0</span></div>
+
+  <div class="section dad">
+    <h2>📄 證件與重要文件</h2>
+    <div class="item"><input type="checkbox" id="d01"><label for="d01">護照</label></div>
+    <div class="item"><input type="checkbox" id="d02"><label for="d02">身份證</label></div>
+    <div class="item"><input type="checkbox" id="d03"><label for="d03">回鄉證（如適用）</label></div>
+    <div class="item"><input type="checkbox" id="d04"><label for="d04">機票／電子登機證</label></div>
+    <div class="item"><input type="checkbox" id="d05"><label for="d05">酒店確認書</label></div>
+    <div class="item"><input type="checkbox" id="d06"><label for="d06">旅遊保險文件</label></div>
+    <div class="item"><input type="checkbox" id="d07"><label for="d07">信用卡</label></div>
+    <div class="item"><input type="checkbox" id="d08"><label for="d08">現金</label></div>
+    <div class="item"><input type="checkbox" id="d09"><label for="d09">駕駛執照（開車用）</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>👕 衣物</h2>
+    <div class="item"><input type="checkbox" id="d10"><label for="d10">上衣（每日1件 + 1–2件後備）</label></div>
+    <div class="item"><input type="checkbox" id="d11"><label for="d11">長褲</label></div>
+    <div class="item"><input type="checkbox" id="d12"><label for="d12">短褲</label></div>
+    <div class="item"><input type="checkbox" id="d13"><label for="d13">內衣</label></div>
+    <div class="item"><input type="checkbox" id="d14"><label for="d14">內褲</label></div>
+    <div class="item"><input type="checkbox" id="d15"><label for="d15">襪子</label></div>
+    <div class="item"><input type="checkbox" id="d16"><label for="d16">睡衣</label></div>
+    <div class="item"><input type="checkbox" id="d17"><label for="d17">外套／薄褸</label></div>
+    <div class="item"><input type="checkbox" id="d18"><label for="d18">泳衣</label></div>
+    <div class="item"><input type="checkbox" id="d19"><label for="d19">運動鞋</label></div>
+    <div class="item"><input type="checkbox" id="d20"><label for="d20">拖鞋</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>🧴 個人護理</h2>
+    <div class="item"><input type="checkbox" id="d21"><label for="d21">牙刷</label></div>
+    <div class="item"><input type="checkbox" id="d22"><label for="d22">牙膏</label></div>
+    <div class="item"><input type="checkbox" id="d23"><label for="d23">剃鬚刀</label></div>
+    <div class="item"><input type="checkbox" id="d24"><label for="d24">剃鬚泡沫／啫喱</label></div>
+    <div class="item"><input type="checkbox" id="d25"><label for="d25">洗面用品</label></div>
+    <div class="item"><input type="checkbox" id="d26"><label for="d26">保濕面霜</label></div>
+    <div class="item"><input type="checkbox" id="d27"><label for="d27">防曬</label></div>
+    <div class="item"><input type="checkbox" id="d28"><label for="d28">洗頭水</label></div>
+    <div class="item"><input type="checkbox" id="d29"><label for="d29">沐浴露</label></div>
+    <div class="item"><input type="checkbox" id="d30"><label for="d30">風筒<span class="tip">提示：部分酒店有提供，出發前可確認</span></label></div>
+    <div class="item"><input type="checkbox" id="d31"><label for="d31">梳子</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>💊 藥物與急救</h2>
+    <div class="item"><input type="checkbox" id="d32"><label for="d32">個人常備藥</label></div>
+    <div class="item"><input type="checkbox" id="d33"><label for="d33">止痛藥</label></div>
+    <div class="item"><input type="checkbox" id="d34"><label for="d34">腸胃藥</label></div>
+    <div class="item"><input type="checkbox" id="d35"><label for="d35">感冒藥</label></div>
+    <div class="item"><input type="checkbox" id="d36"><label for="d36">膠布</label></div>
+    <div class="item"><input type="checkbox" id="d37"><label for="d37">消毒棉／酒精棉</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>📱 電子與攝影</h2>
+    <div class="item"><input type="checkbox" id="d38"><label for="d38">手機</label></div>
+    <div class="item"><input type="checkbox" id="d39"><label for="d39">手機充電器</label></div>
+    <div class="item"><input type="checkbox" id="d40"><label for="d40">行動電源</label></div>
+    <div class="item"><input type="checkbox" id="d41"><label for="d41">相機</label></div>
+    <div class="item"><input type="checkbox" id="d42"><label for="d42">相機充電器</label></div>
+    <div class="item"><input type="checkbox" id="d43"><label for="d43">記憶卡</label></div>
+    <div class="item"><input type="checkbox" id="d44"><label for="d44">耳機</label></div>
+    <div class="item"><input type="checkbox" id="d45"><label for="d45">轉插／萬用插</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>🚗 開車相關</h2>
+    <div class="item"><input type="checkbox" id="d46"><label for="d46">汽車鎖匙</label></div>
+    <div class="item"><input type="checkbox" id="d47"><label for="d47">車載充電器</label></div>
+    <div class="item"><input type="checkbox" id="d48"><label for="d48">車用手機支架</label></div>
+    <div class="item"><input type="checkbox" id="d49"><label for="d49">遮陽板／車窗遮陽簾</label></div>
+    <div class="item"><input type="checkbox" id="d50"><label for="d50">車用垃圾袋</label></div>
+    <div class="item"><input type="checkbox" id="d51"><label for="d51">車用濕紙巾</label></div>
+    <div class="item"><input type="checkbox" id="d52"><label for="d52">急救包（車用）</label></div>
+  </div>
+
+  <div class="section dad">
+    <h2>🧺 其他實用</h2>
+    <div class="item"><input type="checkbox" id="d53"><label for="d53">洗衣劑／洗衣紙<span class="tip">提示：旅行裝或紙片最方便，有洗衣機時超實用</span></label></div>
+    <div class="item"><input type="checkbox" id="d54"><label for="d54">雨傘</label></div>
+    <div class="item"><input type="checkbox" id="d55"><label for="d55">太陽眼鏡</label></div>
+    <div class="item"><input type="checkbox" id="d56"><label for="d56">帽子</label></div>
+    <div class="item"><input type="checkbox" id="d57"><label for="d57">口罩</label></div>
+    <div class="item"><input type="checkbox" id="d58"><label for="d58">酒精搓手液</label></div>
+  </div>
+</div>
+
+<!-- ========== 媽媽 ========== -->
+<div id="mom" class="page">
+  <div class="progress">已完成：<span id="mom-count">0</span> / <span id="mom-total">0</span></div>
+
+  <div class="section mom">
+    <h2>📄 證件與重要文件</h2>
+    <div class="item"><input type="checkbox" id="m01"><label for="m01">護照</label></div>
+    <div class="item"><input type="checkbox" id="m02"><label for="m02">身份證</label></div>
+    <div class="item"><input type="checkbox" id="m03"><label for="m03">回鄉證（如適用）</label></div>
+    <div class="item"><input type="checkbox" id="m04"><label for="m04">機票／電子登機證</label></div>
+    <div class="item"><input type="checkbox" id="m05"><label for="m05">酒店確認書</label></div>
+    <div class="item"><input type="checkbox" id="m06"><label for="m06">旅遊保險文件</label></div>
+    <div class="item"><input type="checkbox" id="m07"><label for="m07">信用卡</label></div>
+    <div class="item"><input type="checkbox" id="m08"><label for="m08">現金</label></div>
+  </div>
+
+  <div class="section mom">
+    <h2>👕 衣物</h2>
+    <div class="item"><input type="checkbox" id="m09"><label for="m09">上衣（每日1件 + 後備）</label></div>
+    <div class="item"><input type="checkbox" id="m10"><label for="m10">長褲</label></div>
+    <div class="item"><input type="checkbox" id="m11"><label for="m11">短褲／裙子</label></div>
+    <div class="item"><input type="checkbox" id="m12"><label for="m12">內衣</label></div>
+    <div class="item"><input type="checkbox" id="m13"><label for="m13">內褲</label></div>
+    <div class="item"><input type="checkbox" id="m14"><label for="m14">襪子</label></div>
+    <div class="item"><input type="checkbox" id="m15"><label for="m15">睡衣</label></div>
+    <div class="item"><input type="checkbox" id="m16"><label for="m16">外套／薄褸</label></div>
+    <div class="item"><input type="checkbox" id="m17"><label for="m17">泳衣</label></div>
+    <div class="item"><input type="checkbox" id="m18"><label for="m18">運動鞋</label></div>
+    <div class="item"><input type="checkbox" id="m19"><label for="m19">拖鞋</label></div>
+  </div>
+
+  <div class="section mom">
+    <h2>🧴 個人護理與美妝</h2>
+    <div class="item"><input type="checkbox" id="m20"><label for="m20">牙刷</label></div>
+    <div class="item"><input type="checkbox" id="m21"><label for="m21">牙膏</label></div>
+    <div class="item"><input type="checkbox" id="m22"><label for="m22">洗面用品</label></div>
+    <div class="item"><input type="checkbox" id="m23"><label for="m23">保濕面霜</label></div>
+    <div class="item"><input type="checkbox" id="m24"><label for="m24">精華</label></div>
+    <div class="item"><input type="checkbox" id="m25"><label for="m25">防曬</label></div>
+    <div class="item"><input type="checkbox" id="m26"><label for="m26">洗頭水</label></div>
+    <div class="item"><input type="checkbox" id="m27"><label for="m27">護髮素</label></div>
+    <div class="item"><input type="checkbox" id="m28"><label for="m28">沐浴露</label></div>
+    <div class="item"><input type="checkbox" id="m29"><label for="m29">風筒</label></div>
+    <div class="item"><input type="checkbox" id="m30"><label for="m30">梳子／髮刷</label></div>
+    <div class="item"><input type="checkbox" id="m31"><label for="m31">化妝品（精簡）</label></div>
+    <div class="item"><input type="checkbox" id="m32"><label for="m32">卸妝用品</label></div>
+    <div class="item"><input type="checkbox" id="m33"><label for="m33">衛生棉／衛生用品</label></div>
+  </div>
+
+  <div class="section mom">
+    <h2>💊 藥物與急救</h2>
+    <div class="item"><input type="checkbox" id="m34"><label for="m34">個人常備藥</label></div>
+    <div class="item"><input type="checkbox" id="m35"><label for="m35">止痛藥</label></div>
+    <div class="item"><input type="checkbox" id="m36"><label for="m36">腸胃藥</label></div>
+    <div class="item"><input type="checkbox" id="m37"><label for="m37">感冒藥</label></div>
+    <div class="item"><input type="checkbox" id="m38"><label for="m38">膠布</label></div>
+  </div>
+
+  <div class="section mom">
+    <h2>📱 電子與攝影</h2>
+    <div class="item"><input type="checkbox" id="m39"><label for="m39">手機</label></div>
+    <div class="item"><input type="checkbox" id="m40"><label for="m40">手機充電器</label></div>
+    <div class="item"><input type="checkbox" id="m41"><label for="m41">行動電源</label></div>
+    <div class="item"><input type="checkbox" id="m42"><label for="m42">相機（如有）</label></div>
+    <div class="item"><input type="checkbox" id="m43"><label for="m43">耳機</label></div>
+    <div class="item"><input type="checkbox" id="m44"><label for="m44">轉插／萬用插</label></div>
+  </div>
+
+  <div class="section mom">
+    <h2>🧺 其他實用</h2>
+    <div class="item"><input type="checkbox" id="m45"><label for="m45">洗衣劑／洗衣紙</label></div>
+    <div class="item"><input type="checkbox" id="m46"><label for="m46">雨傘</label></div>
+    <div class="item"><input type="checkbox" id="m47"><label for="m47">太陽眼鏡</label></div>
+    <div class="item"><input type="checkbox" id="m48"><label for="m48">帽子</label></div>
+    <div class="item"><input type="checkbox" id="m49"><label for="m49">口罩</label></div>
+    <div class="item"><input type="checkbox" id="m50"><label for="m50">酒精搓手液</label></div>
+    <div class="item"><input type="checkbox" id="m51"><label for="m51">小背包／斜孭袋</label></div>
+  </div>
+</div>
+
+<!-- ========== 3歲小朋友 ========== -->
+<div id="kid" class="page">
+  <div class="progress">已完成：<span id="kid-count">0</span> / <span id="kid-total">0</span></div>
+
+  <div class="section kid">
+    <h2>👕 衣物（3歲最容易弄髒）</h2>
+    <div class="item"><input type="checkbox" id="k01"><label for="k01">上衣（每日1.5–2件，多帶後備）</label></div>
+    <div class="item"><input type="checkbox" id="k02"><label for="k02">長褲</label></div>
+    <div class="item"><input type="checkbox" id="k03"><label for="k03">短褲</label></div>
+    <div class="item"><input type="checkbox" id="k04"><label for="k04">內褲／學習褲</label></div>
+    <div class="item"><input type="checkbox" id="k05"><label for="k05">襪子</label></div>
+    <div class="item"><input type="checkbox" id="k06"><label for="k06">睡衣</label></div>
+    <div class="item"><input type="checkbox" id="k07"><label for="k07">外套／薄褸</label></div>
+    <div class="item"><input type="checkbox" id="k08"><label for="k08">帽子</label></div>
+    <div class="item"><input type="checkbox" id="k09"><label for="k09">運動鞋</label></div>
+    <div class="item"><input type="checkbox" id="k10"><label for="k10">拖鞋</label></div>
+    <div class="item"><input type="checkbox" id="k11"><label for="k11">泳衣</label></div>
+    <div class="item"><input type="checkbox" id="k12"><label for="k12">游泳尿片</label></div>
+    <div class="item"><input type="checkbox" id="k13"><label for="k13">雨衣</label></div>
+  </div>
+
+  <div class="section kid">
+    <h2>🧷 尿片與如廁</h2>
+    <div class="item"><input type="checkbox" id="k14"><label for="k14">尿片／學習褲（旅程日數 + 額外半天量）</label></div>
+    <div class="item"><input type="checkbox" id="k15"><label for="k15">濕紙巾</label></div>
+    <div class="item"><input type="checkbox" id="k16"><label for="k16">換片墊</label></div>
+    <div class="item"><input type="checkbox" id="k17"><label for="k17">屁屁膏</label></div>
+    <div class="item"><input type="checkbox" id="k18"><label for="k18">密封袋（裝髒衣物）</label></div>
+    <div class="item"><input type="checkbox" id="k19"><label for="k19">便攜馬桶座墊（如需要）</label></div>
+  </div>
+
+  <div class="section kid">
+    <h2>🍎 飲食與安撫</h2>
+    <div class="item"><input type="checkbox" id="k20"><label for="k20">零食（多種分裝）</label></div>
+    <div class="item"><input type="checkbox" id="k21"><label for="k21">吸管杯／防漏水壺</label></div>
+    <div class="item"><input type="checkbox" id="k22"><label for="k22">兒童餐具</label></div>
+    <div class="item"><input type="checkbox" id="k23"><label for="k23">圍兜</label></div>
+    <div class="item"><input type="checkbox" id="k24"><label for="k24">最愛的安撫物（毛公仔／小被）</label></div>
+    <div class="item"><input type="checkbox" id="k25"><label for="k25">小玩具</label></div>
+    <div class="item"><input type="checkbox" id="k26"><label for="k26">貼紙</label></div>
+    <div class="item"><input type="checkbox" id="k27"><label for="k27">顏色筆／小畫冊</label></div>
+    <div class="item"><input type="checkbox" id="k28"><label for="k28">小書</label></div>
+    <div class="item"><input type="checkbox" id="k29"><label for="k29">平板電腦</label></div>
+    <div class="item"><input type="checkbox" id="k30"><label for="k30">兒童耳機</label></div>
+  </div>
+
+  <div class="section kid">
+    <h2>💊 護理與藥物</h2>
+    <div class="item"><input type="checkbox" id="k31"><label for="k31">兒童退燒藥</label></div>
+    <div class="item"><input type="checkbox" id="k32"><label for="k32">兒童止痛藥</label></div>
+    <div class="item"><input type="checkbox" id="k33"><label for="k33">耳溫槍</label></div>
+    <div class="item"><input type="checkbox" id="k34"><label for="k34">膠布</label></div>
+    <div class="item"><input type="checkbox" id="k35"><label for="k35">消毒棉</label></div>
+    <div class="item"><input type="checkbox" id="k36"><label for="k36">防蚊液</label></div>
+    <div class="item"><input type="checkbox" id="k37"><label for="k37">兒童防曬</label></div>
+    <div class="item"><input type="checkbox" id="k38"><label for="k38">潤膚霜</label></div>
+    <div class="item"><input type="checkbox" id="k39"><label for="k39">兒童牙刷</label></div>
+    <div class="item"><input type="checkbox" id="k40"><label for="k40">兒童牙膏</label></div>
+    <div class="item"><input type="checkbox" id="k41"><label for="k41">兒童洗頭沐浴露</label></div>
+  </div>
+
+  <div class="section kid">
+    <h2>🚗 出行裝備</h2>
+    <div class="item"><input type="checkbox" id="k42"><label for="k42">輕便推車</label></div>
+    <div class="item"><input type="checkbox" id="k43"><label for="k43">背帶／腰凳</label></div>
+    <div class="item"><input type="checkbox" id="k44"><label for="k44">防走失背包／手環</label></div>
+    <div class="item"><input type="checkbox" id="k45"><label for="k45">車用遮陽簾（如開車）</label></div>
+    <div class="item"><input type="checkbox" id="k46"><label for="k46">小夜燈（如需要）</label></div>
+  </div>
+</div>
+
+<footer>
+  祝一家三口旅途愉快！建議出發前一晚再檢查「證件 + 藥物 + 小朋友安撫物 + 相機」。<br>
+  有洗衣機可少帶衣物，多帶洗衣劑更實用。
+</footer>
+
+<script>
+  function showPage(id) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelector(`.tab.${id}`).classList.add('active');
+  }
+
+  function updateCount(pageId) {
+    const page = document.getElementById(pageId);
+    const checks = page.querySelectorAll('input[type="checkbox"]');
+    const total = checks.length;
+    const checked = page.querySelectorAll('input[type="checkbox"]:checked').length;
+    document.getElementById(pageId + '-count').textContent = checked;
+    document.getElementById(pageId + '-total').textContent = total;
+  }
+
+  ['dad', 'mom', 'kid'].forEach(id => {
+    updateCount(id);
+    document.getElementById(id).querySelectorAll('input[type="checkbox"]').forEach(cb => {
+      cb.addEventListener('change', () => updateCount(id));
+    });
+  });
+</script>
+
+</body>
+</html>
